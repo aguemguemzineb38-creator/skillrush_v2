@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord - SkillRush{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h3 class="mb-1">Bonjour {{ current_user.username }}</h3>
+                <p class="text-muted mb-0">Tableau simple pour suivre votre progression du jour.</p>
+                {% if not current_user.is_admin and not current_user.is_moderator %}
+                <div class="mt-2">
+                    {% if daily_reward_claimed %}
+                    <span class="badge bg-success px-3 py-2">
+                        <i class="fas fa-check-circle"></i> Bonus +100 XP déjà récupéré aujourd'hui
+                    </span>
+                    {% else %}
+                    <button class="btn btn-sm btn-warning" onclick="claimDailyReward()">
+                        <i class="fas fa-gift"></i> Récupérer +100 XP du jour
+                    </button>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="d-flex gap-3">
+                <span class="badge bg-warning text-dark fs-6 px-3 py-2"><i class="fas fa-star"></i> {{ total_xp }} XP</span>
+                <span class="badge bg-primary fs-6 px-3 py-2">Niv. {{ level }}</span>
+                <span class="badge bg-danger fs-6 px-3 py-2"><i class="fas fa-fire"></i> Streak: {{ streak_count }} jours</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-light fw-bold">
+                    <i class="fas fa-upload text-success"></i> Mes cours publiés
+                </div>
+                <div class="card-body">
+                    {% if uploaded_skills %}
+                        {% for skill in uploaded_skills[:5] %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <div class="fw-bold">{{ skill.name }}</div>
+                                <small class="text-muted">{{ skill.category }}</small>
+                            </div>
+                            <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-sm btn-outline-success">Voir</a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">Vous n'avez pas encore publié de cours.</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white border-0 d-flex gap-2">
+                    <a href="{{ url_for('skill.my_skills') }}" class="btn btn-outline-secondary flex-fill">
+                        <i class="fas fa-cog"></i> Gérer mes cours
+                    </a>
+                    <a href="{{ url_for('skill.create_skill') }}" class="btn btn-success flex-fill">
+                        <i class="fas fa-plus"></i> Publier un cours
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-light fw-bold">
+                    <i class="fas fa-calendar-day text-primary"></i> Missions du jour
+                </div>
+                <div class="card-body">
+                    {% for task in daily_tasks %}
+                    <div class="mb-3 pb-2 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="fw-bold">{{ task.title }}</div>
+                            {% if task.status == 'done' %}
+                                <span class="badge bg-success">Fait</span>
+                            {% elif task.status == 'in_progress' %}
+                                <span class="badge bg-warning text-dark">En cours</span>
+                            {% else %}
+                                <span class="badge bg-secondary">A faire</span>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">{{ task.description }}</small>
+                        {% if task.url %}
+                        <div class="mt-1">
+                            <a href="{{ task.url }}" class="small text-decoration-none">Ouvrir →</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-light fw-bold">
+                    <i class="fas fa-lightbulb text-warning"></i> Compétences recommandées
+                </div>
+                <div class="card-body">
+                    {% if recommended_skills %}
+                        {% for skill in recommended_skills[:5] %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <div class="fw-bold">{{ skill.name }}</div>
+                                <small class="text-muted">{{ skill.category }}</small>
+                            </div>
+                            <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-sm btn-outline-primary">Voir</a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">Aucune recommandation pour le moment.</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white border-0">
+                    <a href="{{ url_for('main.explore_skills') }}" class="btn btn-outline-primary w-100">Explorer plus</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

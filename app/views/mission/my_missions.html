@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Mes missions - SkillRush{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Mes missions</h2>
+    
+    <!-- Missions en cours -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="mb-3">
+                <i class="fas fa-play-circle"></i> En cours
+                <span class="badge bg-warning">{{ active_missions|length }}</span>
+            </h3>
+            
+            {% if active_missions %}
+                <div class="row">
+                    {% for mission in active_missions %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card mission-card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ mission.mission.title }}</h5>
+                                    <p class="card-text">{{ mission.mission.description }}</p>
+                                    
+                                    <div class="mission-rewards mb-3">
+                                        <span class="reward-item">
+                                            <i class="fas fa-star"></i> {{ mission.mission.reward_xp }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ url_for('mission.mission_detail', mission_id=mission.mission.id) }}" class="btn btn-primary flex-grow-1">
+                                            Détails
+                                        </a>
+                                        <form method="POST" action="{{ url_for('mission.complete_mission', mission_id=mission.mission.id) }}" style="flex-grow: 1;">
+                                            <button type="submit" class="btn btn-success w-100">
+                                                Compléter
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Aucune mission en cours. <a href="{{ url_for('mission.missions_list') }}">Commencez une mission!</a></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Missions complétées -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-3">
+                <i class="fas fa-check-circle"></i> Complétées
+                <span class="badge bg-success">{{ completed_missions|length }}</span>
+            </h3>
+            
+            {% if completed_missions %}
+                <div class="row">
+                    {% for mission in completed_missions %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card mission-card completed-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="card-title">{{ mission.mission.title }}</h5>
+                                        <i class="fas fa-check-circle text-success" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    
+                                    <p class="card-text text-muted">{{ mission.mission.description }}</p>
+                                    
+                                    <div class="mission-rewards mb-3">
+                                        <span class="reward-item">
+                                            <i class="fas fa-star"></i> {{ mission.mission.reward_xp }} gagnés
+                                        </span>
+                                    </div>
+                                    
+                                    <p class="small text-muted">
+                                        Complétée le {{ mission.completed_at.strftime('%d/%m/%Y à %H:%M') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Aucune mission complétée pour le moment.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.completed-card {
+    opacity: 0.9;
+    border-left-color: #28a745 !important;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Regarder: {{ video.title }} - SkillRush{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row">
+        <div class="col-md-9">
+            <!-- Lecteur vidéo -->
+            <div class="card mb-4">
+                <div class="card-body p-0">
+                    {% if video.video_url and not video.video_url.startswith('http') %}
+                        <!-- Vidéo locale (upload) -->
+                        <video width="100%" height="500" controls controlsList="nodownload"
+                               style="background:#000;display:block;">
+                            <source src="{{ video.video_url }}" type="video/mp4">
+                            Votre navigateur ne supporte pas la lecture vidéo.
+                        </video>
+                    {% else %}
+                        <!-- Vidéo YouTube embed (legacy) -->
+                        <iframe width="100%" height="500"
+                                src="{{ video.video_url }}"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                        </iframe>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Détails de la vidéo -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>{{ video.title }}</h3>
+                    <p class="text-muted">{{ video.description }}</p>
+                    <p class="text-muted">
+                        <i class="fas fa-clock"></i> 
+                        Durée: {{ (video.duration // 60) }}:{{ '%02d' % (video.duration % 60) }} minutes
+                    </p>
+                </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="d-flex gap-2 mb-4">
+                <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Retour à la compétence
+                </a>
+                <button class="btn btn-outline-success" onclick="completeVideo()">
+                    <i class="fas fa-check"></i> Marquer comme regardée
+                </button>
+            </div>
+        </div>
+
+        <!-- Barre latérale -->
+        <div class="col-md-3">
+            <!-- Progression -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Ma progression</h5>
+                </div>
+                <div class="card-body">
+                    {% if progress %}
+                        <div class="progress mb-3">
+                            <div class="progress-bar" style="width: {{ progress.progress_percentage }}%"></div>
+                        </div>
+                        <p>{{ progress.progress_percentage|int }}% complété</p>
+                        <p class="small text-muted">Vidéos regardées: {{ progress.videos_watched }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Compétence -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Compétence</h5>
+                </div>
+                <div class="card-body">
+                    <h6>{{ skill.name }}</h6>
+                    <p class="small text-muted">{{ skill.description[:100] }}...</p>
+                    <div class="mb-3">
+                        <span class="badge bg-info">{{ skill.category }}</span>
+                        <span class="badge bg-warning">{{ skill.difficulty }}</span>
+                    </div>
+                    <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-sm btn-outline-primary w-100">
+                        Voir plus
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function completeVideo() {
+    alert('Vidéo marquée comme regardée! +10 XP gagnés');
+    // AJAX pour enregistrer en arrière-plan
+}
+</script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Ajouter une vidéo - SkillRush{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="mb-4">Ajouter une vidéo à {{ skill.name }}</h2>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Nouvelle vidéo</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('skill.add_video', skill_id=skill.id) }}"
+                          enctype="multipart/form-data" id="uploadForm">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Titre du cours *</label>
+                            <input type="text" class="form-control" id="title" name="title" required
+                                   placeholder="Ex: Les bases de Python">
+                            <small class="form-text text-muted">
+                                Si la vidéo dépasse 2 min 30, elle sera découpée automatiquement en parties.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="video_file" class="form-label">Fichier vidéo *</label>
+                            <input type="file" class="form-control" id="video_file" name="video_file"
+                                   accept="video/*" required>
+                            <small class="form-text text-muted">
+                                Formats acceptés : MP4, MOV, AVI, MKV… — La vidéo sera automatiquement découpée en segments de 2-3 min.
+                                Le premier segment sera gratuit, les suivants débloquables chaque jour ou via des XP.
+                            </small>
+                        </div>
+
+                        <!-- Barre de progression upload -->
+                        <div id="uploadProgress" class="mb-3 d-none">
+                            <div class="alert alert-info d-flex align-items-center gap-2">
+                                <div class="spinner-border spinner-border-sm text-info" role="status"></div>
+                                <span>Upload et découpage en cours… cela peut prendre quelques instants.</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="submitBtn" onclick="showProgress()">
+                            <i class="fas fa-upload"></i> Envoyer et découper la vidéo
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Vidéos existantes -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Vidéos existantes ({{ videos|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if videos %}
+                        <div class="list-group">
+                            {% for video in videos %}
+                                <div class="list-group-item">
+                                    <h6>{{ video.title }}</h6>
+                                    <small class="text-muted">
+                                        {{ (video.duration // 60) }}:{{ '%02d' % (video.duration % 60) }} min
+                                        {% if video.is_free %}
+                                            <span class="badge bg-success">Gratuit</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Premium</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucune vidéo pour le moment</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showProgress() {
+    const fileInput = document.getElementById('video_file');
+    if (!fileInput.value) return;
+    document.getElementById('uploadProgress').classList.remove('d-none');
+    document.getElementById('submitBtn').disabled = true;
+}
+</script>
+{% endblock %}

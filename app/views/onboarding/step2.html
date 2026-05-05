@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Bienvenue sur SkillRush — Étape 2{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
+  <div class="onboarding-card">
+
+    <!-- Progress bar -->
+    <div class="ob-progress mb-4">
+      <div class="ob-step done"><i class="fas fa-check"></i></div>
+      <div class="ob-line active-line"></div>
+      <div class="ob-step active"><span>2</span></div>
+      <div class="ob-line"></div>
+      <div class="ob-step"><span>3</span></div>
+    </div>
+
+    <div class="text-center mb-4">
+      <div class="ob-icon mb-3">🚀</div>
+      <h2 class="fw-bold">Crée ton premier cours</h2>
+      <p class="text-muted">Partage ta compétence <strong>{{ current_user.competence }}</strong> avec la communauté via une vidéo, un PDF, ou les deux.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('onboarding.step2') }}" enctype="multipart/form-data">
+
+      <!-- ── Infos du cours ── -->
+      <div class="row g-3 mb-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold">Titre du cours <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="title"
+                 placeholder="Ex : Maîtriser Excel en 7 jours"
+                 maxlength="120" required>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Catégorie <span class="text-danger">*</span></label>
+          <select class="form-select" name="category" required>
+            <option value="" disabled selected>Choisir…</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Niveau</label>
+          <select class="form-select" name="difficulty">
+            <option value="Beginner">Débutant</option>
+            <option value="Intermediate">Intermédiaire</option>
+            <option value="Expert">Expert</option>
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
+          <textarea class="form-control" name="description" rows="3"
+                    placeholder="Décris ce que les apprenants vont acquérir…" required></textarea>
+        </div>
+      </div>
+
+      <!-- ── Vidéo ── -->
+      <div class="upload-section mb-3">
+        <p class="fw-semibold mb-3">
+          <i class="fas fa-film text-primary me-2"></i>Vidéo du cours
+          <span class="badge bg-light text-secondary ms-1" style="font-size:.72rem;">optionnel</span>
+        </p>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Titre de la vidéo</label>
+          <input type="text" class="form-control" name="video_title"
+                 placeholder="Ex : Introduction — les bases">
+        </div>
+
+        <label class="upload-zone" id="videoZone" for="videoInput">
+          <div class="uz-icon">🎬</div>
+          <p class="uz-title" id="videoLabel">Glisse ta vidéo ici ou clique pour sélectionner</p>
+          <p class="uz-hint">MP4 · MOV · AVI · MKV · WEBM — max 500 Mo</p>
+          <input type="file" id="videoInput" name="video_file"
+                 accept=".mp4,.mov,.avi,.mkv,.webm,video/*"
+               class="d-none"
+                 onchange="previewFile(this, 'videoLabel', '🎬')">
+        </label>
+      </div>
+
+      <!-- ── PDF (optionnel) ── -->
+      <div class="upload-section mb-4">
+        <p class="fw-semibold mb-3">
+          <i class="fas fa-file-pdf text-danger me-2"></i>Support de cours PDF
+          <span class="badge bg-light text-secondary ms-1" style="font-size:.72rem;">optionnel</span>
+        </p>
+
+        <label class="upload-zone" id="pdfZone" for="pdfInput">
+          <div class="uz-icon">📄</div>
+          <p class="uz-title" id="pdfLabel">Glisse ton PDF ici ou clique pour sélectionner</p>
+          <p class="uz-hint">Fichier PDF uniquement — max 20 Mo</p>
+          <input type="file" id="pdfInput" name="pdf_file"
+                 accept=".pdf,application/pdf"
+                 class="d-none"
+                 onchange="previewFile(this, 'pdfLabel', '📄')">
+        </label>
+      </div>
+
+      <p class="small text-muted mb-4">Au moins un support est obligatoire : vidéo ou PDF.</p>
+
+      <button type="submit" class="btn btn-primary btn-lg w-100">
+        Soumettre pour approbation <i class="fas fa-paper-plane ms-1"></i>
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .onboarding-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 18px 42px rgba(24,34,53,.18);
+    padding: 44px 40px;
+    max-width: 620px;
+    width: 100%;
+    animation: fadePop .45s ease both;
+  }
+  .ob-icon { font-size: 3.5rem; }
+  .ob-progress { display: flex; align-items: center; justify-content: center; }
+  .ob-step {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #e2e8f0; color: #94a3b8;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .9rem; transition: all .3s;
+  }
+  .ob-step.done  { background: #20bf55; color: white; box-shadow: 0 4px 12px rgba(32,191,85,.3); }
+  .ob-step.active {
+    background: var(--gradient-game, linear-gradient(130deg,#0f5fff,#20bf55));
+    color: white; box-shadow: 0 4px 14px rgba(15,95,255,.35);
+  }
+  .ob-line { flex: 1; height: 3px; background: #e2e8f0; max-width: 60px; }
+  .ob-line.active-line { background: #20bf55; }
+
+  /* Upload zones */
+  .upload-section {
+    background: #f7fbff;
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .upload-zone {
+    display: block;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .25s, background .25s;
+    background: white;
+  }
+  .upload-zone:hover, .upload-zone.has-file {
+    border-color: #0f5fff;
+    background: #f0f5ff;
+  }
+  .uz-icon { font-size: 2.2rem; margin-bottom: 6px; }
+  .uz-title { font-weight: 600; color: #334155; margin: 0; font-size: .95rem; }
+  .uz-hint  { color: #94a3b8; font-size: .8rem; margin: 4px 0 0; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewFile(input, labelId, icon) {
+  const label = document.getElementById(labelId);
+  const zone  = input.closest('.upload-zone');
+  if (input.files && input.files[0]) {
+    const name = input.files[0].name;
+    const size = (input.files[0].size / (1024*1024)).toFixed(1);
+    label.textContent = icon + '  ' + name + '  (' + size + ' Mo)';
+    zone.classList.add('has-file');
+  }
+}
+</script>
+{% endblock %}

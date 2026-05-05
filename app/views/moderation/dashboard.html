@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Modération - SkillRush{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <h2 class="mb-4"><i class="fas fa-gavel text-info"></i> Tableau de bord — Modération</h2>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-info text-white fw-bold">
+            <i class="fas fa-robot"></i> Systeme IA de moderation
+        </div>
+        <div class="card-body">
+            <p class="mb-2">L'IA assiste l'equipe pour analyser la qualite du contenu avant validation manuelle.</p>
+            <ul class="mb-0">
+                <li>Prioriser les contenus potentiellement non conformes.</li>
+                <li>Signaler les contenus a verifier en priorite.</li>
+                <li>Fournir des raisons explicites (forces, risques, points a ameliorer) pour aider la decision finale.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {# ── Signalés ── #}
+        <div class="col-md-6">
+            <div class="card border-danger border-0 shadow">
+                <div class="card-header bg-danger text-white fw-bold">
+                    <i class="fas fa-flag"></i> Contenus signalés ({{ flagged_skills|length }})
+                </div>
+                <div class="card-body p-0">
+                    {% if flagged_skills %}
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light"><tr><th>Compétence</th><th>Auteur</th><th>Actions</th></tr></thead>
+                        <tbody>
+                        {% for skill in flagged_skills %}
+                        <tr>
+                            <td><a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}">{{ skill.name }}</a></td>
+                            <td>{{ skill.creator.username }}</td>
+                            <td>
+                                <div class="d-flex gap-1 flex-wrap mb-1">
+                                <a href="{{ url_for('moderation.ai_review_skill', skill_id=skill.id) }}" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-robot"></i> Analyse IA
+                                </a>
+                                <form method="POST" action="{{ url_for('moderation.approve_skill', skill_id=skill.id) }}">
+                                    <button class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i> Valider
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('moderation.reject_skill', skill_id=skill.id) }}">
+                                    <button class="btn btn-sm btn-danger">
+                                        <i class="fas fa-times"></i> Refuser
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('moderation.delete_skill', skill_id=skill.id) }}">
+                                    <button class="btn btn-sm btn-outline-dark">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted text-center py-4 mb-0">Aucun contenu signalé 🎉</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# ── En attente ── #}
+        <div class="col-md-6">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <i class="fas fa-clock"></i> En attente d'approbation ({{ pending_skills|length }})
+                </div>
+                <div class="card-body p-0">
+                    {% if pending_skills %}
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light"><tr><th>Compétence</th><th>Auteur</th><th>Actions</th></tr></thead>
+                        <tbody>
+                        {% for skill in pending_skills %}
+                        <tr>
+                            <td><a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}">{{ skill.name }}</a></td>
+                            <td>{{ skill.creator.username }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('moderation.approve_skill', skill_id=skill.id) }}" class="d-inline">
+                                    <input type="hidden" name="reason" value="Contenu coherent, bien structure et conforme aux standards SkillRush.">
+                                    <button class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i> Approuver
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('moderation.reject_skill', skill_id=skill.id) }}" class="d-inline">
+                                    <input type="hidden" name="reason" value="Le contenu doit etre complete (description/support) avant publication.">
+                                    <button class="btn btn-sm btn-danger">
+                                        <i class="fas fa-times"></i> Refuser
+                                    </button>
+                                </form>
+                                <a href="{{ url_for('moderation.ai_review_skill', skill_id=skill.id) }}" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-robot"></i> Analyse IA
+                                </a>
+                                <form method="POST" action="{{ url_for('moderation.delete_skill', skill_id=skill.id) }}">
+                                    <button class="btn btn-sm btn-outline-dark">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted text-center py-4 mb-0">Aucun contenu en attente ✅</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

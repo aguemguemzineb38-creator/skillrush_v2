@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+
+{% block title %}{{ skill.name }} - SkillRush{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- ── En-tête ─────────────────────────────────────────────────────────── -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="skill-header">
+                <h1>{{ skill.name }}</h1>
+                <p class="lead text-muted">{{ skill.description }}</p>
+                <div class="skill-stats">
+                    <span class="stat-item"><i class="fas fa-user-circle"></i> Par {{ skill.creator.username }}</span>
+                    <span class="stat-item"><i class="fas fa-star"></i> {{ skill.rating|round(1) }}/5</span>
+                    <span class="stat-item"><i class="fas fa-eye"></i> {{ skill.views }} vues</span>
+                    <span class="badge bg-info">{{ skill.difficulty }}</span>
+                    <span class="badge bg-primary">{{ skill.category }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="progress-box card">
+                <div class="card-body">
+                    {% if user_progress %}
+                        <h5>Ma progression</h5>
+                        <div class="progress mb-2">
+                            <div class="progress-bar" style="width: {{ user_progress.progress_percentage }}%"></div>
+                        </div>
+                        <p class="mb-1">{{ user_progress.progress_percentage|int }}% complété</p>
+                        <small class="text-muted">Vidéos regardées : {{ user_progress.videos_watched }}</small>
+                    {% else %}
+                        <p class="text-muted mb-0">Vous n'avez pas encore commencé.</p>
+                    {% endif %}
+                    {% if current_user.is_authenticated %}
+                    <hr class="my-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-bolt text-warning"></i>
+                        <span class="fw-bold">{{ current_user.xp }} XP</span>
+                        <small class="text-muted">disponibles</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Signaler le cours ────────────────────────────────────────────── -->
+    {% if current_user.is_authenticated and current_user.id != skill.creator_id %}
+    <div class="d-flex justify-content-end mb-2">
+        {% if skill.is_flagged %}
+            <span class="btn btn-sm btn-outline-secondary disabled">
+                <i class="fas fa-flag text-danger"></i> Contenu déjà signalé
+            </span>
+        {% else %}
+            <form method="POST" action="{{ url_for('skill.flag_skill', skill_id=skill.id) }}"
+                  onsubmit="return confirm('Signaler ce contenu à la modération ?')">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-flag"></i> Signaler ce contenu
+                </button>
+            </form>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- ── Mission du jour ────────────────────────────────────────────────── -->
+    {% if current_user.is_authenticated %}
+    <div class="alert alert-info d-flex align-items-center gap-3 mb-4 rounded-4" role="alert">
+        <i class="fas fa-calendar-day fa-2x text-primary"></i>
+        <div>
+            <strong>Mission du jour :</strong> Débloque au moins <strong>1 vidéo</strong> aujourd'hui pour gagner
+            <span class="badge bg-warning text-dark">+100 XP bonus</span>.
+            Tu peux en débloquer autant que tu veux si tu as assez de XP !
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ── Vidéos ──────────────────────────────────────────────────────────── -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-3"><i class="fas fa-film text-primary me-2"></i>Vidéos d'apprentissage</h3>
+
+            {% if videos %}
+            <div class="video-list">
+                {% for video in videos %}
+                {% set is_first = (video.id == first_video_id) %}
+                {% set is_unlocked = is_first or (video.id in unlocked_video_ids) %}
+                <div class="card mb-3 video-card {% if not is_unlocked %}border-secondary{% endif %}"
+                     id="video-card-{{ video.id }}">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <!-- Icône état -->
+                            <div class="unlock-icon text-center" style="min-width:40px">
+                                {% if is_first %}
+                                    <i class="fas fa-play-circle fa-2x text-success"></i>
+                                {% elif is_unlocked %}
+                                    <i class="fas fa-unlock fa-2x text-success"></i>
+                                {% else %}
+                                    <i class="fas fa-lock fa-2x text-secondary"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-1">{{ video.title }}</h5>
+                                {% if video.description %}
+                                <p class="card-text text-muted mb-1 small">{{ video.description }}</p>
+                                {% endif %}
+                                <small class="text-muted">
+                                    <i class="fas fa-clock"></i>
+                                    {% if video.duration %}
+                                        {{ (video.duration // 60) }}:{{ '%02d' % (video.duration % 60) }}
+                                    {% else %}
+                                        Durée inconnue
+                                    {% endif %}
+                                </small>
+                                {% if is_first %}
+                                    <span class="badge bg-success ms-2">Gratuit</span>
+                                {% elif is_unlocked %}
+                                    <span class="badge bg-success ms-2">Débloqué</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark ms-2">{{ VIDEO_XP_COST }} XP</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 align-items-center">
+                            {% if is_unlocked %}
+                                <a href="{{ url_for('skill.watch_video', skill_id=skill.id, video_id=video.id) }}"
+                                   class="btn btn-primary">
+                                    <i class="fas fa-play"></i> Regarder
+                                </a>
+                            {% else %}
+                                {% if current_user.is_authenticated %}
+                                <button class="btn btn-outline-warning btn-unlock-video"
+                                        data-video-id="{{ video.id }}"
+                                        data-skill-id="{{ skill.id }}"
+                                        data-xp-cost="{{ VIDEO_XP_COST }}">
+                                    <i class="fas fa-lock-open"></i> Débloquer — {{ VIDEO_XP_COST }} XP
+                                </button>
+                                {% else %}
+                                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-sign-in-alt"></i> Connectez-vous
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card"><div class="card-body text-muted">Aucune vidéo disponible pour le moment.</div></div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ── Support PDF ────────────────────────────────────────────────────── -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-3"><i class="fas fa-file-pdf text-danger me-2"></i>Support de cours (PDF)</h3>
+            {% if skill.course_pdf %}
+            <div class="card" id="pdf-section">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                        <div>
+                            <h5 class="mb-1">
+                                <i class="fas fa-file-pdf text-danger"></i>
+                                {{ skill.name }} — Support écrit
+                            </h5>
+                            {% if skill.pdf_total_pages and skill.pdf_total_pages > 0 %}
+                            <p class="text-muted mb-1">
+                                <strong>{{ skill.pdf_total_pages }} slides</strong> au total —
+                                {% if pdf_fully_unlocked or skill.pdf_total_pages <= FREE_PDF_PAGES %}
+                                    <span class="text-success"><i class="fas fa-unlock"></i> Accès complet débloqué</span>
+                                {% else %}
+                                    <span class="text-success"><i class="fas fa-gift"></i> {{ FREE_PDF_PAGES }} premières slides gratuites</span>
+                                    &nbsp;|&nbsp;
+                                    <span class="text-warning"><i class="fas fa-lock"></i> Slides {{ FREE_PDF_PAGES + 1 }}–{{ skill.pdf_total_pages }} verrouillées</span>
+                                {% endif %}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <!-- Aperçu / accès complet -->
+                            <a href="{{ url_for('skill.serve_skill_pdf', skill_id=skill.id) }}"
+                               target="_blank" class="btn btn-outline-primary">
+                                <i class="fas fa-book-open"></i>
+                                {% if pdf_fully_unlocked or not skill.pdf_total_pages or skill.pdf_total_pages <= FREE_PDF_PAGES %}
+                                    Ouvrir le PDF
+                                {% else %}
+                                    Aperçu ({{ FREE_PDF_PAGES }} slides)
+                                {% endif %}
+                            </a>
+
+                            {% if not pdf_fully_unlocked and skill.pdf_total_pages and skill.pdf_total_pages > FREE_PDF_PAGES %}
+                                {% if current_user.is_authenticated %}
+                                <button class="btn btn-warning text-dark" id="btn-unlock-pdf"
+                                        data-skill-id="{{ skill.id }}"
+                                        data-xp-cost="{{ pdf_cost }}">
+                                    <i class="fas fa-lock-open"></i> Débloquer tout — {{ pdf_cost }} XP
+                                </button>
+                                {% else %}
+                                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-sign-in-alt"></i> Connexion requise
+                                </a>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if pdf_fully_unlocked %}
+                            <a href="{{ url_for('skill.serve_skill_pdf', skill_id=skill.id) }}"
+                               download class="btn btn-primary">
+                                <i class="fas fa-download"></i> Télécharger
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card"><div class="card-body text-muted">Aucun support PDF disponible pour cette compétence.</div></div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ── Missions ───────────────────────────────────────────────────────── -->
+    {% if missions %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-3"><i class="fas fa-tasks text-success me-2"></i>Missions liées</h3>
+            <div class="row">
+                {% for mission in missions %}
+                <div class="col-md-6 mb-3">
+                    <div class="card mission-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ mission.title }}</h5>
+                            <p class="card-text">{{ mission.description }}</p>
+                            <div class="mission-rewards mb-3">
+                                <span class="reward-item"><i class="fas fa-star"></i> {{ mission.reward_xp }} XP</span>
+                            </div>
+                            <a href="{{ url_for('mission.mission_detail', mission_id=mission.id) }}" class="btn btn-success w-100">
+                                Détails de la mission
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ── Actions principales ────────────────────────────────────────────── -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex gap-2 flex-wrap">
+                {% if videos %}
+                    <a href="{{ url_for('skill.watch_video', skill_id=skill.id, video_id=first_video_id) }}"
+                       class="btn btn-lg btn-primary">
+                        <i class="fas fa-play"></i>
+                        {% if user_progress %}Continuer{% else %}Commencer{% endif %}
+                    </a>
+                {% elif skill.course_pdf %}
+                    <a href="{{ url_for('skill.serve_skill_pdf', skill_id=skill.id) }}"
+                       target="_blank" class="btn btn-lg btn-primary">
+                        <i class="fas fa-file-pdf"></i> Consulter le support PDF
+                    </a>
+                {% endif %}
+                <button class="btn btn-lg btn-outline-warning" onclick="rateSkill({{ skill.id }})">
+                    <i class="fas fa-star"></i> Noter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Toast notification ─────────────────────────────────────────────────── -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:9999">
+    <div id="unlockToast" class="toast align-items-center border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMessage"></div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+const SKILL_ID = {{ skill.id }};
+
+function showToast(msg, success) {
+    const el = document.getElementById('unlockToast');
+    el.className = 'toast align-items-center border-0 text-white ' + (success ? 'bg-success' : 'bg-danger');
+    document.getElementById('toastMessage').textContent = msg;
+    bootstrap.Toast.getOrCreateInstance(el, {delay: 3500}).show();
+}
+
+// ── Débloquer une vidéo ───────────────────────────────────────────────────
+document.querySelectorAll('.btn-unlock-video').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const videoId  = this.dataset.videoId;
+        const skillId  = this.dataset.skillId;
+        const xpCost   = this.dataset.xpCost;
+        const card     = document.getElementById('video-card-' + videoId);
+        this.disabled  = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Déverrouillage…';
+
+        fetch(`/skill/${skillId}/unlock-video/${videoId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json',
+                      'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.content || ''}
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success || data.already_unlocked) {
+                showToast(
+                    data.daily_mission_completed
+                        ? `🎉 Vidéo débloquée ! +${data.daily_bonus} XP bonus mission du jour !`
+                        : `✅ Vidéo débloquée ! −${xpCost} XP`,
+                    true
+                );
+                // Recharger la page pour afficher le bouton "Regarder"
+                setTimeout(() => location.reload(), 1800);
+            } else {
+                showToast(data.error || 'Erreur lors du déverrouillage.', false);
+                this.disabled = false;
+                this.innerHTML = `<i class="fas fa-lock-open"></i> Débloquer — ${xpCost} XP`;
+            }
+        })
+        .catch(() => {
+            showToast('Erreur réseau.', false);
+            this.disabled = false;
+            this.innerHTML = `<i class="fas fa-lock-open"></i> Débloquer — ${xpCost} XP`;
+        });
+    });
+});
+
+// ── Débloquer le PDF complet ──────────────────────────────────────────────
+const btnPdf = document.getElementById('btn-unlock-pdf');
+if (btnPdf) {
+    btnPdf.addEventListener('click', function () {
+        const skillId = this.dataset.skillId;
+        const xpCost  = this.dataset.xpCost;
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Déverrouillage…';
+
+        fetch(`/skill/${skillId}/unlock-pdf`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json',
+                      'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.content || ''}
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success || data.already_unlocked) {
+                showToast(`✅ PDF entièrement débloqué ! −${xpCost} XP`, true);
+                setTimeout(() => location.reload(), 1800);
+            } else {
+                showToast(data.error || 'Erreur lors du déverrouillage.', false);
+                this.disabled = false;
+                this.innerHTML = `<i class="fas fa-lock-open"></i> Débloquer tout — ${xpCost} XP`;
+            }
+        })
+        .catch(() => {
+            showToast('Erreur réseau.', false);
+            this.disabled = false;
+        });
+    });
+}
+
+function rateSkill(skillId) {
+    const rating = prompt('Donnez une note de 1 à 5 :');
+    if (!rating || isNaN(rating) || rating < 1 || rating > 5) return;
+    fetch(`/skill/${skillId}/rate`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({rating: parseInt(rating)})
+    }).then(r => r.json()).then(data => {
+        showToast(data.message || 'Merci !', true);
+    });
+}
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}{{ mission.title }} - SkillRush{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">{{ mission.title }}</h2>
+                    
+                    <div class="mission-meta mb-4">
+                        <span class="badge bg-{{ 'success' if mission.difficulty == 'Easy' else 'warning' if mission.difficulty == 'Medium' else 'danger' }}">
+                            {{ mission.difficulty }}
+                        </span>
+                        <span class="badge bg-info">{{ mission.skill.name }}</span>
+                    </div>
+                    
+                    <h5>Description</h5>
+                    <p>{{ mission.description }}</p>
+                    
+                    <h5 class="mt-4">Objectif</h5>
+                    <p>{{ mission.objective }}</p>
+                    
+                    <h5 class="mt-4">Récompenses</h5>
+                    <div class="mission-rewards">
+                        <span class="reward-item">
+                            <i class="fas fa-star"></i> {{ mission.reward_xp }} XP
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-2 mb-4">
+                {% if current_user.is_authenticated %}
+                    {% if not user_mission %}
+                        <form method="POST" action="{{ url_for('mission.start_mission', mission_id=mission.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-lg btn-primary">
+                                <i class="fas fa-play"></i> Commencer la mission
+                            </button>
+                        </form>
+                    {% elif not user_mission.is_completed %}
+                        <form method="POST" action="{{ url_for('mission.complete_mission', mission_id=mission.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-lg btn-success">
+                                <i class="fas fa-check"></i> Marquer comme complétée
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> Vous avez complété cette mission!
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-lg btn-primary">
+                        Se connecter pour commencer
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Détails de la mission</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Difficulté:</strong> {{ mission.difficulty }}</p>
+                    <p><strong>Compétence:</strong> 
+                        <a href="{{ url_for('main.skill_detail', skill_id=mission.skill.id) }}">
+                            {{ mission.skill.name }}
+                        </a>
+                    </p>
+                    <p><strong>Par:</strong> {{ mission.skill.creator.username }}</p>
+                    <p><strong>XP:</strong> <i class="fas fa-star"></i> {{ mission.reward_xp }}</p>
+                    
+                    {% if user_mission %}
+                        <hr>
+                        <p><strong>Statut:</strong>
+                            {% if user_mission.is_completed %}
+                                <span class="badge bg-success">Complétée</span><br>
+                                <small>{{ user_mission.completed_at.strftime('%d/%m/%Y à %H:%M') }}</small>
+                            {% else %}
+                                <span class="badge bg-warning">En cours</span><br>
+                                <small>Depuis {{ user_mission.created_at.strftime('%d/%m/%Y') }}</small>
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

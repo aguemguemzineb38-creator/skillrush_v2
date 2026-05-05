@@ -1,0 +1,287 @@
+// SkillRush - JavaScript principal
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser les tooltips Bootstrap
+    initializeTooltips();
+    
+    // Vérifier les connexions d'utilisateur
+    checkUserAuth();
+    
+    // Initialiser les animations
+    initializeAnimations();
+});
+
+/**
+ * Initialiser les tooltips Bootstrap
+ */
+function initializeTooltips() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+}
+
+/**
+ * Vérifier l'authentification
+ */
+function checkUserAuth() {
+    // Vérifier si connecté via le header
+    const isAuth = document.querySelector('[data-user-id]');
+    if (!isAuth) {
+        console.log('Utilisateur non authentifié');
+    }
+}
+
+/**
+ * Initialiser les animations
+ */
+function initializeAnimations() {
+    // Observer les éléments pour les animations au scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+}
+
+/**
+ * Afficher une notification
+ */
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.setAttribute('role', 'alert');
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.insertBefore(alertDiv, document.body.firstChild);
+    
+    // Masquer après 5 secondes
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+/**
+ * Gagner de l'XP (AJAX)
+ */
+function earnXP(amount) {
+    const message = `+${amount} XP gagnés!`;
+    showNotification(message, 'info');
+    updateUserStats();
+}
+
+/**
+ * Mettre à jour les statistiques utilisateur
+ */
+function updateUserStats() {
+    // Récupérer les données et mettre à jour via AJAX
+    // À implémenter avec un endpoint API
+}
+
+/**
+ * Commencer une mission
+ */
+function startMission(missionId) {
+    fetch(`/mission/${missionId}/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        redirect: 'follow'
+    })
+    .then(response => {
+        // La route redirige vers mission_detail; on y navigue
+        window.location.href = `/mission/${missionId}`;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur lors du démarrage de la mission', 'danger');
+    });
+}
+
+/**
+ * Compléter une mission
+ */
+function completeMission(missionId) {
+    if (confirm('Êtes-vous sûr d\'avoir complété cette mission?')) {
+        fetch(`/mission/${missionId}/complete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            redirect: 'follow'
+        })
+        .then(response => {
+            // La route redirige vers my_progress
+            window.location.href = '/user/my-progress';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur lors de la complétion de la mission', 'danger');
+        });
+    }
+}
+
+/**
+ * Noter une compétence
+ */
+function rateSkill(skillId) {
+    const rating = prompt('Notez cette compétence (1-5 étoiles):', '5');
+    
+    if (rating && rating >= 1 && rating <= 5) {
+        fetch(`/skill/${skillId}/rate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                rating: parseInt(rating)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const xpEarned = data.xp_earned || 0;
+            showNotification(data.message + '\n+' + xpEarned + ' XP gagnés!', 'success');
+            earnXP(xpEarned);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur lors de la notation', 'danger');
+        });
+    }
+}
+
+/**
+ * Recherche en temps réel
+ */
+function liveSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const results = document.querySelectorAll('.skill-card');
+            
+            results.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const description = card.querySelector('.card-text').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+}
+
+/**
+ * Filtrer par catégorie
+ */
+function filterByCategory(category) {
+    const cards = document.querySelectorAll('.skill-card');
+    
+    cards.forEach(card => {
+        const cardCategory = card.querySelector('.skill-category-badge').textContent;
+        
+        if (category === 'all' || cardCategory === category) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+/**
+ * Recevoir une récompense quotidienne
+ */
+function claimDailyReward() {
+    fetch('/user/daily-reward', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showNotification(data.error, 'warning');
+        } else {
+            let msg = `${data.message} +${data.xp} XP`;
+            if (data.level_up) msg += ` 🎉 Niveau ${data.new_level}!`;
+            showNotification(msg, 'success');
+            setTimeout(() => document.location.reload(), 2000);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur lors de la réclamation de la récompense', 'danger');
+    });
+}
+
+/**
+ * Partager sur les réseaux sociaux
+ */
+function shareSkill(skillName, skillUrl) {
+    const text = `Je suis en train d'apprendre "${skillName}" sur SkillRush! 🚀 Rejoins-moi!`;
+    
+    const shareData = {
+        title: 'SkillRush',
+        text: text,
+        url: skillUrl
+    };
+
+    if (navigator.share) {
+        navigator.share(shareData);
+    } else {
+        // Fallback - copier dans le presse-papiers
+        const link = `${text} ${skillUrl}`;
+        navigator.clipboard.writeText(link).then(() => {
+            showNotification('Lien copié dans le presse-papiers!', 'info');
+        });
+    }
+}
+
+/**
+ * Afficher/masquer les détails
+ */
+function toggleDetails(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.style.display = element.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+/**
+ * Barre de recherche avec suggestions
+ */
+function setupSearchSuggestions() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', async function(e) {
+        const query = e.target.value;
+        if (query.length < 2) return;
+
+        // À implémenter avec une API de suggestion
+        console.log('Searching for:', query);
+    });
+}
+
+// Initialiser à la charge
+window.addEventListener('load', function() {
+    liveSearch();
+    setupSearchSuggestions();
+});

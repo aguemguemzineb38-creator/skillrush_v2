@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Admin — Utilisateurs - SkillRush{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-shield-alt text-warning"></i> Administration — Utilisateurs</h2>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('moderation.moderation_dashboard') }}" class="btn btn-outline-info">
+                <i class="fas fa-gavel"></i> Modération
+            </a>
+            <a href="{{ url_for('admin.admin_stats') }}" class="btn btn-outline-warning">
+                <i class="fas fa-chart-bar"></i> Statistiques
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('admin.admin_users') }}" class="row g-2 align-items-center">
+                <div class="col-md-10">
+                    <input type="text" name="q" class="form-control" value="{{ q or '' }}"
+                           placeholder="Rechercher par nom utilisateur ou email...">
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-primary"><i class="fas fa-search"></i> Rechercher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Utilisateur</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Niveau / XP</th>
+                        <th>Inscrit le</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                <tr class="{% if user.is_blocked %}table-danger{% endif %}">
+                    <td>{{ user.id }}</td>
+                    <td>
+                        <a href="{{ url_for('user.profile', user_id=user.id) }}">{{ user.username }}</a>
+                    </td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin.change_role', user_id=user.id) }}" class="d-inline">
+                            <select name="role" class="form-select form-select-sm d-inline-block w-auto"
+                                    onchange="this.form.submit()" {% if user.id == current_user.id %}disabled{% endif %}>
+                                <option value="user"      {% if user.role=='user' %}selected{% endif %}>Utilisateur</option>
+                                <option value="moderator" {% if user.role=='moderator' %}selected{% endif %}>Modérateur</option>
+                                <option value="admin"     {% if user.role=='admin' %}selected{% endif %}>Admin</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>Niv.{{ user.level }} / {{ user.xp }} XP</td>
+                    <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        {% if user.is_blocked %}
+                            <span class="badge bg-danger">Bloqué</span>
+                        {% else %}
+                            <span class="badge bg-success">Actif</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.id != current_user.id %}
+                        <form method="POST" action="{{ url_for('admin.block_user', user_id=user.id) }}" class="d-inline me-1">
+                            <button class="btn btn-sm {% if user.is_blocked %}btn-success{% else %}btn-danger{% endif %}">
+                                {% if user.is_blocked %}
+                                    <i class="fas fa-unlock"></i> Débloquer
+                                {% else %}
+                                    <i class="fas fa-ban"></i> Bloquer
+                                {% endif %}
+                            </button>
+                        </form>
+                        {% if not user.is_admin %}
+                        <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" class="d-inline"
+                              onsubmit="return confirm('Supprimer définitivement ce profil ?');">
+                            <button class="btn btn-sm btn-outline-dark">
+                                <i class="fas fa-user-times"></i> Supprimer profil
+                            </button>
+                        </form>
+                        {% endif %}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

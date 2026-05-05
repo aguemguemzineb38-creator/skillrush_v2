@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Missions - SkillRush{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Missions disponibles</h2>
+    
+    <!-- Filtre par difficulté -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('mission.missions_list') }}" class="btn btn-outline-primary {% if not current_difficulty %}active{% endif %}">
+                    Toutes
+                </a>
+                {% for diff in difficulties %}
+                    <a href="{{ url_for('mission.missions_list', difficulty=diff) }}" class="btn btn-outline-primary {% if diff == current_difficulty %}active{% endif %}">
+                        {{ diff }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Grille de missions -->
+    <div class="row">
+        {% for mission in missions.items %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card mission-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h5 class="card-title flex-grow-1">{{ mission.title }}</h5>
+                            <span class="badge bg-{{ 'success' if mission.difficulty == 'Easy' else 'warning' if mission.difficulty == 'Medium' else 'danger' }}">
+                                {{ mission.difficulty }}
+                            </span>
+                        </div>
+                        
+                        <p class="card-text text-muted">{{ mission.description }}</p>
+                        
+                        <div class="mission-rewards mb-3">
+                            <span class="reward-item">
+                                <i class="fas fa-star"></i> {{ mission.reward_xp }} XP
+                            </span>
+                        </div>
+                        
+                        <p class="small text-info mb-3">
+                            <i class="fas fa-book"></i> {{ mission.skill.name }}
+                        </p>
+                        
+                        <a href="{{ url_for('mission.mission_detail', mission_id=mission.id) }}" class="btn btn-primary w-100">
+                            Voir les détails
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <p class="text-center text-muted">Aucune mission trouvée.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if missions.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&difficulty={{ current_difficulty }}">Première</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ missions.prev_num }}&difficulty={{ current_difficulty }}">Précédente</a>
+                </li>
+            {% endif %}
+
+            {% for page_num in missions.iter_pages() %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == missions.page %}active{% endif %}">
+                        <a class="page-link" href="?page={{ page_num }}&difficulty={{ current_difficulty }}">{{ page_num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if missions.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ missions.next_num }}&difficulty={{ current_difficulty }}">Suivante</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ missions.pages }}&difficulty={{ current_difficulty }}">Dernière</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

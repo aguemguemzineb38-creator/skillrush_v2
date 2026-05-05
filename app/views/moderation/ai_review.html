@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Analyse IA - Moderation{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-robot text-info"></i> Analyse IA du contenu</h2>
+        <a href="{{ url_for('moderation.moderation_dashboard') }}" class="btn btn-outline-secondary">
+            Retour moderation
+        </a>
+    </div>
+
+    <div class="card border-0 shadow mb-4">
+        <div class="card-body">
+            <h4 class="mb-1">{{ skill.name }}</h4>
+            <p class="text-muted mb-2">Auteur: {{ skill.creator.username }} | Categorie: {{ skill.category }}</p>
+            <p class="mb-0">{{ skill.description }}</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow h-100">
+                <div class="card-header bg-light fw-bold">Diagnostic IA</div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Score qualite:</strong> {{ quality_score }}/100</p>
+                    <p class="mb-2"><strong>Videos detectees:</strong> {{ videos_count }}</p>
+                    <p class="mb-2"><strong>Support PDF:</strong> {{ 'Oui' if has_pdf else 'Non' }}</p>
+                    <p class="mb-3"><strong>Longueur description:</strong> {{ desc_len }} caracteres</p>
+                    <h6 class="fw-bold text-success">Forces detectees</h6>
+                    <ul class="mb-3">
+                        {% for reason in reasons %}
+                        <li>{{ reason }}</li>
+                        {% else %}
+                        <li>Aucune force majeure detectee.</li>
+                        {% endfor %}
+                    </ul>
+                    <h6 class="fw-bold text-danger">Risques / points a corriger</h6>
+                    <ul class="mb-0">
+                        {% for risk in risks %}
+                        <li>{{ risk }}</li>
+                        {% else %}
+                        <li>Aucun risque significatif detecte.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow h-100">
+                <div class="card-header bg-light fw-bold">Recommendation IA</div>
+                <div class="card-body d-flex flex-column">
+                    {% if recommendation == 'VALIDER' %}
+                    <div class="alert alert-success mb-3">L'IA recommande: VALIDER</div>
+                    {% else %}
+                    <div class="alert alert-warning mb-3">L'IA recommande: REVISION MANUELLE</div>
+                    {% endif %}
+                    <p class="text-muted">Decision finale: equipe de moderation (humaine).</p>
+                    <div class="d-flex gap-2 mt-auto">
+                        <form method="POST" action="{{ url_for('moderation.approve_skill', skill_id=skill.id) }}" class="w-100">
+                            <label class="form-label fw-bold">Message (optionnel) pour l'email formel</label>
+                            <textarea name="reason" class="form-control mb-2" rows="3"
+                                      placeholder="Ex: contenu structuré, clair et conforme aux standards pédagogiques."></textarea>
+                            <button class="btn btn-success w-100"><i class="fas fa-check"></i> Valider</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('moderation.reject_skill', skill_id=skill.id) }}" class="w-100">
+                            <label class="form-label fw-bold">Motif de refus (optionnel)</label>
+                            <textarea name="reason" class="form-control mb-2" rows="3"
+                                      placeholder="Ex: description insuffisante, manque de démonstration vidéo, etc."></textarea>
+                            <button class="btn btn-danger w-100"><i class="fas fa-times"></i> Refuser</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

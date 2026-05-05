@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Classement - SkillRush{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Classement Global</h2>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="leaderboard-table">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 60px;">Rang</th>
+                            <th>Utilisateur</th>
+                            <th style="width: 100px;">Niveau</th>
+                            <th style="width: 100px;">XP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in top_users %}
+                            <tr class="leaderboard-row {% if loop.index <= 3 %}top-{{ loop.index }}{% endif %}">
+                                <td>
+                                    {% if loop.index == 1 %}
+                                        <i class="fas fa-crown" style="color: gold;"></i> 1
+                                    {% elif loop.index == 2 %}
+                                        <i class="fas fa-crown" style="color: silver;"></i> 2
+                                    {% elif loop.index == 3 %}
+                                        <i class="fas fa-crown" style="color: #cd7f32;"></i> 3
+                                    {% else %}
+                                        {{ loop.index }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('main.user_profile', user_id=user.id) }}" class="text-decoration-none">
+                                        {{ user.username }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">Lvl {{ user.level }}</span>
+                                </td>
+                                <td>{{ user.xp }} XP</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📊 Statistiques</h5>
+                    <p class="card-text">
+                        Total d'utilisateurs: <strong>{{ top_users|length }}</strong>
+                    </p>
+                    <p class="card-text">
+                        Meilleur joueur: <strong>{{ top_users[0].username if top_users else 'N/A' }}</strong>
+                    </p>
+                    <p class="card-text">
+                        XP moyen: <strong>
+                            {% set avg_xp = (top_users|map(attribute='xp')|sum) / (top_users|length) if top_users else 0 %}
+                            {{ (avg_xp|int) }}
+                        </strong>
+                    </p>
+                    <hr>
+                    <h5 class="card-title mt-3">💡 Conseils</h5>
+                    <ul>
+                        <li>Complétez des missions pour gagner XP</li>
+                        <li>Notez les compétences pour gagner des XP</li>
+                        <li>Publiez des cours pour monter de niveau</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

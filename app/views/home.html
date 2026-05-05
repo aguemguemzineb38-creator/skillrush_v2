@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - SkillRush{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                {% if current_user.is_authenticated and current_user.onboarding_rejected and not current_user.onboarding_done %}
+                <span class="badge bg-danger mb-3 px-3 py-2">Soumission refusee</span>
+                <h1 class="display-4 fw-bold mb-4">Votre cours n'a pas ete accepte</h1>
+                <p class="lead mb-4">Consultez votre email pour le detail, corrigez votre contenu et soumettez une nouvelle version pour acceder a votre profil.</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('onboarding.step2') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-redo"></i> Soumettre un nouveau cours
+                    </a>
+                    <a href="{{ url_for('onboarding.step1') }}" class="btn btn-outline-primary btn-lg">Modifier ma competence</a>
+                </div>
+                {% else %}
+                <h1 class="display-4 fw-bold mb-4">Bienvenue sur SkillRush</h1>
+                <p class="lead mb-4">Apprenez de nouvelles compétences, gagnez des récompenses et rejoignez une communauté d'apprentissage collaborative.</p>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-rocket"></i> Commencer maintenant
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg">Se connecter</a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <div class="feature-icons">
+                    <div class="feature-box">
+                        <i class="fas fa-gamepad"></i>
+                        <h5>Gamifiée</h5>
+                        <p>Progressez avec XP et streak</p>
+                    </div>
+                    <div class="feature-box">
+                        <i class="fas fa-video"></i>
+                        <h5>Mini-vidéos</h5>
+                        <p>Contenus courts et engageants</p>
+                    </div>
+                    <div class="feature-box">
+                        <i class="fas fa-users"></i>
+                        <h5>Communauté</h5>
+                        <p>Apprenez ensemble</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <h2 class="text-center mb-4">Comment ça marche?</h2>
+    <div class="row">
+        <div class="col-md-3 text-center">
+            <div class="step-box">
+                <div class="step-number">1</div>
+                <h5>Cherchez une compétence</h5>
+                <p>Explorez notre catalogue et trouvez ce que vous voulez apprendre</p>
+            </div>
+        </div>
+        <div class="col-md-3 text-center">
+            <div class="step-box">
+                <div class="step-number">2</div>
+                <h5>Suivez le cours</h5>
+                <p>Regardez les vidéos découpées et consultez les slides PDF</p>
+            </div>
+        </div>
+        <div class="col-md-3 text-center">
+            <div class="step-box">
+                <div class="step-number">3</div>
+                <h5>Complétez les missions</h5>
+                <p>Avancez dans vos compétences en cours et débloquez du contenu chaque jour</p>
+            </div>
+        </div>
+        <div class="col-md-3 text-center">
+            <div class="step-box">
+                <div class="step-number">4</div>
+                <h5>Gagnez des récompenses</h5>
+                <p>Gagnez du XP, maintenez votre streak et atteignez de nouveaux niveaux</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <h4 class="mb-3"><i class="fas fa-route text-primary"></i> Guide premier usage (algorithme)</h4>
+            <ol class="mb-0">
+                <li>Créez votre compte puis complétez l'onboarding.</li>
+                <li>Choisissez une compétence depuis "Découvrir".</li>
+                <li>Démarrez par la première vidéo gratuite ou les 5 slides PDF gratuites.</li>
+                <li>Débloquez la suite du contenu avec XP pour continuer.</li>
+                <li>Réalisez vos missions du jour pour maintenir votre streak.</li>
+                <li>Revenez chaque jour pour ne pas perdre votre série.</li>
+            </ol>
+        </div>
+    </div>
+</div>
+{% endblock %}

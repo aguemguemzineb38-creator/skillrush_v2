@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Créer une mission - SkillRush{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="mb-4">Créer une mission pour {{ skill.name }}</h2>
+            
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('mission.create_mission', skill_id=skill.id) }}">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Titre de la mission *</label>
+                            <input type="text" class="form-control" id="title" name="title" required
+                                   placeholder="Ex: Créer un tableau de budget">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required
+                                      placeholder="Décrivez ce que l'apprenant doit faire"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="objective" class="form-label">Objectif</label>
+                            <textarea class="form-control" id="objective" name="objective" rows="3"
+                                      placeholder="Décrivez le résultat attendu"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="difficulty" class="form-label">Difficulté</label>
+                                <select class="form-select" id="difficulty" name="difficulty">
+                                    <option value="Easy">Facile</option>
+                                    <option value="Medium" selected>Moyen</option>
+                                    <option value="Hard">Difficile</option>
+                                    <option value="Expert">Expert</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="reward_xp" class="form-label">XP de récompense</label>
+                                <input type="number" class="form-control" id="reward_xp" name="reward_xp" 
+                                       value="50" min="10">
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Les utilisateurs qui complètent cette mission recevront les récompenses spécifiées.
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus"></i> Créer la mission
+                            </button>
+                            <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-outline-secondary">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Conseils -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>💡 Conseils pour créer une bonne mission</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        <li>Soyez clair et précis sur ce que l'apprenant doit faire</li>
+                        <li>Rendez la mission réaliste et achievable</li>
+                        <li>Fixez des récompenses équilibrées selon la difficulté</li>
+                        <li>Utilisez une progression de difficultés croissantes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

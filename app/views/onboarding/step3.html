@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Bienvenue sur SkillRush — En attente{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="onboarding-card text-center">
+
+    <!-- Progress bar -->
+    <div class="ob-progress mb-4">
+      <div class="ob-step done"><i class="fas fa-check"></i></div>
+      <div class="ob-line active-line"></div>
+      <div class="ob-step done"><i class="fas fa-check"></i></div>
+      <div class="ob-line active-line"></div>
+      <div class="ob-step pending"><i class="fas fa-clock"></i></div>
+    </div>
+
+    <div class="ob-waiting-icon mb-3">⏳</div>
+    <h2 class="fw-bold mb-2">Ton cours est en cours de vérification</h2>
+    <p class="text-muted mb-4">
+      L'équipe de modération examine
+      {% if skill %}
+        <strong>« {{ skill.name }} »</strong>
+      {% else %}
+        ton cours
+      {% endif %}
+      avant de l'approuver. Ce processus prend généralement quelques heures.
+    </p>
+
+    <div class="waiting-card mb-4">
+      <div class="row g-3">
+        <div class="col-4">
+          <div class="wc-item">
+            <i class="fas fa-book-open text-primary"></i>
+            <p class="mt-2 mb-0 small fw-semibold">Cours soumis</p>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="wc-item">
+            <i class="fas fa-search text-warning"></i>
+            <p class="mt-2 mb-0 small fw-semibold">En modération</p>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="wc-item">
+            <i class="fas fa-rocket text-success"></i>
+            <p class="mt-2 mb-0 small fw-semibold text-muted">Accès débloqué</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-muted small mb-4">
+      Une fois approuvé, tu seras automatiquement redirigé(e) vers ton tableau de bord
+      et tu recevras <strong class="text-warning">+100 XP</strong> de bienvenue ! 🎁
+    </p>
+
+    <!-- Rafraîchir pour vérifier l'approbation -->
+    <a href="{{ url_for('onboarding.step3') }}" class="btn btn-outline-primary">
+      <i class="fas fa-sync-alt me-1"></i> Vérifier l'approbation
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .onboarding-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 18px 42px rgba(24,34,53,.18);
+    padding: 48px 44px;
+    max-width: 520px;
+    width: 100%;
+    animation: fadePop .45s ease both;
+  }
+  .ob-waiting-icon { font-size: 4rem; }
+  .ob-progress {
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ob-step {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #e2e8f0; color: #94a3b8;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .9rem; transition: all .3s;
+  }
+  .ob-step.done {
+    background: #20bf55; color: white;
+    box-shadow: 0 4px 12px rgba(32,191,85,.3);
+  }
+  .ob-step.pending {
+    background: var(--gradient-energy, linear-gradient(130deg,#ff7a00,#ffb703));
+    color: white;
+    box-shadow: 0 4px 12px rgba(255,183,3,.3);
+    animation: pulse 2s infinite;
+  }
+  .ob-line {
+    flex: 1; height: 3px; background: #e2e8f0; max-width: 60px;
+  }
+  .ob-line.active-line { background: #20bf55; }
+  .waiting-card {
+    background: #f7fbff;
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .wc-item i { font-size: 1.8rem; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.85; }
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Acheter des XP - SkillRush{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold"><i class="fas fa-star text-warning"></i> Acheter des XP</h1>
+        <p class="text-muted">Accélérez votre progression en achetant des XP directement.</p>
+        <div class="badge bg-primary fs-6 px-3 py-2">
+            Votre XP actuel : <strong>{{ current_user.xp }} XP</strong> — Niveau {{ current_user.level }}
+        </div>
+    </div>
+
+    <div class="row justify-content-center g-4 mb-5">
+        {% for pkg in packages %}
+        <div class="col-md-3">
+            <div class="card h-100 shadow border-0 {% if pkg.id == 2 %}border border-warning border-2{% endif %}">
+                {% if pkg.id == 2 %}
+                <div class="card-header bg-warning text-dark text-center fw-bold">⭐ Populaire</div>
+                {% endif %}
+                <div class="card-body text-center">
+                    <div style="font-size:2.5rem;">{{ pkg.icon }}</div>
+                    <h4 class="fw-bold mt-2">{{ pkg.label }}</h4>
+                    <h2 class="text-warning fw-bold">+{{ pkg.xp }} XP</h2>
+                    <h3 class="text-primary fw-bold">{{ pkg.price }}€</h3>
+                    <button class="btn btn-warning w-100 mt-2 fw-bold"
+                            onclick="openPayment({{ pkg.id }}, '{{ pkg.label }}', {{ pkg.xp }}, {{ pkg.price }})">
+                        <i class="fas fa-credit-card"></i> Acheter
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ── Modal paiement ── #}
+    <div class="modal fade" id="paymentModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="fas fa-lock me-2"></i>Paiement sécurisé</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info mb-3">
+                        <strong id="payLabel"></strong> — <span id="payXP"></span> XP pour <span id="payPrice"></span>€
+                    </div>
+                    <form method="POST" action="{{ url_for('user.process_xp_purchase') }}" id="paymentForm">
+                        <input type="hidden" name="package_id" id="packageIdInput">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Numéro de carte</label>
+                            <input type="text" class="form-control" name="card_number"
+                                   placeholder="1234 5678 9012 3456" maxlength="19"
+                                   oninput="formatCard(this)" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Date d'expiration</label>
+                                <input type="text" class="form-control" name="card_expiry"
+                                       placeholder="MM/AA" maxlength="5"
+                                       oninput="formatExpiry(this)" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">CVV</label>
+                                <input type="password" class="form-control" name="card_cvv"
+                                       placeholder="123" maxlength="4" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nom sur la carte</label>
+                            <input type="text" class="form-control" name="card_name"
+                                   placeholder="JEAN DUPONT" required>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                            <label class="form-check-label" for="termsCheck">
+                                J'accepte les <a href="#">conditions générales</a>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">
+                            <i class="fas fa-lock me-1"></i> Confirmer le paiement
+                        </button>
+                    </form>
+                    <p class="text-muted text-center mt-2" style="font-size:0.75rem;">
+                        <i class="fas fa-shield-alt"></i> Paiement simulé — aucune donnée réelle transmise
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center text-muted mt-3" style="font-size:0.85rem;">
+        <i class="fas fa-shield-alt text-success"></i>
+        Paiements sécurisés SSL · Données non conservées · Remboursement sous 14 jours
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openPayment(id, label, xp, price) {
+    document.getElementById('packageIdInput').value = id;
+    document.getElementById('payLabel').textContent = label;
+    document.getElementById('payXP').textContent = xp;
+    document.getElementById('payPrice').textContent = price;
+    new bootstrap.Modal(document.getElementById('paymentModal')).show();
+}
+function formatCard(el) {
+    let v = el.value.replace(/\D/g,'').substring(0,16);
+    el.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+function formatExpiry(el) {
+    let v = el.value.replace(/\D/g,'').substring(0,4);
+    if (v.length >= 2) v = v.substring(0,2)+'/'+v.substring(2);
+    el.value = v;
+}
+</script>
+{% endblock %}

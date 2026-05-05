@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Explorer les compétences - SkillRush{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Découvrez nos compétences</h2>
+    
+    <!-- Filtre et recherche -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form method="GET" action="{{ url_for('main.explore_skills') }}" class="d-flex gap-2">
+                <input type="text" class="form-control" name="search" placeholder="Chercher une compétence..." value="{{ search_query }}">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <select class="form-select" name="category" onchange="window.location = '?category=' + this.value">
+                <option value="">Toutes les catégories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat }}" {% if cat == current_category %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Grille de compétences -->
+    <div class="row">
+        {% for skill in skills.items %}
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card skill-card h-100">
+                    <div class="card-body">
+                        <div class="skill-category-badge">{{ skill.category }}</div>
+                        <h5 class="card-title">{{ skill.name }}</h5>
+                        <p class="card-text text-muted">{{ skill.description[:80] }}...</p>
+                        
+                        <div class="skill-meta mb-3">
+                            <span class="badge bg-info">{{ skill.difficulty }}</span>
+                            <span class="badge bg-warning">
+                                <i class="fas fa-star"></i> {{ skill.rating|round(1) }}
+                            </span>
+                        </div>
+                        
+                        <p class="text-muted small">
+                            <i class="fas fa-eye"></i> {{ skill.views }} vues
+                        </p>
+                        
+                        <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-primary w-100">
+                            Découvrir
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <p class="text-center text-muted">Aucune compétence trouvée.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if skills.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&search={{ search_query }}&category={{ current_category }}">Première</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ skills.prev_num }}&search={{ search_query }}&category={{ current_category }}">Précédente</a>
+                </li>
+            {% endif %}
+
+            {% for page_num in skills.iter_pages() %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == skills.page %}active{% endif %}">
+                        <a class="page-link" href="?page={{ page_num }}&search={{ search_query }}&category={{ current_category }}">{{ page_num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if skills.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ skills.next_num }}&search={{ search_query }}&category={{ current_category }}">Suivante</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ skills.pages }}&search={{ search_query }}&category={{ current_category }}">Dernière</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

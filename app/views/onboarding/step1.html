@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Bienvenue sur SkillRush — Étape 1{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="onboarding-card">
+
+    <!-- Progress bar -->
+    <div class="ob-progress mb-4">
+      <div class="ob-step active"><span>1</span></div>
+      <div class="ob-line"></div>
+      <div class="ob-step"><span>2</span></div>
+      <div class="ob-line"></div>
+      <div class="ob-step"><span>3</span></div>
+    </div>
+
+    <div class="text-center mb-4">
+      <div class="ob-icon mb-3">🎯</div>
+      <h2 class="fw-bold">Quelle est ta compétence ?</h2>
+      <p class="text-muted">Tu es ici pour partager ce que tu sais — dis-nous en quoi tu es expert(e).</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('onboarding.step1') }}">
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Ta compétence principale</label>
+        <input type="text" class="form-control form-control-lg"
+               name="competence"
+               placeholder="Ex : Excel avancé, Design Canva, Python, Marketing…"
+               maxlength="120"
+               value="{{ current_user.competence or '' }}"
+               required>
+        <div class="form-text">Cette compétence sera affichée sur ton profil.</div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg w-100">
+        Continuer <i class="fas fa-arrow-right ms-1"></i>
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .onboarding-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 18px 42px rgba(24,34,53,.18);
+    padding: 48px 44px;
+    max-width: 500px;
+    width: 100%;
+    animation: fadePop .45s ease both;
+  }
+  .ob-icon { font-size: 3.5rem; }
+  .ob-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+  .ob-step {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #94a3b8;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .9rem;
+    transition: all .3s;
+  }
+  .ob-step.active {
+    background: var(--gradient-game, linear-gradient(130deg,#0f5fff,#20bf55));
+    color: white;
+    box-shadow: 0 4px 14px rgba(15,95,255,.35);
+  }
+  .ob-line {
+    flex: 1; height: 3px; background: #e2e8f0; max-width: 60px;
+  }
+</style>
+{% endblock %}

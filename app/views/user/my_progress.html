@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Ma progression - SkillRush{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Ma progression</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card card">
+                <div class="card-body">
+                    <i class="fas fa-book"></i>
+                    <h5>Compétences en cours</h5>
+                    <p class="stat-value">{{ total_skills }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card card">
+                <div class="card-body">
+                    <i class="fas fa-check-circle"></i>
+                    <h5>Complétées</h5>
+                    <p class="stat-value">{{ completed_skills }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card card">
+                <div class="card-body">
+                    <i class="fas fa-percentage"></i>
+                    <h5>Progression moyenne</h5>
+                    <p class="stat-value">{{ (avg_progress|int) }}%</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card card">
+                <div class="card-body">
+                    <i class="fas fa-fire"></i>
+                    <h5>Série active</h5>
+                    <p class="stat-value">0 jours</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compétences en progression -->
+    <h3 class="mb-3">Détail de mes apprentissages</h3>
+    <div class="row">
+        {% for progress in user_progress %}
+            <div class="col-md-6 mb-4">
+                <div class="card progress-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ progress.skill.name }}</h5>
+                        <p class="card-text text-muted">{{ progress.skill.description[:80] }}...</p>
+                        
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar" style="width: {{ progress.progress_percentage }}%">
+                                {{ progress.progress_percentage|int }}%
+                            </div>
+                        </div>
+                        
+                        <div class="progress-details small mb-3">
+                            <p>Vidéos regardées: <strong>{{ progress.videos_watched }}</strong></p>
+                            <p>Note: {% if progress.rating %}<strong>{{ progress.rating }}/5 ⭐</strong>{% else %}<em>Non notée</em>{% endif %}</p>
+                            <p>Dernier accès: <strong>{{ progress.last_accessed.strftime('%d/%m/%Y') }}</strong></p>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('main.skill_detail', skill_id=progress.skill.id) }}" class="btn btn-sm btn-primary flex-grow-1">
+                                Continuer
+                            </a>
+                            {% if progress.is_completed %}
+                                <span class="badge bg-success align-self-center">Complétée</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <p class="text-muted text-center">Vous n'avez pas commencé de compétence. <a href="{{ url_for('main.explore_skills') }}">Commencer maintenant!</a></p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
