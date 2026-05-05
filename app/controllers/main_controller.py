@@ -111,6 +111,7 @@ class MainController:
         page = request.args.get('page', 1, type=int)
         category = request.args.get('category', '', type=str)
         search = request.args.get('search', '', type=str)
+        onboarding = request.args.get('onboarding', '', type=str)
         
         query = Skill.query.filter_by(is_approved=True)
         
@@ -123,12 +124,30 @@ class MainController:
         
         skills = query.paginate(page=page, per_page=12)
         categories = ['Excel', 'Canva', 'CV', 'Design', 'Programming', 'Business']
+
+        trending_skills = Skill.query.filter_by(is_approved=True).order_by(Skill.views.desc(), Skill.created_at.desc()).limit(6).all()
+
+        recommended_query = Skill.query.filter_by(is_approved=True)
+        if current_user.is_authenticated and getattr(current_user, 'competence', ''):
+            recommended_query = recommended_query.filter(
+                Skill.category.ilike(f"%{current_user.competence}%") |
+                Skill.name.ilike(f"%{current_user.competence}%")
+            )
+        recommended_skills = recommended_query.order_by(Skill.created_at.desc()).limit(6).all()
+        if not recommended_skills:
+            recommended_skills = trending_skills[:6]
+
+        top_encg_skills = Skill.query.filter_by(is_approved=True).order_by(Skill.rating.desc(), Skill.views.desc()).limit(6).all()
         
         return render_template('explore_skills.html',
             skills=skills,
             categories=categories,
             current_category=category,
-            search_query=search)
+            search_query=search,
+            trending_skills=trending_skills,
+            recommended_skills=recommended_skills,
+            top_encg_skills=top_encg_skills,
+            from_onboarding=(onboarding == '1'))
     
     @staticmethod
     def skill_detail(skill_id):

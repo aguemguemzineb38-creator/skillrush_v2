@@ -4,7 +4,43 @@
 
 {% block content %}
 <div class="container py-5">
-    <h2 class="mb-4">Découvrez nos compétences</h2>
+    {% if from_onboarding %}
+    <div class="alert alert-success border-0 shadow-sm">
+        <strong>Bienvenue !</strong> Voici une sélection personnalisée pour commencer sans friction.
+    </div>
+    {% endif %}
+
+    <h2 class="mb-3">Découvrez nos compétences</h2>
+    <p class="text-muted mb-4">Recherche optionnelle: vous pouvez explorer directement les profils et vidéos.</p>
+
+    {% macro skill_cards(title, items) -%}
+    <div class="mb-5">
+        <h4 class="mb-3">{{ title }}</h4>
+        <div class="row">
+            {% for skill in items %}
+            <div class="col-md-4 col-lg-3 mb-3">
+                <div class="card skill-card h-100">
+                    <div class="card-body">
+                        <div class="skill-category-badge">{{ skill.category }}</div>
+                        <h5 class="card-title">{{ skill.name }}</h5>
+                        <p class="card-text text-muted">{{ skill.description[:80] }}...</p>
+                        <p class="small text-muted mb-3">
+                            <i class="fas fa-user-circle"></i> Par {{ skill.creator.username }}
+                        </p>
+                        <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-outline-primary w-100">Voir</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12"><p class="text-muted">Aucune compétence disponible.</p></div>
+            {% endfor %}
+        </div>
+    </div>
+    {%- endmacro %}
+
+    {{ skill_cards('Trending skills 🔥', trending_skills) }}
+    {{ skill_cards('Recommandé pour toi', recommended_skills) }}
+    {{ skill_cards('Top skills ENCG', top_encg_skills) }}
     
     <!-- Filtre et recherche -->
     <div class="row mb-4">
@@ -26,7 +62,7 @@
         </div>
     </div>
 
-    <!-- Grille de compétences -->
+    <!-- Grille complète de compétences -->
     <div class="row">
         {% for skill in skills.items %}
             <div class="col-md-4 col-lg-3 mb-4">
@@ -35,6 +71,9 @@
                         <div class="skill-category-badge">{{ skill.category }}</div>
                         <h5 class="card-title">{{ skill.name }}</h5>
                         <p class="card-text text-muted">{{ skill.description[:80] }}...</p>
+                        <p class="small text-muted mb-3">
+                            <i class="fas fa-user-circle"></i> Par {{ skill.creator.username }}
+                        </p>
                         
                         <div class="skill-meta mb-3">
                             <span class="badge bg-info">{{ skill.difficulty }}</span>

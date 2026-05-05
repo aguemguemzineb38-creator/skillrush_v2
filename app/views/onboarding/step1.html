@@ -16,23 +16,25 @@
 
     <div class="text-center mb-4">
       <div class="ob-icon mb-3">🎯</div>
-      <h2 class="fw-bold">Quelle est ta compétence ?</h2>
-      <p class="text-muted">Tu es ici pour partager ce que tu sais — dis-nous en quoi tu es expert(e).</p>
+      <h2 class="fw-bold">Commence simplement</h2>
+      <p class="text-muted">Choisis ce qui t'intéresse maintenant. Tu peux aussi passer cette étape.</p>
     </div>
 
     <form method="POST" action="{{ url_for('onboarding.step1') }}">
-      <div class="mb-4">
-        <label class="form-label fw-semibold">Ta compétence principale</label>
-        <input type="text" class="form-control form-control-lg"
-               name="competence"
-               placeholder="Ex : Excel avancé, Design Canva, Python, Marketing…"
-               maxlength="120"
-               value="{{ current_user.competence or '' }}"
-               required>
-        <div class="form-text">Cette compétence sera affichée sur ton profil.</div>
+      <div class="category-grid mb-4">
+        {% for option in category_options %}
+        <button type="submit"
+                name="category"
+                value="{{ option.value }}"
+                class="category-choice">
+          <span class="emoji">{{ option.icon }}</span>
+          <span class="label">{{ option.label }}</span>
+        </button>
+        {% endfor %}
       </div>
-      <button type="submit" class="btn btn-primary btn-lg w-100">
-        Continuer <i class="fas fa-arrow-right ms-1"></i>
+
+      <button type="submit" name="skip" value="1" class="btn btn-outline-secondary btn-lg w-100">
+        Je ne sais pas encore
       </button>
     </form>
   </div>
@@ -73,6 +75,43 @@
   }
   .ob-line {
     flex: 1; height: 3px; background: #e2e8f0; max-width: 60px;
+  }
+  .category-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .category-choice {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #f8fafc;
+    min-height: 88px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: left;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .category-choice:hover {
+    transform: translateY(-2px);
+    border-color: #60a5fa;
+    box-shadow: 0 10px 20px rgba(59, 130, 246, .15);
+    background: #eff6ff;
+  }
+  .category-choice .emoji {
+    font-size: 1.25rem;
+    margin-bottom: 4px;
+  }
+  .category-choice .label {
+    font-weight: 700;
+    color: #0f172a;
+  }
+  @media (max-width: 576px) {
+    .category-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 {% endblock %}

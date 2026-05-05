@@ -71,11 +71,7 @@ def create_app(config_name='development'):
         for prefix in _ONBOARDING_ALLOWED_PREFIXES:
             if path.startswith(prefix):
                 return
-        # Décider vers quelle étape rediriger
-        if not _current_user.competence:
-            return flask_redirect(flask_url_for('onboarding.step1'))
-        if not _current_user.onboarding_skill_id:
-            return flask_redirect(flask_url_for('onboarding.step2'))
-        return flask_redirect(flask_url_for('onboarding.step3'))
+        # Nouveau flux: un onboarding simple (choix catégorie ou skip)
+        return flask_redirect(flask_url_for('onboarding.step1'))
 
     return app
