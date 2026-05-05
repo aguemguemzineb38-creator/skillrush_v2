@@ -116,7 +116,7 @@ def _static_url_to_abs_path(static_url):
 class OnboardingController:
     """Gère le flux d'onboarding en 3 étapes pour les nouveaux utilisateurs."""
 
-    # ── Étape 1 : choix guidé de catégorie (ou skip) ───────────────────────
+    # ── Étape 1 : choix du rôle (Apprenant ou Formateur) ──────────────────
     @staticmethod
     @login_required
     def step1():
@@ -125,32 +125,49 @@ class OnboardingController:
 
         category_options = [
             {'value': 'Business', 'label': 'Business & Excel', 'icon': '📊'},
-            {'value': 'Design', 'label': 'Design & Canva', 'icon': '🎨'},
-            {'value': 'Programming', 'label': 'Digital Skills', 'icon': '💻'},
-            {'value': 'Marketing', 'label': 'Marketing', 'icon': '📈'},
+            {'value': 'Design',   'label': 'Design & Canva',   'icon': '🎨'},
+            {'value': 'Programming', 'label': 'Digital Skills','icon': '💻'},
+            {'value': 'Marketing','label': 'Marketing',        'icon': '📈'},
         ]
 
         if request.method == 'POST':
-            selected_category = request.form.get('category', '').strip()
-            skipped = request.form.get('skip') == '1'
+            role_choice = request.form.get('role_choice', '')
 
-            if not selected_category and not skipped:
-                flash('Choisis une catégorie ou clique sur "Je ne sais pas encore".', 'warning')
-                return render_template('onboarding/step1.html', category_options=category_options)
+            # ── Chemin Apprenant ──────────────────────────────────────────
+            if role_choice == 'apprenant':
+                selected_category = request.form.get('category', '').strip()
+                skipped = request.form.get('skip') == '1'
 
-            if selected_category:
-                current_user.competence = selected_category
+                if not selected_category and not skipped:
+                    flash('Choisis une catégorie ou clique sur "Je ne sais pas encore".', 'warning')
+                    return render_template('onboarding/step1.html', category_options=category_options)
 
-            current_user.onboarding_done = True
-            current_user.onboarding_rejected = False
-            current_user.onboarding_skill_id = None
-            db.session.commit()
+                if selected_category:
+                    current_user.competence = selected_category
+                current_user.onboarding_done = True
+                current_user.onboarding_rejected = False
+                current_user.onboarding_skill_id = None
+                db.session.commit()
 
-            if selected_category:
-                return redirect(url_for('main.explore_skills', category=selected_category, onboarding='1'))
-            return redirect(url_for('main.explore_skills', onboarding='1'))
+                if selected_category:
+                    return redirect(url_for('main.explore_skills', category=selected_category, onboarding='1'))
+                return redirect(url_for('main.explore_skills', onboarding='1'))
 
-        return render_template('onboarding/step1.html', category_options=category_options)
+            # ── Chemin Formateur ──────────────────────────────────────────
+            elif role_choice == 'formateur':
+                competence = request.form.get('competence', '').strip()
+                if not competence:
+                    flash('Merci de renseigner ta compétence principale.', 'error')
+                    return render_template('onboarding/step1.html', category_options=category_options, show_formateur=True)
+                current_user.competence = competence
+                db.session.commit()
+                return redirect(url_for('onboarding.step2'))
+
+            # Aucun choix soumis (ne devrait pas arriver)
+            return render_template('onboarding/step1.html', category_options=category_options)
+
+        show_formateur = request.args.get('formateur') == '1'
+        return render_template('onboarding/step1.html', category_options=category_options, show_formateur=show_formateur)
 
     # ── Étape 2 : créer le premier cours ─────────────────────────────────────
     @staticmethod

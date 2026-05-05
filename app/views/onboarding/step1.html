@@ -1,42 +1,99 @@
 {% extends "base.html" %}
-{% block title %}Bienvenue sur SkillRush — Étape 1{% endblock %}
+{% block title %}Bienvenue sur SkillRush{% endblock %}
 
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center min-vh-100">
+<div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
   <div class="onboarding-card">
 
-    <!-- Progress bar -->
-    <div class="ob-progress mb-4">
-      <div class="ob-step active"><span>1</span></div>
-      <div class="ob-line"></div>
-      <div class="ob-step"><span>2</span></div>
-      <div class="ob-line"></div>
-      <div class="ob-step"><span>3</span></div>
-    </div>
-
+    <!-- Icon & titre principal -->
     <div class="text-center mb-4">
-      <div class="ob-icon mb-3">🎯</div>
-      <h2 class="fw-bold">Commence simplement</h2>
-      <p class="text-muted">Choisis ce qui t'intéresse maintenant. Tu peux aussi passer cette étape.</p>
+      <div class="ob-icon mb-2">🚀</div>
+      <h2 class="fw-bold mb-1">Bienvenue sur SkillRush !</h2>
+      <p class="text-muted">Comment veux-tu utiliser l'application ?</p>
     </div>
 
-    <form method="POST" action="{{ url_for('onboarding.step1') }}">
-      <div class="category-grid mb-4">
-        {% for option in category_options %}
-        <button type="submit"
-                name="category"
-                value="{{ option.value }}"
-                class="category-choice">
-          <span class="emoji">{{ option.icon }}</span>
-          <span class="label">{{ option.label }}</span>
-        </button>
-        {% endfor %}
-      </div>
+    <!-- ── Écran de choix (affiché par défaut) ─────────────────────────── -->
+    <div id="screen-choice" class="{{ 'hidden-section' if show_formateur else '' }}">
+      <div class="role-grid mb-3">
 
-      <button type="submit" name="skip" value="1" class="btn btn-outline-secondary btn-lg w-100">
-        Je ne sais pas encore
+        <button type="button" class="role-card" onclick="showSection('apprenant')">
+          <span class="role-emoji">🎓</span>
+          <span class="role-title">Je veux apprendre</span>
+          <span class="role-desc">Explorer des cours et développer mes compétences</span>
+        </button>
+
+        <button type="button" class="role-card role-card-accent" onclick="showSection('formateur')">
+          <span class="role-emoji">🏆</span>
+          <span class="role-title">J'ai une compétence<br>à partager</span>
+          <span class="role-desc">Publier un cours et rejoindre la communauté</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- ── Formulaire Apprenant ──────────────────────────────────────────── -->
+    <div id="screen-apprenant" class="hidden-section">
+      <button type="button" class="btn-back mb-3" onclick="showSection('choice')">
+        ← Retour
       </button>
-    </form>
+      <div class="text-center mb-4">
+        <div class="ob-icon mb-2">🎯</div>
+        <h4 class="fw-bold">Qu'est-ce qui t'intéresse ?</h4>
+        <p class="text-muted small">Tu peux aussi passer cette étape et explorer directement.</p>
+      </div>
+      <form method="POST" action="{{ url_for('onboarding.step1') }}">
+        <input type="hidden" name="role_choice" value="apprenant">
+        <div class="category-grid mb-4">
+          {% for option in category_options %}
+          <button type="submit" name="category" value="{{ option.value }}" class="category-choice">
+            <span class="emoji">{{ option.icon }}</span>
+            <span class="label">{{ option.label }}</span>
+          </button>
+          {% endfor %}
+        </div>
+        <button type="submit" name="skip" value="1" class="btn btn-outline-secondary w-100">
+          Je ne sais pas encore → Explorer quand même
+        </button>
+      </form>
+    </div>
+
+    <!-- ── Formulaire Formateur ──────────────────────────────────────────── -->
+    <div id="screen-formateur" class="{{ '' if show_formateur else 'hidden-section' }}">
+      <button type="button" class="btn-back mb-3" onclick="showSection('choice')">
+        ← Retour
+      </button>
+      <div class="ob-progress mb-4">
+        <div class="ob-step active"><span>1</span></div>
+        <div class="ob-line"></div>
+        <div class="ob-step"><span>2</span></div>
+        <div class="ob-line"></div>
+        <div class="ob-step"><span>3</span></div>
+      </div>
+      <div class="text-center mb-4">
+        <div class="ob-icon mb-2">✍️</div>
+        <h4 class="fw-bold">Quelle est ta compétence ?</h4>
+        <p class="text-muted small">Elle sera affichée sur ton profil de formateur.</p>
+      </div>
+      <form method="POST" action="{{ url_for('onboarding.step1') }}">
+        <input type="hidden" name="role_choice" value="formateur">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Ta compétence principale</label>
+          <input type="text" class="form-control form-control-lg"
+                 name="competence"
+                 placeholder="Ex : Excel avancé, Design Canva, Marketing Digital…"
+                 maxlength="120"
+                 value="{{ current_user.competence or '' }}"
+                 required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-100">
+          Continuer → Créer mon cours <i class="fas fa-arrow-right ms-1"></i>
+        </button>
+      </form>
+      <p class="text-center text-muted small mt-3">
+        Ton cours sera relu par notre équipe avant publication (24-48h).
+      </p>
+    </div>
+
   </div>
 </div>
 {% endblock %}
@@ -47,71 +104,103 @@
     background: white;
     border-radius: 20px;
     box-shadow: 0 18px 42px rgba(24,34,53,.18);
-    padding: 48px 44px;
-    max-width: 500px;
+    padding: 44px 40px;
+    max-width: 520px;
     width: 100%;
-    animation: fadePop .45s ease both;
+    animation: fadePop .4s ease both;
   }
-  .ob-icon { font-size: 3.5rem; }
-  .ob-progress {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
+  @keyframes fadePop {
+    from { opacity:0; transform:translateY(18px) scale(.97); }
+    to   { opacity:1; transform:translateY(0) scale(1); }
   }
-  .ob-step {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: #e2e8f0;
-    color: #94a3b8;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: .9rem;
-    transition: all .3s;
-  }
-  .ob-step.active {
-    background: var(--gradient-game, linear-gradient(130deg,#0f5fff,#20bf55));
-    color: white;
-    box-shadow: 0 4px 14px rgba(15,95,255,.35);
-  }
-  .ob-line {
-    flex: 1; height: 3px; background: #e2e8f0; max-width: 60px;
-  }
-  .category-grid {
+  .ob-icon { font-size: 3rem; }
+  .hidden-section { display: none !important; }
+
+  /* ── Choix de rôle ── */
+  .role-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 14px;
   }
-  .category-choice {
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
+  .role-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
     background: #f8fafc;
-    min-height: 88px;
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    text-align: left;
-    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    padding: 20px 14px;
+    display: flex; flex-direction: column;
+    align-items: center; text-align: center; gap: 6px;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s, border-color .15s;
   }
-  .category-choice:hover {
-    transform: translateY(-2px);
+  .role-card:hover {
+    transform: translateY(-3px);
     border-color: #60a5fa;
-    box-shadow: 0 10px 20px rgba(59, 130, 246, .15);
+    box-shadow: 0 10px 24px rgba(59,130,246,.18);
     background: #eff6ff;
   }
-  .category-choice .emoji {
-    font-size: 1.25rem;
-    margin-bottom: 4px;
+  .role-card-accent { border-color: #fbbf24; background: #fffbeb; }
+  .role-card-accent:hover { border-color: #f59e0b; background: #fef3c7; box-shadow: 0 10px 24px rgba(245,158,11,.2); }
+  .role-emoji { font-size: 2rem; }
+  .role-title { font-weight: 800; font-size: .95rem; color: #0f172a; }
+  .role-desc  { font-size: .78rem; color: #64748b; }
+
+  /* ── Catégories (apprenant) ── */
+  .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .category-choice {
+    border: 1px solid #e2e8f0; border-radius: 14px;
+    background: #f8fafc; min-height: 80px; padding: 12px;
+    display: flex; flex-direction: column; align-items: flex-start;
+    text-align: left;
+    transition: transform .15s, box-shadow .15s, border-color .15s;
   }
-  .category-choice .label {
-    font-weight: 700;
-    color: #0f172a;
+  .category-choice:hover {
+    transform: translateY(-2px); border-color: #60a5fa;
+    box-shadow: 0 8px 18px rgba(59,130,246,.15); background: #eff6ff;
   }
-  @media (max-width: 576px) {
-    .category-grid {
-      grid-template-columns: 1fr;
-    }
+  .category-choice .emoji { font-size: 1.2rem; margin-bottom: 4px; }
+  .category-choice .label { font-weight: 700; color: #0f172a; font-size: .88rem; }
+
+  /* ── Progress bar (formateur) ── */
+  .ob-progress { display: flex; align-items: center; justify-content: center; }
+  .ob-step {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #e2e8f0; color: #94a3b8;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .85rem;
+  }
+  .ob-step.active {
+    background: linear-gradient(130deg,#0f5fff,#20bf55);
+    color: white; box-shadow: 0 4px 14px rgba(15,95,255,.35);
+  }
+  .ob-line { flex: 1; height: 3px; background: #e2e8f0; max-width: 60px; }
+
+  /* ── Bouton retour ── */
+  .btn-back {
+    background: none; border: none; color: #64748b;
+    font-size: .9rem; padding: 0; cursor: pointer;
+  }
+  .btn-back:hover { color: #0f172a; }
+
+  @media (max-width: 480px) {
+    .role-grid, .category-grid { grid-template-columns: 1fr; }
+    .onboarding-card { padding: 28px 20px; }
   }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function showSection(name) {
+    ['choice', 'apprenant', 'formateur'].forEach(function(s) {
+      var el = document.getElementById('screen-' + s);
+      if (el) el.classList.add('hidden-section');
+    });
+    var target = document.getElementById('screen-' + name);
+    if (target) target.classList.remove('hidden-section');
+  }
+  {% if show_formateur %}
+  // Si on revient avec une erreur côté formateur, rester sur ce panel
+  document.addEventListener('DOMContentLoaded', function() { showSection('formateur'); });
+  {% endif %}
+</script>
 {% endblock %}
