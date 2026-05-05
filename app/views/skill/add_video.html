@@ -30,12 +30,20 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="video_file" class="form-label">Fichier vidéo *</label>
+                            <label for="video_file" class="form-label">Fichier vidéo <span class="text-muted">(optionnel si PDF fourni)</span></label>
                             <input type="file" class="form-control" id="video_file" name="video_file"
-                                   accept="video/*" required>
+                                   accept="video/*">
                             <small class="form-text text-muted">
                                 Formats acceptés : MP4, MOV, AVI, MKV… — La vidéo sera automatiquement découpée en segments de 2-3 min.
-                                Le premier segment sera gratuit, les suivants débloquables chaque jour ou via des XP.
+                                Le premier segment sera gratuit, les suivants débloquables via des XP.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pdf_file" class="form-label">Support de cours PDF <span class="text-muted">(optionnel)</span></label>
+                            <input type="file" class="form-control" id="pdf_file" name="pdf_file" accept=".pdf">
+                            <small class="form-text text-muted">
+                                Le PDF sera associé à ce cours. Les 5 premières pages seront gratuites, le reste débloquable via XP.
                             </small>
                         </div>
 
@@ -43,12 +51,12 @@
                         <div id="uploadProgress" class="mb-3 d-none">
                             <div class="alert alert-info d-flex align-items-center gap-2">
                                 <div class="spinner-border spinner-border-sm text-info" role="status"></div>
-                                <span>Upload et découpage en cours… cela peut prendre quelques instants.</span>
+                                <span>Upload en cours… cela peut prendre quelques instants.</span>
                             </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary" id="submitBtn" onclick="showProgress()">
-                            <i class="fas fa-upload"></i> Envoyer et découper la vidéo
+                            <i class="fas fa-upload"></i> Envoyer le contenu
                         </button>
                     </form>
                 </div>

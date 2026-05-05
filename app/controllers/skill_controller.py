@@ -1,8 +1,10 @@
 from flask import request, jsonify, render_template, flash, redirect, url_for, send_file, abort, current_app
 from app.models import db, Skill, Video, UserProgress, ContentUnlock
 from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
 from datetime import datetime, date
 import os
+import uuid
 
 
 def _static_url_to_abs_path(static_url):
@@ -59,11 +61,39 @@ class SkillController:
             title = request.form.get('title', '').strip()
             description = request.form.get('description', '')
             video_file = request.files.get('video_file')
+            pdf_file   = request.files.get('pdf_file')
 
-            if not title or not video_file or video_file.filename == '':
-                flash('Veuillez remplir le titre et sélectionner une vidéo', 'error')
+            has_video = bool(video_file and video_file.filename)
+            has_pdf   = bool(pdf_file and pdf_file.filename)
+
+            if not title or (not has_video and not has_pdf):
+                flash('Veuillez remplir le titre et fournir au moins une vidéo ou un PDF.', 'error')
                 videos = Video.query.filter_by(skill_id=skill_id).order_by(Video.order).all()
                 return render_template('skill/add_video.html', skill=skill, videos=videos)
+
+            # ── Sauvegarde PDF ─────────────────────────────────────────────
+            if has_pdf:
+                pdf_ext = os.path.splitext(secure_filename(pdf_file.filename))[1].lower()
+                if pdf_ext != '.pdf':
+                    flash('Seuls les fichiers PDF sont acceptés.', 'error')
+                    videos = Video.query.filter_by(skill_id=skill_id).order_by(Video.order).all()
+                    return render_template('skill/add_video.html', skill=skill, videos=videos)
+                pdf_folder = os.path.join(current_app.static_folder, 'uploads', 'pdfs')
+                os.makedirs(pdf_folder, exist_ok=True)
+                pdf_filename = f'skill_{skill_id}_{uuid.uuid4().hex}.pdf'
+                pdf_path = os.path.join(pdf_folder, pdf_filename)
+                pdf_file.save(pdf_path)
+                try:
+                    from PyPDF2 import PdfReader
+                    pdf_pages = len(PdfReader(pdf_path).pages)
+                except Exception:
+                    pdf_pages = 0
+                skill.course_pdf = f'/static/uploads/pdfs/{pdf_filename}'
+                skill.pdf_total_pages = pdf_pages
+                db.session.commit()
+                if not has_video:
+                    flash(f'PDF ajouté avec succès ({pdf_pages} pages) !', 'success')
+                    return redirect(url_for('skill.add_video', skill_id=skill_id))
 
             upload_folder = os.path.join(current_app.static_folder, 'uploads', 'videos')
             os.makedirs(upload_folder, exist_ok=True)
