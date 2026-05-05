@@ -147,6 +147,8 @@ class Mission(db.Model):
     difficulty = db.Column(db.String(20), default='Easy')
     skill_id = db.Column(db.Integer, db.ForeignKey('skills.id'), nullable=False)
     user_missions = db.relationship('UserMission', backref='mission', lazy=True, cascade='all, delete-orphan')
+    quiz_questions = db.relationship('MissionQuizQuestion', backref='mission', lazy=True, cascade='all, delete-orphan')
+    quiz_attempts = db.relationship('UserMissionQuizAttempt', backref='mission', lazy=True, cascade='all, delete-orphan')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
@@ -162,6 +164,33 @@ class UserMission(db.Model):
     is_completed = db.Column(db.Boolean, default=False)
     completed_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class MissionQuizQuestion(db.Model):
+    """Question de quiz attachée à une mission."""
+    __tablename__ = 'mission_quiz_questions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    mission_id = db.Column(db.Integer, db.ForeignKey('missions.id'), nullable=False)
+    question_text = db.Column(db.Text, nullable=False)
+    option_a = db.Column(db.String(300), nullable=False)
+    option_b = db.Column(db.String(300), nullable=False)
+    option_c = db.Column(db.String(300), nullable=False)
+    option_d = db.Column(db.String(300), nullable=False)
+    correct_option = db.Column(db.String(1), nullable=False)  # A|B|C|D
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class UserMissionQuizAttempt(db.Model):
+    """Tentatives de quiz de mission par utilisateur."""
+    __tablename__ = 'user_mission_quiz_attempts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    mission_id = db.Column(db.Integer, db.ForeignKey('missions.id'), nullable=False)
+    score_10 = db.Column(db.Float, nullable=False)
+    passed = db.Column(db.Boolean, default=False)
+    attempted_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class UserProgress(db.Model):

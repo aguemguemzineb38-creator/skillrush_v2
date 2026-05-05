@@ -127,6 +127,39 @@ def migrate():
         cur.execute("CREATE INDEX idx_cu_user_skill ON content_unlocks(user_id, skill_id)")
         print("Table content_unlocks creee"); n+=1
 
+    # 9. Table mission_quiz_questions
+    if not table_exists(cur, 'mission_quiz_questions'):
+        cur.execute("""
+            CREATE TABLE mission_quiz_questions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                mission_id INTEGER NOT NULL REFERENCES missions(id),
+                question_text TEXT NOT NULL,
+                option_a VARCHAR(300) NOT NULL,
+                option_b VARCHAR(300) NOT NULL,
+                option_c VARCHAR(300) NOT NULL,
+                option_d VARCHAR(300) NOT NULL,
+                correct_option VARCHAR(1) NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cur.execute("CREATE INDEX idx_mqq_mission ON mission_quiz_questions(mission_id)")
+        print("Table mission_quiz_questions creee"); n+=1
+
+    # 10. Table user_mission_quiz_attempts
+    if not table_exists(cur, 'user_mission_quiz_attempts'):
+        cur.execute("""
+            CREATE TABLE user_mission_quiz_attempts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                mission_id INTEGER NOT NULL REFERENCES missions(id),
+                score_10 REAL NOT NULL,
+                passed BOOLEAN DEFAULT 0,
+                attempted_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cur.execute("CREATE INDEX idx_umqa_user_mission ON user_mission_quiz_attempts(user_id, mission_id)")
+        print("Table user_mission_quiz_attempts creee"); n+=1
+
     conn.commit()
     conn.close()
     print(f"\n{'Migration terminee: '+str(n)+' changement(s).' if n else 'Deja a jour.'}")

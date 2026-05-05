@@ -169,6 +169,10 @@ def register_blueprints(app):
     def complete_mission(mission_id):
         return MissionController.complete_mission(mission_id)
 
+    @mission_bp.route('/<int:mission_id>/quiz', methods=['GET', 'POST'])
+    def take_quiz(mission_id):
+        return MissionController.take_quiz(mission_id)
+
     @mission_bp.route('/my-missions')
     def my_missions():
         return MissionController.my_missions()

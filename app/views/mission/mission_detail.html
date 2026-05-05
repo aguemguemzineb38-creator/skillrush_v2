@@ -29,6 +29,12 @@
                             <i class="fas fa-star"></i> {{ mission.reward_xp }} XP
                         </span>
                     </div>
+                    {% if quiz_count > 0 %}
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <i class="fas fa-question-circle"></i>
+                        Quiz requis pour valider la mission: score minimum 5/10.
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -44,7 +50,7 @@
                     {% elif not user_mission.is_completed %}
                         <form method="POST" action="{{ url_for('mission.complete_mission', mission_id=mission.id) }}" style="display: inline;">
                             <button type="submit" class="btn btn-lg btn-success">
-                                <i class="fas fa-check"></i> Marquer comme complétée
+                                <i class="fas fa-check"></i> Terminer et passer le quiz
                             </button>
                         </form>
                     {% else %}
@@ -85,6 +91,14 @@
                                 <span class="badge bg-warning">En cours</span><br>
                                 <small>Depuis {{ user_mission.created_at.strftime('%d/%m/%Y') }}</small>
                             {% endif %}
+                        </p>
+                    {% endif %}
+
+                    {% if latest_attempt %}
+                        <p class="mb-0"><strong>Dernier score quiz:</strong>
+                            <span class="badge bg-{{ 'success' if latest_attempt.passed else 'warning' }}">
+                                {{ latest_attempt.score_10 }}/10
+                            </span>
                         </p>
                     {% endif %}
                 </div>
