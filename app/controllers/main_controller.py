@@ -227,27 +227,4 @@ class MainController:
             abort(403)
         return render_template('moderation/space.html')
 
-    @staticmethod
-    def site_home():
-        """Site vitrine - page d'accueil."""
-        return render_template('site/home.html')
 
-    @staticmethod
-    def site_features():
-        """Site vitrine - fonctionnalites."""
-        return render_template('site/features.html')
-
-    @staticmethod
-    def site_pricing():
-        """Site vitrine - tarifs."""
-        return render_template('site/pricing.html')
-
-    @staticmethod
-    def site_team():
-        """Site vitrine - equipe."""
-        return render_template('site/team.html')
-
-    @staticmethod
-    def site_contact():
-        """Site vitrine - contact."""
-        return render_template('site/contact.html')

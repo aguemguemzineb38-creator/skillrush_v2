@@ -25,18 +25,6 @@
             <ul class="navbar-nav ms-auto align-items-center gap-1">
             {% if current_user.is_authenticated %}
                 {% set is_staff = current_user.is_admin or current_user.is_moderator %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="siteDropdownAuth" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-globe"></i> Presentation
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ url_for('main.site_home') }}">Accueil</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('main.site_features') }}">Fonctionnalites</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('main.site_pricing') }}">Tarifs</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('main.site_team') }}">Equipe</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('main.site_contact') }}">Contact</a></li>
-                    </ul>
-                </li>
                 {# ── Navigation selon rôle ── #}
                 {% if current_user.is_admin %}
                 <li class="nav-item">
@@ -138,18 +126,6 @@
                     </ul>
                 </li>
             {% else %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="siteDropdownGuest" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-globe"></i> Presentation
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ url_for('main.site_home') }}">Accueil</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('main.site_features') }}">Fonctionnalites</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('main.site_pricing') }}">Tarifs</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('main.site_team') }}">Equipe</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('main.site_contact') }}">Contact</a></li>
-                    </ul>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('auth.admin_login') }}">
                         <i class="fas fa-shield-alt"></i> Connexion Admin

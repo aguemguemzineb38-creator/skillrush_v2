@@ -45,8 +45,6 @@ def create_app(config_name='development'):
     _ONBOARDING_ALLOWED_PREFIXES = ('/auth/', '/static/', '/onboarding/')
     _ONBOARDING_ALLOWED_ENDPOINTS = {'onboarding.step1', 'onboarding.step2', 'onboarding.step3',
                                      'main.dashboard',
-                                     'main.site_home', 'main.site_features', 'main.site_pricing',
-                                     'main.site_team', 'main.site_contact',
                                      'auth.login', 'auth.logout', 'auth.register',
                                      'auth.admin_login', 'auth.moderator_login', 'static',
                                      'user.buy_xp', 'user.process_xp_purchase'}

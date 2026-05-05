@@ -8,7 +8,7 @@ def register_blueprints(app):
     # ── Main ──────────────────────────────────────────────────────────────────
     main_bp = Blueprint('main', __name__)
 
-    @main_bp.route('/app')
+    @main_bp.route('/')
     @main_bp.route('/dashboard')
     def dashboard():
         return MainController.dashboard()
@@ -24,27 +24,6 @@ def register_blueprints(app):
     @main_bp.route('/leaderboard')
     def leaderboard():
         return MainController.leaderboard()
-
-    @main_bp.route('/')
-    @main_bp.route('/presentation')
-    def site_home():
-        return MainController.site_home()
-
-    @main_bp.route('/presentation/fonctionnalites')
-    def site_features():
-        return MainController.site_features()
-
-    @main_bp.route('/presentation/tarifs')
-    def site_pricing():
-        return MainController.site_pricing()
-
-    @main_bp.route('/presentation/equipe')
-    def site_team():
-        return MainController.site_team()
-
-    @main_bp.route('/presentation/contact')
-    def site_contact():
-        return MainController.site_contact()
 
     @main_bp.route('/cours-refuse')
     def rejected_course():
