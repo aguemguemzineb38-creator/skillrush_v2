@@ -3,7 +3,7 @@ from app.models import db, User, UserProgress, UserMission, Mission, XPPurchase,
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta, date
 from functools import wraps
-from app.email_utils import send_email
+from app.email_utils import send_course_approved_email, send_course_rejected_email
 
 # ── Décorateurs de rôle ──────────────────────────────────────────────────────
 
@@ -340,20 +340,16 @@ class UserController:
 
         if creator:
             try:
-                send_email(
+                from flask import url_for
+                course_url = url_for('skill.skill_detail', skill_id=skill.id, _external=True)
+            except Exception:
+                course_url = None
+            try:
+                send_course_approved_email(
                     creator.email,
-                    'SkillRush - Confirmation officielle: cours accepte',
-                    (
-                        f'Bonjour {creator.username},\n\n'
-                        'Nous vous informons que votre cours a ete officiellement accepte par l\'equipe de moderation de SkillRush.\n\n'
-                        f'Titre du cours: {skill.name}\n'
-                        f'Score d\'analyse IA: {ai["quality_score"]}/100\n\n'
-                        'Motifs principaux de validation:\n'
-                        + ''.join([f'- {r}\n' for r in ai['reasons'][:4]]) +
-                        (f'\nCommentaire du moderateur: {moderator_reason}\n' if moderator_reason else '') +
-                        '\nVotre contenu est desormais visible pour les apprenants.\n\n'
-                        'Cordialement,\nEquipe SkillRush - Moderation'
-                    )
+                    creator.username,
+                    skill.name,
+                    course_url,
                 )
             except Exception as exc:
                 current_app.logger.exception('Erreur envoi email acceptation: %s', exc)
@@ -382,20 +378,17 @@ class UserController:
 
         if creator:
             try:
-                send_email(
+                from flask import url_for
+                edit_url = url_for('skill.my_skills', _external=True)
+            except Exception:
+                edit_url = None
+            try:
+                send_course_rejected_email(
                     creator.email,
-                    'SkillRush - Notification officielle: cours refuse',
-                    (
-                        f'Bonjour {creator.username},\n\n'
-                        'Nous vous informons que votre cours n\'a pas passe la validation de moderation.\n\n'
-                        f'Titre du cours: {skill.name}\n'
-                        f'Score d\'analyse IA: {ai["quality_score"]}/100\n\n'
-                        'Points a ameliorer:\n'
-                        + ''.join([f'- {r}\n' for r in (ai['risks'][:4] or ['Le contenu doit etre clarifie et mieux structure.'])]) +
-                        (f'\nCommentaire du moderateur: {moderator_reason}\n' if moderator_reason else '') +
-                        '\nVous pouvez corriger votre contenu puis le soumettre a nouveau.\n\n'
-                        'Cordialement,\nEquipe SkillRush - Moderation'
-                    )
+                    creator.username,
+                    skill.name,
+                    moderator_reason or None,
+                    edit_url,
                 )
             except Exception as exc:
                 current_app.logger.exception('Erreur envoi email refus: %s', exc)

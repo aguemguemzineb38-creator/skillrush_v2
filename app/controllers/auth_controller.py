@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, flash
 from app.models import db, User
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.email_utils import send_email
+from app.email_utils import send_welcome_email
 
 class AuthController:
     """Contrôleur d'authentification"""
@@ -74,20 +74,9 @@ class AuthController:
             db.session.add(user)
             db.session.commit()
 
-            # Email de bienvenue
+            # Email de bienvenue HTML
             try:
-                send_email(
-                    user.email,
-                    'Bienvenue sur SkillRush 🚀',
-                    f'Bonjour {user.username},\n\n'
-                    'Bienvenue sur SkillRush — la plateforme de compétences professionnelles pour étudiants ENCG !\n\n'
-                    '🎓 Tu peux maintenant :\n'
-                    '  - Explorer des cours vidéo (Excel, Canva, Marketing, Python...)\n'
-                    '  - Gagner des XP et monter de niveau\n'
-                    '  - Publier tes propres cours et partager ta compétence\n\n'
-                    'Connecte-toi dès maintenant et commence ton parcours.\n\n'
-                    'Cordialement,\nL\'équipe SkillRush'
-                )
+                send_welcome_email(user.email, user.username)
             except Exception:
                 pass  # Ne pas bloquer l'inscription si l'email échoue
 
