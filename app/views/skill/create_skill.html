@@ -1,71 +1,69 @@
-{% extends "base.html" %}
-
-{% block title %}Créer une compétence - SkillRush{% endblock %}
-
+﻿{% extends "base.html" %}
+{% block title %}Publish Skill - SkillRush{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <h2 class="mb-4">Créer une nouvelle compétence</h2>
-            
-            <div class="card">
-                <div class="card-body">
-                    <form method="POST" action="{{ url_for('skill.create_skill') }}">
-                        <div class="mb-3">
-                            <label for="title" class="form-label">Titre de la compétence *</label>
-                            <input type="text" class="form-control" id="title" name="title" required 
-                                   placeholder="Ex: Excel Avancé, Canva pour Débutants">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description *</label>
-                            <textarea class="form-control" id="description" name="description" rows="4" required
-                                      placeholder="Décrivez ce que les apprenants découvriront..."></textarea>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="category" class="form-label">Catégorie *</label>
-                                <select class="form-select" id="category" name="category" required>
-                                    <option value="">Choisir une catégorie</option>
-                                    <option value="Excel">Excel</option>
-                                    <option value="Canva">Canva</option>
-                                    <option value="CV">CV</option>
-                                    <option value="Design">Design</option>
-                                    <option value="Programming">Programmation</option>
-                                    <option value="Business">Business</option>
-                                    <option value="Marketing">Marketing</option>
-                                    <option value="Other">Autre</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="difficulty" class="form-label">Niveau de difficulté</label>
-                                <select class="form-select" id="difficulty" name="difficulty">
-                                    <option value="Beginner" selected>Débutant</option>
-                                    <option value="Intermediate">Intermédiaire</option>
-                                    <option value="Advanced">Avancé</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i>
-                            Vous pourrez ajouter des vidéos après la création de la compétence.
-                        </div>
-
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Créer la compétence
-                            </button>
-                            <a href="{{ url_for('main.explore_skills') }}" class="btn btn-outline-secondary">
-                                Annuler
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+<div class="sr-main-card p-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <div>
+      <h3 class="mb-1">Publish a Skill</h3>
+      <p class="text-muted mb-0">Share what you master, help the community, and earn XP.</p>
     </div>
+    <span class="sr-chip"><i class="fas fa-star"></i> Reward: +150 XP</span>
+  </div>
+
+  <form method="POST" action="{{ url_for('skill.create_skill') }}" enctype="multipart/form-data">
+    <div class="upload-dropzone mb-4">
+      <i class="fas fa-cloud-upload-alt mb-2"></i>
+      <h6 class="mb-1">Drag and drop your files</h6>
+      <p class="text-muted mb-2">Video, PDF or image previews for your skill content</p>
+      <input type="file" class="form-control" name="attachments" multiple>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label for="title" class="form-label">Skill title</label>
+        <input type="text" class="form-control" id="title" name="title" required placeholder="Ex: Canva for social media">
+      </div>
+      <div class="col-md-6">
+        <label for="tags" class="form-label">Tags</label>
+        <input type="text" class="form-control" id="tags" name="tags" placeholder="design, marketing, cv">
+      </div>
+      <div class="col-12">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="5" required placeholder="What will learners achieve after this skill?"></textarea>
+      </div>
+      <div class="col-md-4">
+        <label for="category" class="form-label">Category</label>
+        <select class="form-select" id="category" name="category" required>
+          <option value="">Select</option>
+          <option value="Design">Design</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Programming">Coding</option>
+          <option value="Business">Business</option>
+          <option value="Languages">Languages</option>
+          <option value="Excel">Excel</option>
+          <option value="Canva">Canva</option>
+          <option value="CV">CV</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="difficulty" class="form-label">Difficulty</label>
+        <select class="form-select" id="difficulty" name="difficulty">
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="thumbnail" class="form-label">Thumbnail</label>
+        <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*">
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+      <button type="submit" class="btn btn-primary pulse-glow"><i class="fas fa-bolt"></i> Publish and earn XP</button>
+      <a href="{{ url_for('main.explore_skills') }}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+  </form>
 </div>
 {% endblock %}

@@ -1,36 +1,45 @@
-{% extends "base.html" %}
-
-{% block title %}Connexion - SkillRush{% endblock %}
-
+﻿{% extends "base.html" %}
+{% block title %}Login - SkillRush{% endblock %}
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center min-vh-100">
-    <div class="card auth-card">
-        <div class="card-body p-5">
-            <h2 class="text-center mb-4">
-                <i class="fas fa-rocket"></i> SkillRush
-            </h2>
-            <h5 class="text-center mb-4">Connexion</h5>
-            
-            <form method="POST" action="{{ url_for('auth.login') }}">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Nom d'utilisateur</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="password" class="form-label">Mot de passe</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                </div>
-                
-                <button type="submit" class="btn btn-primary w-100">Se connecter</button>
-            </form>
-            
-            <hr>
-            
-            <p class="text-center mb-0">
-                Pas encore inscrit? <a href="{{ url_for('auth.register') }}">S'inscrire</a>
-            </p>
+<div class="container py-4">
+  <div class="auth-layout">
+    <section class="auth-hero d-flex flex-column justify-content-between">
+      <div>
+        <span class="sr-chip mb-3 d-inline-flex"><i class="fas fa-bolt"></i> Gen Z Learning Platform</span>
+        <h1 class="display-5 fw-bold mb-3">Share skills. Learn anything.</h1>
+        <p class="text-muted mb-4">Earn XP by helping others unlock knowledge. No money. Just skills, community, and momentum.</p>
+        <div class="hero-avatar mb-3">🧑‍🚀</div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="skill-pill">Photoshop</span>
+          <span class="skill-pill">Excel</span>
+          <span class="skill-pill">Public Speaking</span>
+          <span class="skill-pill">Python</span>
+          <span class="skill-pill">Guitar</span>
         </div>
-    </div>
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary pulse-glow">Get Started</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">Login</a>
+      </div>
+    </section>
+
+    <section class="auth-form">
+      <h4 class="fw-bold mb-1">Welcome back</h4>
+      <p class="text-muted mb-4">Continue your XP streak and unlock new skills.</p>
+      <form method="POST" action="{{ url_for('auth.login') }}">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login and Earn XP</button>
+      </form>
+      <hr>
+      <p class="text-center mb-0 text-muted">New to SkillRush? <a href="{{ url_for('auth.register') }}">Create account</a></p>
+    </section>
+  </div>
 </div>
 {% endblock %}

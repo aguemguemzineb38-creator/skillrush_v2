@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -6,171 +6,128 @@
     <title>{% block title %}SkillRush{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="{{ url_for('main.dashboard') }}">
-            <i class="fas fa-rocket text-warning"></i> SkillRush
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<div class="floating-blob blob-a"></div>
+<div class="floating-blob blob-b"></div>
+
+{% set is_auth = current_user.is_authenticated %}
+{% set is_staff = is_auth and (current_user.is_admin or current_user.is_moderator) %}
+{% set is_learner = is_auth and not is_staff %}
+
+{% if not is_learner %}
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid px-3">
+        <a class="navbar-brand fw-bold" href="{{ url_for('main.dashboard') }}"><i class="fas fa-rocket"></i> SkillRush</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center gap-1">
-            {% if current_user.is_authenticated %}
-                {% set is_staff = current_user.is_admin or current_user.is_moderator %}
-                {# ── Navigation selon rôle ── #}
+            {% if is_auth %}
                 {% if current_user.is_admin %}
-                <li class="nav-item">
-                    <a class="nav-link text-warning fw-bold" href="{{ url_for('admin.admin_users') }}">
-                        <i class="fas fa-shield-alt"></i> Admin
-                    </a>
-                </li>
-                {% endif %}
-                {% if current_user.is_moderator %}
-                <li class="nav-item">
-                    <a class="nav-link text-info fw-bold" href="{{ url_for('moderation.moderation_dashboard') }}">
-                        <i class="fas fa-gavel"></i> Modération
-                    </a>
-                </li>
-                {% endif %}
-                {% if not is_staff %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.dashboard') }}">
-                        <i class="fas fa-th-large"></i> Espaces
-                    </a>
-                </li>
-                {% endif %}
-                {% if is_staff %}
-                {# Admin/Modérateur : lien direct vers leur espace #}
-                {% if current_user.is_admin %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.admin_space') }}">
-                        <i class="fas fa-th-large"></i> Mon espace
-                    </a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.admin_users') }}"><i class="fas fa-shield-alt"></i> Admin</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.admin_space') }}"><i class="fas fa-th-large"></i> Mon espace</a></li>
                 {% elif current_user.is_moderator %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.moderation_space') }}">
-                        <i class="fas fa-th-large"></i> Mon espace
-                    </a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('moderation.moderation_dashboard') }}"><i class="fas fa-gavel"></i> Modération</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.moderation_space') }}"><i class="fas fa-th-large"></i> Mon espace</a></li>
                 {% endif %}
-                {% else %}
-                {# Utilisateur normal #}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.explore_skills') }}">
-                        <i class="fas fa-compass"></i> Découvrir
-                    </a>
-                </li>
-                {% endif %}
-
-                {% if not is_staff %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('mission.missions_list') }}">
-                        <i class="fas fa-tasks"></i> Missions
-                    </a>
-                </li>
-                {% endif %}
-
-                {# ── XP badge (utilisateurs seulement) ── #}
-                {% if not is_staff %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('user.buy_xp') }}">
-                        <span class="badge bg-warning text-dark px-2 py-1">
-                            <i class="fas fa-star"></i> {{ current_user.xp }} XP
-                        </span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <span class="nav-link">
-                        <span class="badge bg-primary px-2 py-1">
-                            Niv. {{ current_user.level }}
-                        </span>
-                    </span>
-                </li>
-                {% endif %}
-
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle"></i> {{ current_user.username }}
-                        {% if current_user.is_admin %}
-                        <span class="badge bg-warning text-dark ms-1" style="font-size:0.6rem;">ADMIN</span>
-                        {% elif current_user.is_moderator %}
-                        <span class="badge bg-info text-dark ms-1" style="font-size:0.6rem;">MOD</span>
-                        {% endif %}
-                    </a>
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown"><i class="fas fa-user-circle"></i> {{ current_user.username }}</a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ url_for('user.profile', user_id=current_user.id) }}">
-                            <i class="fas fa-id-card me-2"></i>Mon profil</a></li>
-                        {% if not is_staff %}
-                        <li><a class="dropdown-item" href="{{ url_for('user.my_progress') }}">
-                            <i class="fas fa-chart-line me-2"></i>Ma progression</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('mission.my_missions') }}">
-                            <i class="fas fa-flag me-2"></i>Mes missions</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('skill.create_skill') }}">
-                            <i class="fas fa-plus me-2"></i>Publier un cours</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-warning" href="{{ url_for('user.buy_xp') }}">
-                            <i class="fas fa-star me-2"></i>Acheter des XP</a></li>
-                        {% endif %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
-                            <i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('user.profile', user_id=current_user.id) }}"><i class="fas fa-id-card me-2"></i>Mon profil</a></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
                     </ul>
                 </li>
             {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.admin_login') }}">
-                        <i class="fas fa-shield-alt"></i> Connexion Admin
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.moderator_login') }}">
-                        <i class="fas fa-gavel"></i> Connexion Modération
-                    </a>
-                </li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Connexion</a></li>
-                <li class="nav-item">
-                    <a class="btn btn-warning btn-sm ms-2" href="{{ url_for('auth.register') }}">S'inscrire</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.admin_login') }}">Connexion Admin</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.moderator_login') }}">Connexion Modération</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
+                <li class="nav-item"><a class="btn btn-primary btn-sm ms-2" href="{{ url_for('auth.register') }}">Get Started</a></li>
             {% endif %}
             </ul>
         </div>
     </div>
 </nav>
-
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div class="container-fluid mt-2">
-        {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show mb-1">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
+<div class="page-shell">
+{% else %}
+<div class="sr-layout">
+    <aside class="sr-sidebar">
+        <div class="sr-brand"><i class="fas fa-rocket"></i> <span class="label">SkillRush</span></div>
+        <div class="sr-nav">
+            <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}"><i class="fas fa-home"></i><span class="label">Home Feed</span></a>
+            <a href="{{ url_for('main.explore_skills') }}" class="{% if request.endpoint == 'main.explore_skills' %}active{% endif %}"><i class="fas fa-compass"></i><span class="label">Learn</span></a>
+            <a href="{{ url_for('mission.missions_list') }}" class="{% if 'mission' in (request.endpoint or '') %}active{% endif %}"><i class="fas fa-bolt"></i><span class="label">Missions</span></a>
+            <a href="{{ url_for('skill.create_skill') }}" class="{% if request.endpoint == 'skill.create_skill' %}active{% endif %}"><i class="fas fa-plus-circle"></i><span class="label">Publish Skill</span></a>
+            <a href="{{ url_for('user.profile', user_id=current_user.id) }}" class="{% if request.endpoint == 'user.profile' %}active{% endif %}"><i class="fas fa-user"></i><span class="label">Profile</span></a>
+            <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i><span class="label">Logout</span></a>
         </div>
-    {% endif %}
-{% endwith %}
-
-{% if current_user.is_authenticated and current_user.is_blocked %}
-<div class="alert alert-danger text-center mb-0 rounded-0">
-    <i class="fas fa-ban"></i> Votre compte est bloqué. Contactez un administrateur.
-</div>
+    </aside>
+    <main class="sr-main">
+        <div class="sr-main-inner">
 {% endif %}
 
-<div class="container-fluid page-shell">
-    {% block content %}{% endblock %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="mb-3">
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'danger' if category == 'error' else category }} mb-2">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+{% if is_auth and current_user.is_blocked %}
+<div class="alert alert-danger text-center mb-3"><i class="fas fa-ban"></i> Votre compte est bloqué. Contactez un administrateur.</div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+{% if not is_learner %}
+</div>
+{% else %}
+        </div>
+    </main>
+
+    <aside class="sr-panel">
+        <h6 class="mb-3">Progression</h6>
+        <div class="glass-card p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">XP Wallet</span>
+                <span class="sr-chip"><i class="fas fa-star"></i> {{ current_user.xp }} XP</span>
+            </div>
+            <div class="progress mb-2"><div class="progress-bar" style="width: {{ ((current_user.xp % 500) / 5)|round(0) }}%"></div></div>
+            <small class="text-muted">Level {{ current_user.level }} • Next unlock at {{ (current_user.level + 1) * 500 }} XP</small>
+        </div>
+        <div class="glass-card p-3 mb-3 d-flex justify-content-between align-items-center">
+            <span class="text-muted">Daily streak</span>
+            <span class="rank-badge"><i class="fas fa-fire"></i> {{ current_user.streak_count or 0 }} jours</span>
+        </div>
+        <div class="glass-card p-3">
+            <h6 class="mb-2">Loop SkillRush</h6>
+            <small class="text-muted d-block">Help others</small>
+            <small class="text-muted d-block">Earn XP</small>
+            <small class="text-muted d-block">Unlock knowledge</small>
+        </div>
+    </aside>
 </div>
 
-<footer class="bg-dark text-white text-center py-4 mt-5">
-    <p class="mb-0">&copy; 2026 SkillRush — Apprentissage Gamifié</p>
+<nav class="mobile-nav">
+    <div class="nav-list">
+        <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}"><i class="fas fa-home"></i>Accueil</a>
+        <a href="{{ url_for('main.explore_skills') }}" class="{% if request.endpoint == 'main.explore_skills' %}active{% endif %}"><i class="fas fa-search"></i>Learn</a>
+        <a href="{{ url_for('skill.create_skill') }}" class="fab-link"><i class="fas fa-plus"></i></a>
+        <a href="{{ url_for('mission.missions_list') }}" class="{% if 'mission' in (request.endpoint or '') %}active{% endif %}"><i class="fas fa-bolt"></i>XP</a>
+        <a href="{{ url_for('user.profile', user_id=current_user.id) }}" class="{% if request.endpoint == 'user.profile' %}active{% endif %}"><i class="fas fa-user"></i>Profil</a>
+    </div>
+</nav>
+{% endif %}
+
+<footer class="text-center py-4">
+    <p class="mb-0">© 2026 SkillRush — Community Skill Economy</p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

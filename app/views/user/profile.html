@@ -1,92 +1,73 @@
-{% extends "base.html" %}
-
-{% block title %}{{ profile_user.username }} - Profil - SkillRush{% endblock %}
-
+﻿{% extends "base.html" %}
+{% block title %}{{ profile_user.username }} - Profile{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="row">
-        <div class="col-md-4">
-            <!-- Profil latéral -->
-            <div class="card profile-card">
-                <div class="card-body text-center">
-                    <div class="profile-avatar mb-3">
-                        <i class="fas fa-user-circle" style="font-size: 80px;"></i>
-                    </div>
-                    <h3>{{ profile_user.username }}</h3>
-                    <p class="text-muted">{{ profile_user.email }}</p>
-                    
-                    {% if profile_user.bio %}
-                        <p class="mt-3">{{ profile_user.bio }}</p>
-                    {% endif %}
-                    
-                    <hr>
-                    
-                    <div class="profile-stats">
-                        <div class="stat">
-                            <h5>{{ profile_user.level }}</h5>
-                            <p class="small text-muted">Niveau</p>
-                        </div>
-                        <div class="stat">
-                            <h5>{{ profile_user.xp }}</h5>
-                            <p class="small text-muted">XP</p>
-                        </div>
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card p-4 h-100">
+      <div class="text-center">
+        <div style="font-size:4rem;line-height:1">👤</div>
+        <h3 class="mt-2 mb-1">{{ profile_user.username }}</h3>
+        <p class="text-muted mb-2">{{ profile_user.email }}</p>
+        <span class="rank-badge">Level {{ profile_user.level }}</span>
+      </div>
+      {% if profile_user.bio %}
+      <p class="mt-3 text-muted">{{ profile_user.bio }}</p>
+      {% endif %}
 
-                    </div>
-                    
-                    {% if current_user.is_authenticated and current_user.id == profile_user.id %}
-                        <hr>
-                        <a href="{{ url_for('user.edit_profile') }}" class="btn btn-primary w-100 mb-2">
-                            <i class="fas fa-edit"></i> Modifier mon profil
-                        </a>
-                        <a href="{{ url_for('user.buy_xp') }}" class="btn btn-warning w-100">
-                            <i class="fas fa-star"></i> Acheter des XP
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-8">
-            <!-- Compétences créées -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5>Compétences créées ({{ skills_created|length }})</h5>
-                </div>
-                <div class="card-body">
-                    {% if skills_created %}
-                        <div class="row">
-                            {% for skill in skills_created %}
-                                <div class="col-md-6 mb-3">
-                                    <div class="card skill-card-mini">
-                                        <div class="card-body">
-                                            <h6>{{ skill.name }}</h6>
-                                            <p class="small text-muted">{{ skill.description[:60] }}...</p>
-                                            <span class="badge bg-info">{{ skill.category }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p class="text-muted">Aucune compétence créée</p>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Missions complétées -->
-            <div class="card">
-                <div class="card-header">
-                    <h5>Missions complétées ({{ missions_count }})</h5>
-                </div>
-                <div class="card-body">
-                    {% if missions_completed %}
-                        <p class="text-muted">{{ missions_completed|length }} mission(s) complétée(s)</p>
-                    {% else %}
-                        <p class="text-muted">Aucune mission complétée</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+      <div class="card p-3 mt-3">
+        <div class="d-flex justify-content-between mb-2"><span class="text-muted">XP</span><strong>{{ profile_user.xp }}</strong></div>
+        <div class="progress"><div class="progress-bar" style="width: {{ ((profile_user.xp % 500) / 5)|round(0) }}%"></div></div>
+      </div>
+
+      <div class="row g-2 mt-2">
+        <div class="col-6"><div class="card p-2 text-center"><strong>{{ skills_created|length }}</strong><small class="text-muted">Skills shared</small></div></div>
+        <div class="col-6"><div class="card p-2 text-center"><strong>{{ missions_count }}</strong><small class="text-muted">Missions done</small></div></div>
+      </div>
+
+      {% if current_user.is_authenticated and current_user.id == profile_user.id %}
+      <a href="{{ url_for('user.edit_profile') }}" class="btn btn-primary w-100 mt-3">Edit profile</a>
+      <a href="{{ url_for('user.buy_xp') }}" class="btn btn-outline-primary w-100 mt-2">Get more XP</a>
+      {% endif %}
     </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card p-3 mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Skills Shared</h5>
+        <span class="sr-chip">{{ skills_created|length }} items</span>
+      </div>
+      <div class="row g-2">
+        {% for skill in skills_created %}
+        <div class="col-md-6">
+          <div class="skill-card p-3 h-100">
+            <div class="skill-category-badge mb-1">{{ skill.category }}</div>
+            <strong>{{ skill.name }}</strong>
+            <p class="small text-muted mb-2">{{ skill.description[:80] }}...</p>
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.skill_detail', skill_id=skill.id) }}">Open</a>
+          </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-muted">No skills shared yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card p-3 mb-3">
+      <h5>Achievement badges</h5>
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        <span class="skill-pill">🏅 First Skill Shared</span>
+        <span class="skill-pill">🔥 Streak Builder</span>
+        <span class="skill-pill">⚡ XP Collector</span>
+        <span class="skill-pill">🤝 Community Helper</span>
+      </div>
+    </div>
+
+    <div class="card p-3">
+      <h5>Community ranking</h5>
+      <p class="text-muted mb-1">You are currently in the <strong>Top 15%</strong> of active contributors.</p>
+      <small class="text-muted">Ranking updates every 24h based on XP and published skills.</small>
+    </div>
+  </div>
 </div>
 {% endblock %}
