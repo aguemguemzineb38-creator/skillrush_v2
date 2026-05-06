@@ -1,133 +1,137 @@
-{% extends "base.html" %}
-
-{% block title %}Explorer les compétences - SkillRush{% endblock %}
-
+﻿{% extends "base.html" %}
+{% block title %}Apprendre — SkillRush{% endblock %}
 {% block content %}
-<div class="container py-5">
-    {% if from_onboarding %}
-    <div class="alert alert-success border-0 shadow-sm">
-        <strong>Bienvenue !</strong> Voici une sélection personnalisée pour commencer sans friction.
+<div class="container py-4" style="max-width:720px">
+
+  {% if from_onboarding %}
+  <div class="alert alert-success mb-3">
+    <i class="fas fa-check-circle me-2"></i><strong>Bienvenue !</strong> Voici une sélection personnalisée pour toi.
+  </div>
+  {% endif %}
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0 fw-bold">Apprendre</h3>
+    {% if current_user.is_authenticated %}
+    <span class="badge bg-warning px-3 py-2" style="font-size:.85rem">
+      <i class="fas fa-coins me-1"></i>{{ current_user.xp }} XP
+    </span>
+    {% endif %}
+  </div>
+
+  <form method="GET" action="{{ url_for('main.explore_skills') }}" class="mb-3">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input type="text" name="search" placeholder="Rechercher une compétence..." value="{{ search_query }}">
+      {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
+    </div>
+  </form>
+
+  <div class="cat-pills mb-4">
+    <a href="{{ url_for('main.explore_skills') }}{% if search_query %}?search={{ search_query }}{% endif %}" class="cat-pill {% if not current_category %}active{% endif %}">Toutes</a>
+    {% for cat in categories %}
+    <a href="{{ url_for('main.explore_skills') }}?category={{ cat }}{% if search_query %}&search={{ search_query }}{% endif %}" class="cat-pill {% if cat == current_category %}active{% endif %}">{{ cat }}</a>
+    {% endfor %}
+  </div>
+
+  {% if trending_skills and not search_query and not current_category %}
+  <div class="mb-4">
+    <div class="section-title">Compétences populaires 🔥</div>
+    <div class="d-flex flex-column gap-2">
+      {% for skill in trending_skills[:4] %}
+      {% set em = {'Design':'🎨','Programmation':'🐍','Marketing':'📢','Bureautique':'📊','Finance':'💹','Management':'🏢','Communication':'🗣️'} %}
+      <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="skill-row">
+        <div class="skill-row-icon">{{ em.get(skill.category, '📚') }}</div>
+        <div class="skill-row-info">
+          <div class="skill-row-title">{{ skill.name }}</div>
+          <div class="skill-row-meta">par {{ skill.creator.username }} · {{ skill.category }}</div>
+        </div>
+        <span class="skill-row-xp">{{ skill.xp_reward }} XP</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not search_query and not current_category %}
+  <div class="mb-4 card p-0" style="overflow:hidden">
+    <div class="card-header" style="font-size:.92rem">Comment débloquer une compétence ?</div>
+    <div class="card-body p-0">
+      <div class="skill-row" style="border-radius:0;border:none;border-bottom:1px solid var(--border)">
+        <div class="skill-row-icon" style="background:rgba(245,158,11,.12)">⭐</div>
+        <div class="skill-row-info">
+          <div class="skill-row-title">1. Gagne des XP</div>
+          <div class="skill-row-meta">Partage tes compétences et aide la communauté.</div>
+        </div>
+      </div>
+      <div class="skill-row" style="border-radius:0;border:none">
+        <div class="skill-row-icon" style="background:rgba(124,58,237,.12)">🔓</div>
+        <div class="skill-row-info">
+          <div class="skill-row-title">2. Débloque</div>
+          <div class="skill-row-meta">Utilise tes XP pour accéder aux compétences que tu veux apprendre.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="mb-3">
+    {% if search_query or current_category %}
+    <div class="section-title">
+      {% if current_category %}{{ current_category }}{% elif search_query %}Résultats pour "{{ search_query }}"{% endif %}
+    </div>
+    {% else %}
+    <div class="section-title">Compétences disponibles
+      <a href="{{ url_for('user.my_progress') }}">Voir mes compétences</a>
     </div>
     {% endif %}
 
-    <h2 class="mb-3">Découvrez nos compétences</h2>
-    <p class="text-muted mb-4">Recherche optionnelle: vous pouvez explorer directement les profils et vidéos.</p>
-
-    {% macro skill_cards(title, items) -%}
-    <div class="mb-5">
-        <h4 class="mb-3">{{ title }}</h4>
-        <div class="row">
-            {% for skill in items %}
-            <div class="col-md-4 col-lg-3 mb-3">
-                <div class="card skill-card h-100">
-                    <div class="card-body">
-                        <div class="skill-category-badge">{{ skill.category }}</div>
-                        <h5 class="card-title">{{ skill.name }}</h5>
-                        <p class="card-text text-muted">{{ skill.description[:80] }}...</p>
-                        <p class="small text-muted mb-3">
-                            <i class="fas fa-user-circle"></i> Par {{ skill.creator.username }}
-                        </p>
-                        <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-outline-primary w-100">Voir</a>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="col-12"><p class="text-muted">Aucune compétence disponible.</p></div>
-            {% endfor %}
+    <div class="d-flex flex-column gap-2">
+      {% for skill in skills.items %}
+      {% set em = {'Design':'🎨','Programmation':'🐍','Marketing':'📢','Bureautique':'📊','Finance':'💹','Management':'🏢','Communication':'🗣️'} %}
+      <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="skill-row">
+        <div class="skill-row-icon">{{ em.get(skill.category, '📚') }}</div>
+        <div class="skill-row-info">
+          <div class="skill-row-title">{{ skill.name }}</div>
+          <div class="skill-row-meta">par {{ skill.creator.username }} · {{ skill.category }}</div>
         </div>
+        <span class="skill-row-xp">{{ skill.xp_reward }} XP</span>
+      </a>
+      {% else %}
+      <div class="card text-center p-4">
+        <div style="font-size:2rem;margin-bottom:.5rem">🔍</div>
+        <div class="text-muted">Aucune compétence trouvée.</div>
+      </div>
+      {% endfor %}
     </div>
-    {%- endmacro %}
+  </div>
 
-    {{ skill_cards('Trending skills 🔥', trending_skills) }}
-    {{ skill_cards('Recommandé pour toi', recommended_skills) }}
-    {{ skill_cards('Top skills ENCG', top_encg_skills) }}
-    
-    <!-- Filtre et recherche -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <form method="GET" action="{{ url_for('main.explore_skills') }}" class="d-flex gap-2">
-                <input type="text" class="form-control" name="search" placeholder="Chercher une compétence..." value="{{ search_query }}">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
-        </div>
-        <div class="col-md-6">
-            <select class="form-select" name="category" onchange="window.location = '?category=' + this.value">
-                <option value="">Toutes les catégories</option>
-                {% for cat in categories %}
-                    <option value="{{ cat }}" {% if cat == current_category %}selected{% endif %}>{{ cat }}</option>
-                {% endfor %}
-            </select>
-        </div>
+  {% if skills.pages > 1 %}
+  <nav class="mt-3">
+    <ul class="pagination justify-content-center flex-wrap gap-1">
+      {% if skills.has_prev %}
+      <li class="page-item"><a class="page-link" href="?page={{ skills.prev_num }}&search={{ search_query }}&category={{ current_category }}">‹</a></li>
+      {% endif %}
+      {% for page_num in skills.iter_pages() %}
+        {% if page_num %}
+        <li class="page-item {% if page_num == skills.page %}active{% endif %}">
+          <a class="page-link" href="?page={{ page_num }}&search={{ search_query }}&category={{ current_category }}">{{ page_num }}</a>
+        </li>
+        {% endif %}
+      {% endfor %}
+      {% if skills.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ skills.next_num }}&search={{ search_query }}&category={{ current_category }}">›</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+
+  <div class="mb-4 featured-card d-flex align-items-center gap-3" style="padding:1rem 1.2rem">
+    <div style="font-size:2rem">🚀</div>
+    <div>
+      <div class="fw-bold" style="font-size:.95rem">Il te manque des XP ?</div>
+      <div style="font-size:.8rem;color:rgba(255,255,255,.65)">Partage encore plus de compétences et aide la communauté !</div>
     </div>
-
-    <!-- Grille complète de compétences -->
-    <div class="row">
-        {% for skill in skills.items %}
-            <div class="col-md-4 col-lg-3 mb-4">
-                <div class="card skill-card h-100">
-                    <div class="card-body">
-                        <div class="skill-category-badge">{{ skill.category }}</div>
-                        <h5 class="card-title">{{ skill.name }}</h5>
-                        <p class="card-text text-muted">{{ skill.description[:80] }}...</p>
-                        <p class="small text-muted mb-3">
-                            <i class="fas fa-user-circle"></i> Par {{ skill.creator.username }}
-                        </p>
-                        
-                        <div class="skill-meta mb-3">
-                            <span class="badge bg-info">{{ skill.difficulty }}</span>
-                            <span class="badge bg-warning">
-                                <i class="fas fa-star"></i> {{ skill.rating|round(1) }}
-                            </span>
-                        </div>
-                        
-                        <p class="text-muted small">
-                            <i class="fas fa-eye"></i> {{ skill.views }} vues
-                        </p>
-                        
-                        <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-primary w-100">
-                            Découvrir
-                        </a>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <div class="col-12">
-                <p class="text-center text-muted">Aucune compétence trouvée.</p>
-            </div>
-        {% endfor %}
-    </div>
-
-    <!-- Pagination -->
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-            {% if skills.has_prev %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1&search={{ search_query }}&category={{ current_category }}">Première</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ skills.prev_num }}&search={{ search_query }}&category={{ current_category }}">Précédente</a>
-                </li>
-            {% endif %}
-
-            {% for page_num in skills.iter_pages() %}
-                {% if page_num %}
-                    <li class="page-item {% if page_num == skills.page %}active{% endif %}">
-                        <a class="page-link" href="?page={{ page_num }}&search={{ search_query }}&category={{ current_category }}">{{ page_num }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
-
-            {% if skills.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ skills.next_num }}&search={{ search_query }}&category={{ current_category }}">Suivante</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ skills.pages }}&search={{ search_query }}&category={{ current_category }}">Dernière</a>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
+    <a href="{{ url_for('skill.create_skill') }}" class="btn btn-primary btn-sm ms-auto">Partager</a>
+  </div>
 </div>
 {% endblock %}
