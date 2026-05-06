@@ -18,13 +18,16 @@
                     <a href="{{ url_for('onboarding.step1') }}" class="btn btn-outline-primary btn-lg">Modifier ma competence</a>
                 </div>
                 {% else %}
-                <h1 class="display-4 fw-bold mb-4">Bienvenue sur SkillRush</h1>
-                <p class="lead mb-4">Apprenez de nouvelles compétences, gagnez des récompenses et rejoignez une communauté d'apprentissage collaborative.</p>
-                <div class="d-flex gap-2">
+                <span class="badge landing-badge mb-3 px-3 py-2">Plateforme d'apprentissage gamifiee pour etudiants</span>
+                <h1 class="display-4 fw-bold mb-4">Apprends les competences que ton diplome ne t'enseigne pas</h1>
+                <p class="lead mb-4">Des mini-videos, des missions quotidiennes et un systeme XP qui te motive a progresser chaque jour.</p>
+                <div class="d-flex gap-2 flex-wrap">
                     <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
-                        <i class="fas fa-rocket"></i> Commencer maintenant
+                        <i class="fas fa-rocket"></i> Commencer gratuitement
                     </a>
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg">Se connecter</a>
+                    <a href="{{ url_for('main.explore_skills') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-compass"></i> Voir les competences
+                    </a>
                 </div>
                 {% endif %}
             </div>
@@ -51,13 +54,61 @@
     </div>
 </div>
 
+<div class="container pb-4">
+    <div class="landing-proof">
+        <div class="landing-proof-item">
+            <span class="landing-proof-value">3-5 min</span>
+            <span class="landing-proof-label">par video en moyenne</span>
+        </div>
+        <div class="landing-proof-item">
+            <span class="landing-proof-value">XP + Niveaux</span>
+            <span class="landing-proof-label">progression visible et motivante</span>
+        </div>
+        <div class="landing-proof-item">
+            <span class="landing-proof-value">100%</span>
+            <span class="landing-proof-label">contenu en francais et adapte localement</span>
+        </div>
+    </div>
+</div>
+
+<div class="container py-3">
+    <span class="landing-section-kicker">Le probleme</span>
+    <h2 class="landing-section-title">Les etudiants apprennent la theorie, pas assez les vraies competences</h2>
+    <p class="landing-section-text mb-4">Excel, Python, communication pro, gestion de projet: ces competences sont demandees en entreprise mais restent peu pratiquees dans beaucoup de cursus.</p>
+
+    <div class="row g-4 mb-5">
+        <div class="col-lg-6">
+            <div class="landing-compare-card landing-compare-bad h-100">
+                <h5><i class="fas fa-times-circle text-danger"></i> Sans SkillRush</h5>
+                <ul class="mb-0">
+                    <li>Cours longs abandonnes rapidement</li>
+                    <li>Contenu disperse sans progression claire</li>
+                    <li>Peu de motivation pour revenir chaque jour</li>
+                    <li>Niveau reel difficile a mesurer</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="landing-compare-card landing-compare-good h-100">
+                <h5><i class="fas fa-check-circle text-success"></i> Avec SkillRush</h5>
+                <ul class="mb-0">
+                    <li>Mini-videos actionnables et progressives</li>
+                    <li>Missions + quiz pour valider les acquis</li>
+                    <li>XP, niveaux et bonus quotidien</li>
+                    <li>Competences concretes pour le marche du travail</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container py-5">
-    <h2 class="text-center mb-4">Comment ça marche?</h2>
+    <h2 class="text-center mb-4">Comment ca marche?</h2>
     <div class="row">
         <div class="col-md-3 text-center">
             <div class="step-box">
                 <div class="step-number">1</div>
-                <h5>Cherchez une compétence</h5>
+                <h5>Cherchez une competence</h5>
                 <p>Explorez notre catalogue et trouvez ce que vous voulez apprendre</p>
             </div>
         </div>
@@ -85,6 +136,42 @@
     </div>
 </div>
 
+<div class="container pb-4">
+    <span class="landing-section-kicker">Le catalogue</span>
+    <h2 class="landing-section-title">Des competences qui comptent sur ton CV</h2>
+    <p class="landing-section-text mb-4">Chaque competence est decoupee en petites videos et missions. Tu progresses a ton rythme, avec une preuve claire de tes acquis.</p>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="card skill-card-mini h-100 landing-catalog-card">
+                <div class="card-body">
+                    <h5>Excel Avance</h5>
+                    <p class="mb-2">TCD, formules, dashboard pro.</p>
+                    <span class="badge bg-warning text-dark">Debutant -> Pro</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="card skill-card-mini h-100 landing-catalog-card">
+                <div class="card-body">
+                    <h5>Python pour debutants</h5>
+                    <p class="mb-2">Automatisation, analyse, scripts utiles.</p>
+                    <span class="badge bg-info text-dark">Zero requis</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="card skill-card-mini h-100 landing-catalog-card">
+                <div class="card-body">
+                    <h5>Prise de parole</h5>
+                    <p class="mb-2">Parler avec confiance et structure.</p>
+                    <span class="badge bg-primary">Intermediaire</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container pb-5">
     <div class="card border-0 shadow-sm">
         <div class="card-body">
@@ -98,6 +185,17 @@
                 <li>Revenez chaque jour pour ne pas perdre votre série.</li>
             </ol>
         </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="landing-final-cta text-center">
+        <span class="badge bg-success-subtle text-success-emphasis mb-3">Inscription gratuite</span>
+        <h2 class="mb-3">Pret a apprendre autrement ?</h2>
+        <p class="mb-4">Rejoins SkillRush aujourd'hui et commence ta premiere competence sans carte bancaire.</p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-4">
+            <i class="fas fa-rocket"></i> Creer mon compte gratuit
+        </a>
     </div>
 </div>
 {% endblock %}

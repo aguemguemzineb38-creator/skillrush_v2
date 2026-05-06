@@ -420,6 +420,120 @@ a:hover {
     color: white;
 }
 
+/* Landing improvements */
+.landing-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    font-weight: 700;
+}
+
+.landing-proof {
+    background: #182235;
+    border-radius: 14px;
+    color: #fff;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.landing-proof-item {
+    text-align: center;
+    padding: 8px;
+}
+
+.landing-proof-value {
+    display: block;
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #ffb703;
+}
+
+.landing-proof-label {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.92rem;
+}
+
+.landing-section-kicker {
+    display: inline-block;
+    color: #ff7a00;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+
+.landing-section-title {
+    font-size: 2.1rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.landing-section-text {
+    color: #5f6f8c;
+    max-width: 900px;
+}
+
+.landing-compare-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 10px 24px rgba(24, 34, 53, 0.1);
+}
+
+.landing-compare-bad {
+    border: 1px solid rgba(255, 77, 109, 0.25);
+}
+
+.landing-compare-good {
+    border: 1px solid rgba(32, 191, 85, 0.25);
+}
+
+.landing-compare-card ul {
+    margin-top: 14px;
+    padding-left: 18px;
+}
+
+.landing-compare-card li {
+    margin-bottom: 8px;
+    color: #34425e;
+}
+
+.landing-catalog-card h5 {
+    font-weight: 800;
+}
+
+.landing-final-cta {
+    background: linear-gradient(160deg, #182235 0%, #1d2a44 65%, #203e5e 100%);
+    border-radius: 18px;
+    padding: 44px 24px;
+    color: #fff;
+    box-shadow: 0 16px 34px rgba(24, 34, 53, 0.3);
+}
+
+.landing-final-cta h2 {
+    color: #fff;
+    font-size: 2.2rem;
+}
+
+.landing-final-cta p {
+    color: rgba(255, 255, 255, 0.84);
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+@media (max-width: 991px) {
+    .landing-proof {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .landing-section-title {
+        font-size: 1.65rem;
+    }
+}
+
 .form-control {
     border-radius: 10px;
     border: 1px solid #d4def0;
