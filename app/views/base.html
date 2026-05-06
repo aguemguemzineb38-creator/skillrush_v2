@@ -166,34 +166,11 @@
 {% endif %}
 
 <div class="container-fluid page-shell">
-        {% block content %}{% endblock %}
+    {% block content %}{% endblock %}
 </div>
 
-{# ── Bottom navigation bar (mobile) ── #}
-{% if current_user.is_authenticated and not current_user.is_admin and not current_user.is_moderator %}
-<nav class="bottom-nav">
-    <div class="bn-items">
-        <a href="{{ url_for('main.dashboard') }}" class="bn-item {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
-            <i class="fas fa-home"></i><span>Accueil</span>
-        </a>
-        <a href="{{ url_for('main.explore_skills') }}" class="bn-item {% if request.endpoint == 'main.explore_skills' %}active{% endif %}">
-            <i class="fas fa-search"></i><span>Explorer</span>
-        </a>
-        <a href="{{ url_for('skill.create_skill') }}" class="bn-item bn-center">
-            <i class="fas fa-plus"></i>
-        </a>
-        <a href="{{ url_for('mission.missions_list') }}" class="bn-item {% if 'mission' in (request.endpoint or '') %}active{% endif %}">
-            <i class="fas fa-star"></i><span>Mes XP</span>
-        </a>
-        <a href="{{ url_for('user.profile', user_id=current_user.id) }}" class="bn-item {% if request.endpoint == 'user.profile' %}active{% endif %}">
-            <i class="fas fa-user"></i><span>Profil</span>
-        </a>
-    </div>
-</nav>
-{% endif %}
-
 <footer class="bg-dark text-white text-center py-4 mt-5">
-        <p class="mb-0">&copy; 2026 SkillRush — Apprentissage Gamifié</p>
+    <p class="mb-0">&copy; 2026 SkillRush — Apprentissage Gamifié</p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
