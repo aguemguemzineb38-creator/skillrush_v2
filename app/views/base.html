@@ -62,6 +62,7 @@
             <a href="{{ url_for('main.explore_skills') }}" class="{% if request.endpoint == 'main.explore_skills' %}active{% endif %}"><i class="fas fa-compass"></i><span class="label">Apprendre</span></a>
             <a href="{{ url_for('mission.missions_list') }}" class="{% if 'mission' in (request.endpoint or '') %}active{% endif %}"><i class="fas fa-bolt"></i><span class="label">Missions</span></a>
             <a href="{{ url_for('skill.create_skill') }}" class="{% if request.endpoint == 'skill.create_skill' %}active{% endif %}"><i class="fas fa-plus-circle"></i><span class="label">Publier</span></a>
+            <a href="{{ url_for('skill.my_skills') }}" class="{% if request.endpoint in ['skill.my_skills', 'skill.edit_skill', 'skill.add_video'] %}active{% endif %}"><i class="fas fa-folder-open"></i><span class="label">Mes contenus</span></a>
             <a href="{{ url_for('user.profile', user_id=current_user.id) }}" class="{% if request.endpoint == 'user.profile' %}active{% endif %}"><i class="fas fa-user"></i><span class="label">Profil</span></a>
             <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i><span class="label">Déconnexion</span></a>
         </div>
@@ -120,6 +121,7 @@
         <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}"><i class="fas fa-home"></i>Accueil</a>
         <a href="{{ url_for('main.explore_skills') }}" class="{% if request.endpoint == 'main.explore_skills' %}active{% endif %}"><i class="fas fa-search"></i>Apprendre</a>
         <a href="{{ url_for('skill.create_skill') }}" class="fab-link"><i class="fas fa-plus"></i></a>
+        <a href="{{ url_for('skill.my_skills') }}" class="{% if request.endpoint in ['skill.my_skills', 'skill.edit_skill', 'skill.add_video'] %}active{% endif %}"><i class="fas fa-folder-open"></i>Contenus</a>
         <a href="{{ url_for('mission.missions_list') }}" class="{% if 'mission' in (request.endpoint or '') %}active{% endif %}"><i class="fas fa-bolt"></i>XP</a>
         <a href="{{ url_for('user.profile', user_id=current_user.id) }}" class="{% if request.endpoint == 'user.profile' %}active{% endif %}"><i class="fas fa-user"></i>Profil</a>
     </div>

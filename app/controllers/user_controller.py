@@ -98,13 +98,21 @@ class UserController:
     def profile(user_id):
         user = User.query.get_or_404(user_id)
 
-        created_skills = user.skills_created
+        created_skills = (
+            Skill.query
+            .filter_by(creator_id=user_id)
+            .order_by(Skill.created_at.desc())
+            .all()
+        )
         completed_missions = UserMission.query.filter_by(user_id=user_id, is_completed=True).count()
         learned_skills = UserProgress.query.filter_by(user_id=user_id, is_completed=True).count()
         return render_template('user/profile.html',
             profile_user=user,
             created_skills=created_skills,
+            # Backward-compatible alias consumed by existing template blocks.
+            skills_created=created_skills,
             completed_missions=completed_missions,
+            missions_count=completed_missions,
             learned_skills=learned_skills)
 
     @staticmethod

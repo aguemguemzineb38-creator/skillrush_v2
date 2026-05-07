@@ -238,8 +238,20 @@ class SkillController:
     @login_required
     def my_skills():
         """Afficher mes compétences (comme créateur)"""
-        skills = Skill.query.filter_by(creator_id=current_user.id).all()
-        return render_template('skill/my_skills.html', skills=skills)
+        status = (request.args.get('status', 'all') or 'all').strip().lower()
+
+        query = Skill.query.filter_by(creator_id=current_user.id)
+        if status == 'pending':
+            query = query.filter_by(is_approved=False, is_flagged=False)
+        elif status == 'approved':
+            query = query.filter_by(is_approved=True)
+        elif status == 'rejected':
+            query = query.filter_by(is_approved=False, is_flagged=True)
+        else:
+            status = 'all'
+
+        skills = query.order_by(Skill.created_at.desc()).all()
+        return render_template('skill/my_skills.html', skills=skills, selected_status=status)
 
     @staticmethod
     @login_required

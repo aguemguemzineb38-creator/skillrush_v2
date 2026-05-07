@@ -2,6 +2,8 @@
 {% block title %}{{ profile_user.username }} - Profil{% endblock %}
 {% block content %}
 {% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business', 'Marketing': 'Marketing', 'Languages': 'Langues', 'Other': 'Autre'} %}
+{% set published_skills = created_skills if created_skills is defined else (skills_created if skills_created is defined else []) %}
+{% set done_missions = completed_missions if completed_missions is defined else (missions_count if missions_count is defined else 0) %}
 <div class="row g-3">
   <div class="col-lg-4">
     <div class="card p-4 h-100">
@@ -21,13 +23,14 @@
       </div>
 
       <div class="row g-2 mt-2">
-        <div class="col-6"><div class="card p-2 text-center"><strong>{{ skills_created|length }}</strong><small class="text-muted">Compétences partagées</small></div></div>
-        <div class="col-6"><div class="card p-2 text-center"><strong>{{ missions_count }}</strong><small class="text-muted">Missions terminées</small></div></div>
+        <div class="col-6"><div class="card p-2 text-center"><strong>{{ published_skills|length }}</strong><small class="text-muted">Compétences publiées</small></div></div>
+        <div class="col-6"><div class="card p-2 text-center"><strong>{{ done_missions }}</strong><small class="text-muted">Missions terminées</small></div></div>
       </div>
 
       {% if current_user.is_authenticated and current_user.id == profile_user.id %}
       <a href="{{ url_for('user.edit_profile') }}" class="btn btn-primary w-100 mt-3">Modifier le profil</a>
       <a href="{{ url_for('user.buy_xp') }}" class="btn btn-outline-primary w-100 mt-2">Obtenir plus d'XP</a>
+      <a href="{{ url_for('skill.my_skills') }}" class="btn btn-outline-primary w-100 mt-2">Consulter mes contenus publiés</a>
       {% endif %}
     </div>
   </div>
@@ -35,21 +38,29 @@
   <div class="col-lg-8">
     <div class="card p-3 mb-3">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="mb-0">Compétences partagées</h5>
-        <span class="sr-chip">{{ skills_created|length }} éléments</span>
+        <h5 class="mb-0">Compétences publiées</h5>
+        <span class="sr-chip">{{ published_skills|length }} éléments</span>
       </div>
       <div class="row g-2">
-        {% for skill in skills_created %}
+        {% for skill in published_skills %}
         <div class="col-md-6">
           <div class="skill-card p-3 h-100">
             <div class="skill-category-badge mb-1">{{ category_labels.get(skill.category, skill.category) }}</div>
             <strong>{{ skill.name }}</strong>
             <p class="small text-muted mb-2">{{ skill.description[:80] }}...</p>
-            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.skill_detail', skill_id=skill.id) }}">Ouvrir</a>
+            <div class="d-flex flex-wrap gap-2">
+              <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.skill_detail', skill_id=skill.id) }}">Voir</a>
+              {% if current_user.is_authenticated and current_user.id == profile_user.id %}
+              <a class="btn btn-sm btn-outline-success" href="{{ url_for('skill.add_video', skill_id=skill.id) }}">Ajouter contenu</a>
+              <a class="btn btn-sm btn-outline-warning" href="{{ url_for('skill.edit_skill', skill_id=skill.id) }}">Modifier</a>
+              <button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteFromProfile({{ skill.id }}, '{{ skill.name|e }}')">Supprimer</button>
+              <form id="delete-profile-skill-{{ skill.id }}" method="POST" action="{{ url_for('skill.delete_skill', skill_id=skill.id) }}" style="display:none;"></form>
+              {% endif %}
+            </div>
           </div>
         </div>
         {% else %}
-        <div class="col-12 text-muted">Aucune compétence partagée pour le moment.</div>
+        <div class="col-12 text-muted">Aucune compétence publiée pour le moment.</div>
         {% endfor %}
       </div>
     </div>
@@ -71,4 +82,14 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDeleteFromProfile(skillId, skillName) {
+  if (confirm('Supprimer le contenu "' + skillName + '" ?\nCette action est irreversible.')) {
+    document.getElementById('delete-profile-skill-' + skillId).submit();
+  }
+}
+</script>
 {% endblock %}
