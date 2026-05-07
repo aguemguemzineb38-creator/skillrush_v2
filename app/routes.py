@@ -145,6 +145,7 @@ def register_blueprints(app):
         return UserController.process_xp_purchase()
 
     @user_bp.route('/daily-reward', methods=['POST'])
+    @user_bp.route('/claim-daily', methods=['POST'])
     def daily_reward():
         return UserController.daily_reward()
 

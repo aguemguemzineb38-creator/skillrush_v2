@@ -68,6 +68,8 @@ a:hover {
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--glass);
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 50;
 }
 
 .navbar-brand {
@@ -336,11 +338,37 @@ a:hover {
 
 .form-control,
 .form-select {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
     border: 1px solid var(--glass-2);
     color: var(--text);
     border-radius: 14px;
     padding: 10px 12px;
+}
+
+.form-select option {
+    background: #18233f;
+    color: #ffffff;
+}
+
+.form-control[type="file"] {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    padding: 8px;
+}
+
+.form-control[type="file"]::file-selector-button {
+    background: rgba(255, 255, 255, 0.96);
+    color: #16213a;
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-right: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.form-control[type="file"]:hover::file-selector-button {
+    filter: brightness(0.96);
 }
 
 .form-control::placeholder {

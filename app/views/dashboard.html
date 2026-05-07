@@ -109,7 +109,7 @@
 {% block extra_js %}
 <script>
 function claimDailyReward(){
-  fetch('/user/claim-daily',{method:'POST',headers:{'Content-Type':'application/json'}})
+  fetch('/user/daily-reward',{method:'POST',headers:{'Content-Type':'application/json'}})
     .then(r=>r.json()).then(d=>{ if(d.success){location.reload();} else {alert(d.message || 'Bonus déjà réclamé aujourd\'hui.');}})
     .catch(()=>location.reload());
 }

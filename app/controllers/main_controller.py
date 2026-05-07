@@ -315,17 +315,17 @@ class MainController:
     @staticmethod
     @login_required
     def admin_space():
-        """Interface dediee a l'administrateur"""
+        """Redirige vers l'administration principale."""
         if not current_user.is_admin:
             abort(403)
-        return render_template('admin/space.html')
+        return redirect(url_for('admin.admin_users'))
 
     @staticmethod
     @login_required
     def moderation_space():
-        """Interface dediee a l'equipe de moderation"""
+        """Redirige vers le tableau de mod?ration."""
         if not (current_user.is_moderator or current_user.is_admin):
             abort(403)
-        return render_template('moderation/space.html')
+        return redirect(url_for('moderation.moderation_dashboard'))
 
 

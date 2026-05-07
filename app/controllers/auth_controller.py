@@ -121,7 +121,7 @@ class AuthController:
         return AuthController._role_login(
             required_role='admin',
             page_title='Connexion Administrateur',
-            success_endpoint='main.admin_space'
+            success_endpoint='admin.admin_users'
         )
 
     @staticmethod
@@ -130,7 +130,7 @@ class AuthController:
         return AuthController._role_login(
             required_role='moderator',
             page_title='Connexion Équipe de modération',
-            success_endpoint='main.moderation_space'
+            success_endpoint='moderation.moderation_dashboard'
         )
     
     @staticmethod

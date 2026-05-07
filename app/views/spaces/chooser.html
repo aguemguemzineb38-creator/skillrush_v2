@@ -24,7 +24,7 @@
                     <h5 class="fw-bold text-warning"><i class="fas fa-shield-alt"></i> Espace Administrateur</h5>
                     <p class="text-muted">Superviser la plateforme, gérer les utilisateurs et consulter les statistiques.</p>
                     {% if current_user.is_admin %}
-                    <a href="{{ url_for('main.admin_space') }}" class="btn btn-warning text-dark mt-auto">Entrer</a>
+                    <a href="{{ url_for('admin.admin_users') }}" class="btn btn-warning text-dark mt-auto">Entrer</a>
                     {% else %}
                     <button class="btn btn-outline-secondary mt-auto" disabled>Accès réservé à l'administration</button>
                     {% endif %}
@@ -38,7 +38,7 @@
                     <h5 class="fw-bold text-info"><i class="fas fa-gavel"></i> Espace Modération + IA</h5>
                     <p class="text-muted">Contrôler les contenus signalés avec l'assistance du système IA intégré.</p>
                     {% if current_user.is_moderator %}
-                    <a href="{{ url_for('main.moderation_space') }}" class="btn btn-info text-dark mt-auto">Entrer</a>
+                    <a href="{{ url_for('moderation.moderation_dashboard') }}" class="btn btn-info text-dark mt-auto">Entrer</a>
                     {% else %}
                     <button class="btn btn-outline-secondary mt-auto" disabled>Accès réservé à la modération</button>
                     {% endif %}
