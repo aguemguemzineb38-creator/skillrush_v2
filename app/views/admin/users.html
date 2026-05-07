@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Admin — Utilisateurs - SkillRush{% endblock %}
+{% block title %}Administration — Utilisateurs - SkillRush{% endblock %}
 {% block content %}
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -57,11 +57,11 @@
                                     onchange="this.form.submit()" {% if user.id == current_user.id %}disabled{% endif %}>
                                 <option value="user"      {% if user.role=='user' %}selected{% endif %}>Utilisateur</option>
                                 <option value="moderator" {% if user.role=='moderator' %}selected{% endif %}>Modérateur</option>
-                                <option value="admin"     {% if user.role=='admin' %}selected{% endif %}>Admin</option>
+                                <option value="admin"     {% if user.role=='admin' %}selected{% endif %}>Administrateur</option>
                             </select>
                         </form>
                     </td>
-                    <td>Niv.{{ user.level }} / {{ user.xp }} XP</td>
+                    <td>Niv. {{ user.level }} / {{ user.xp }} XP</td>
                     <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
                     <td>
                         {% if user.is_blocked %}

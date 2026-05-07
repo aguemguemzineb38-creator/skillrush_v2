@@ -83,7 +83,7 @@ class MissionController:
             )
             db.session.add(user_mission)
             db.session.commit()
-            flash('Mission commencée!', 'success')
+            flash('Mission commencée !', 'success')
         else:
             flash('Vous avez déjà commencé cette mission', 'info')
         
@@ -118,9 +118,9 @@ class MissionController:
         db.session.commit()
 
         if leveled_up_to:
-            flash(f'Félicitations! Vous êtes passé niveau {leveled_up_to}!', 'success')
+            flash(f'Félicitations ! Vous êtes passé au niveau {leveled_up_to} !', 'success')
         
-        flash(f'Bravo! Vous avez reçu +{mission.reward_xp} XP!', 'success')
+        flash(f'Bravo ! Vous avez reçu +{mission.reward_xp} XP !', 'success')
         return redirect(url_for('user.my_progress'))
 
     @staticmethod
@@ -147,8 +147,8 @@ class MissionController:
             leveled_up_to = MissionController._grant_mission_xp_and_complete(user_mission, mission)
             db.session.commit()
             if leveled_up_to:
-                flash(f'Félicitations! Vous êtes passé niveau {leveled_up_to}!', 'success')
-            flash(f'Quiz indisponible: mission validée automatiquement (+{mission.reward_xp} XP).', 'success')
+                flash(f'Félicitations ! Vous êtes passé au niveau {leveled_up_to} !', 'success')
+            flash(f'Quiz indisponible : mission validée automatiquement (+{mission.reward_xp} XP).', 'success')
             return redirect(url_for('user.my_progress'))
 
         if request.method == 'POST':
@@ -175,8 +175,8 @@ class MissionController:
                 leveled_up_to = MissionController._grant_mission_xp_and_complete(user_mission, mission)
                 db.session.commit()
                 if leveled_up_to:
-                    flash(f'Félicitations! Vous êtes passé niveau {leveled_up_to}!', 'success')
-                flash(f'Quiz validé ({score_10}/10). Mission complétée: +{mission.reward_xp} XP.', 'success')
+                    flash(f'Félicitations ! Vous êtes passé au niveau {leveled_up_to} !', 'success')
+                flash(f'Quiz validé ({score_10}/10). Mission complétée : +{mission.reward_xp} XP.', 'success')
                 return redirect(url_for('user.my_progress'))
 
             db.session.commit()
@@ -294,7 +294,7 @@ class MissionController:
 
             db.session.commit()
             
-            flash(f'Mission créée avec succès! ({len(quiz_rows)} question(s) de quiz)', 'success')
+            flash(f'Mission créée avec succès ! ({len(quiz_rows)} question(s) de quiz)', 'success')
             return redirect(url_for('main.skill_detail', skill_id=skill_id))
         
         return render_template('mission/create_mission.html', skill=skill)

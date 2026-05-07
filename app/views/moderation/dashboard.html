@@ -6,14 +6,14 @@
 
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-info text-white fw-bold">
-            <i class="fas fa-robot"></i> Systeme IA de moderation
+            <i class="fas fa-robot"></i> Système IA de modération
         </div>
         <div class="card-body">
-            <p class="mb-2">L'IA assiste l'equipe pour analyser la qualite du contenu avant validation manuelle.</p>
+            <p class="mb-2">L'IA assiste l'équipe pour analyser la qualité du contenu avant validation manuelle.</p>
             <ul class="mb-0">
                 <li>Prioriser les contenus potentiellement non conformes.</li>
-                <li>Signaler les contenus a verifier en priorite.</li>
-                <li>Fournir des raisons explicites (forces, risques, points a ameliorer) pour aider la decision finale.</li>
+                <li>Signaler les contenus à vérifier en priorité.</li>
+                <li>Fournir des raisons explicites (forces, risques, points à améliorer) pour aider la décision finale.</li>
             </ul>
         </div>
     </div>
@@ -84,13 +84,13 @@
                             <td>{{ skill.creator.username }}</td>
                             <td>
                                 <form method="POST" action="{{ url_for('moderation.approve_skill', skill_id=skill.id) }}" class="d-inline">
-                                    <input type="hidden" name="reason" value="Contenu coherent, bien structure et conforme aux standards SkillRush.">
+                                    <input type="hidden" name="reason" value="Contenu cohérent, bien structuré et conforme aux standards SkillRush.">
                                     <button class="btn btn-sm btn-success">
                                         <i class="fas fa-check"></i> Approuver
                                     </button>
                                 </form>
                                 <form method="POST" action="{{ url_for('moderation.reject_skill', skill_id=skill.id) }}" class="d-inline">
-                                    <input type="hidden" name="reason" value="Le contenu doit etre complete (description/support) avant publication.">
+                                    <input type="hidden" name="reason" value="Le contenu doit être complet (description/support) avant publication.">
                                     <button class="btn btn-sm btn-danger">
                                         <i class="fas fa-times"></i> Refuser
                                     </button>

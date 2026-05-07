@@ -1,32 +1,34 @@
 ﻿{% extends "base.html" %}
-{% block title %}Home Feed - SkillRush{% endblock %}
+{% block title %}Accueil - SkillRush{% endblock %}
 {% block content %}
 <div class="feed-grid">
+  {% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business', 'Marketing': 'Marketing', 'Languages': 'Langues', 'Other': 'Autre'} %}
+  {% set difficulty_labels = {'Beginner': 'Débutant', 'Intermediate': 'Intermédiaire', 'Advanced': 'Avancé', 'Easy': 'Facile'} %}
   <div class="sr-main-card p-4">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
       <div>
-        <h2 class="feed-title mb-1">Hello {{ current_user.username }} 👋</h2>
-        <p class="text-muted mb-0">Help others → earn XP → unlock knowledge.</p>
+        <h2 class="feed-title mb-1">Bonjour {{ current_user.username }} 👋</h2>
+        <p class="text-muted mb-0">Aide les autres → gagne des XP → débloque du savoir.</p>
       </div>
       <div class="d-flex gap-2 flex-wrap">
         <span class="sr-chip"><i class="fas fa-star"></i> {{ total_xp }} XP</span>
-        <span class="sr-chip"><i class="fas fa-layer-group"></i> Level {{ level }}</span>
-        <span class="sr-chip"><i class="fas fa-fire"></i> {{ streak_count }} day streak</span>
+        <span class="sr-chip"><i class="fas fa-layer-group"></i> Niveau {{ level }}</span>
+        <span class="sr-chip"><i class="fas fa-fire"></i> {{ streak_count }} jours de série</span>
       </div>
     </div>
 
     <div class="card stat-card p-3 mb-3">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <strong>XP Progress</strong>
+        <strong>Progression XP</strong>
         <span class="text-muted">{{ total_xp }} / {{ (level + 1) * 500 }} XP</span>
       </div>
       <div class="progress"><div class="progress-bar" style="width: {{ ((total_xp % 500) / 5)|round(0) }}%"></div></div>
     </div>
 
     {% if not daily_reward_claimed %}
-    <button class="btn btn-warning mb-2" onclick="claimDailyReward()"><i class="fas fa-gift"></i> Claim daily +100 XP</button>
+    <button class="btn btn-warning mb-2" onclick="claimDailyReward()"><i class="fas fa-gift"></i> Réclamer le bonus quotidien +100 XP</button>
     {% else %}
-    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Daily bonus already claimed</span>
+    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Bonus quotidien déjà récupéré</span>
     {% endif %}
   </div>
 
@@ -34,8 +36,8 @@
     <div class="col-xl-6">
       <div class="card p-3 h-100">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">Daily Challenges</h5>
-          <a href="{{ url_for('mission.missions_list') }}" class="text-muted">See all</a>
+          <h5 class="mb-0">Défis du jour</h5>
+          <a href="{{ url_for('mission.missions_list') }}" class="text-muted">Voir tout</a>
         </div>
         {% for task in daily_tasks %}
         <div class="d-flex justify-content-between align-items-start p-2 mb-2 rounded" style="background: rgba(255,255,255,0.03)">
@@ -43,9 +45,9 @@
             <strong>{{ task.title }}</strong>
             <div class="text-muted small">{{ task.description }}</div>
           </div>
-          {% if task.status == 'done' %}<span class="badge bg-success">Done</span>
-          {% elif task.status == 'in_progress' %}<span class="badge bg-warning">Active</span>
-          {% else %}<span class="badge bg-secondary">Todo</span>{% endif %}
+          {% if task.status == 'done' %}<span class="badge bg-success">Fait</span>
+          {% elif task.status == 'in_progress' %}<span class="badge bg-warning">En cours</span>
+          {% else %}<span class="badge bg-secondary">À faire</span>{% endif %}
         </div>
         {% endfor %}
       </div>
@@ -54,25 +56,25 @@
     <div class="col-xl-6">
       <div class="card p-3 h-100">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">Recommended Skills</h5>
-          <a href="{{ url_for('main.explore_skills') }}" class="text-muted">Browse</a>
+          <h5 class="mb-0">Compétences recommandées</h5>
+          <a href="{{ url_for('main.explore_skills') }}" class="text-muted">Explorer</a>
         </div>
         {% for skill in recommended_skills[:4] %}
         <div class="skill-card p-3 mb-2">
           <div class="d-flex justify-content-between align-items-start">
             <div>
-              <div class="skill-category-badge mb-1">{{ skill.category }}</div>
+              <div class="skill-category-badge mb-1">{{ category_labels.get(skill.category, skill.category) }}</div>
               <h6 class="mb-1">{{ skill.name }}</h6>
-              <small class="text-muted">by {{ skill.creator.username }} • {{ skill.difficulty }}</small>
+              <small class="text-muted">par {{ skill.creator.username }} • {{ difficulty_labels.get(skill.difficulty, skill.difficulty) }}</small>
             </div>
             <div class="text-end">
-              <div class="badge bg-warning mb-2">{{ skill.xp_reward }} XP</div>
-              <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-sm btn-primary">Unlock</a>
+              <div class="badge bg-warning mb-2">{{ skill.unlock_xp }} XP</div>
+              <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-sm btn-primary">Voir</a>
             </div>
           </div>
         </div>
         {% else %}
-        <p class="text-muted">No recommendations yet.</p>
+        <p class="text-muted">Aucune recommandation pour le moment.</p>
         {% endfor %}
       </div>
     </div>
@@ -80,8 +82,8 @@
 
   <div class="card p-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="mb-0">Trending Community Posts</h5>
-      <a href="{{ url_for('main.explore_skills') }}" class="text-muted">See feed</a>
+      <h5 class="mb-0">Compétences tendance</h5>
+      <a href="{{ url_for('main.explore_skills') }}" class="text-muted">Voir le flux</a>
     </div>
     <div class="row g-3">
       {% for skill in uploaded_skills[:3] %}
@@ -91,13 +93,13 @@
           <strong>{{ skill.name }}</strong>
           <p class="small text-muted mb-2">{{ skill.description[:70] }}...</p>
           <div class="d-flex justify-content-between align-items-center">
-            <small class="text-muted">{{ skill.category }}</small>
-            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.skill_detail', skill_id=skill.id) }}">View</a>
+            <small class="text-muted">{{ category_labels.get(skill.category, skill.category) }}</small>
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.skill_detail', skill_id=skill.id) }}">Ouvrir</a>
           </div>
         </div>
       </div>
       {% else %}
-      <div class="col-12"><p class="text-muted mb-0">Publish your first skill to start earning XP.</p></div>
+      <div class="col-12"><p class="text-muted mb-0">Publie ta première compétence pour commencer à gagner des XP.</p></div>
       {% endfor %}
     </div>
   </div>
@@ -108,7 +110,7 @@
 <script>
 function claimDailyReward(){
   fetch('/user/claim-daily',{method:'POST',headers:{'Content-Type':'application/json'}})
-    .then(r=>r.json()).then(d=>{ if(d.success){location.reload();} else {alert(d.message || 'Already claimed.');}})
+    .then(r=>r.json()).then(d=>{ if(d.success){location.reload();} else {alert(d.message || 'Bonus déjà réclamé aujourd\'hui.');}})
     .catch(()=>location.reload());
 }
 </script>

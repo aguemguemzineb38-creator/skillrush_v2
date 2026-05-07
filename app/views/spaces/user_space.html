@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Espace Utilisateur - SkillRush{% endblock %}
+{% block title %}Espace utilisateur - SkillRush{% endblock %}
 {% block content %}
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-user text-success"></i> Espace Utilisateur</h2>
-        <span class="badge bg-success">Interface Utilisateur</span>
+        <h2><i class="fas fa-user text-success"></i> Espace utilisateur</h2>
+        <span class="badge bg-success">Interface apprenant</span>
     </div>
 
     <div class="row g-3 mb-4">
@@ -20,7 +20,7 @@
             <div class="card border-0 shadow-sm text-center h-100">
                 <div class="card-body">
                     <h3 class="fw-bold mb-0">{{ learned_skills_count }}</h3>
-                    <small class="text-muted">Skills completes</small>
+                    <small class="text-muted">Compétences terminées</small>
                 </div>
             </div>
         </div>
@@ -28,7 +28,7 @@
             <div class="card border-0 shadow-sm text-center h-100">
                 <div class="card-body">
                     <h3 class="fw-bold mb-0">{{ shared_skills_count }}</h3>
-                    <small class="text-muted">Skills partages</small>
+                    <small class="text-muted">Compétences partagées</small>
                 </div>
             </div>
         </div>
@@ -40,18 +40,18 @@
         </div>
         <div class="card-body">
             <div class="row g-3">
-                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('user.edit_profile') }}">Modifier informations</a></div>
-                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('skill.create_skill') }}">Uploader video / document / cours</a></div>
-                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('main.explore_skills') }}">Rechercher un skill</a></div>
-                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('main.explore_skills') }}">Consulter resultats</a></div>
-                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('main.explore_skills') }}">Acceder a une lecon gratuite</a></div>
-                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('user.buy_xp') }}">Debloquer avec points/XP</a></div>
-                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('mission.my_missions') }}">Suivre lecon / missions</a></div>
-                <div class="col-lg-4"><button type="button" class="btn btn-outline-primary w-100" onclick="claimDailyReward()">Recevoir points connexion</button></div>
-                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('user.my_progress') }}">Monter de niveau</a></div>
-                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('user.my_progress') }}">Apprendre plusieurs skills</a></div>
-                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('skill.create_skill') }}">Ajouter contenu du skill</a></div>
-                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('skill.create_skill') }}">Entrer un skill a partager</a></div>
+                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('user.edit_profile') }}">Modifier mes informations</a></div>
+                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('skill.create_skill') }}">Publier un cours ou un document</a></div>
+                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('main.explore_skills') }}">Explorer les compétences</a></div>
+                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('main.explore_skills') }}">Voir les recommandations</a></div>
+                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('main.explore_skills') }}">Accéder à un contenu gratuit</a></div>
+                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('user.buy_xp') }}">Débloquer avec mes XP</a></div>
+                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('mission.my_missions') }}">Suivre mes missions</a></div>
+                <div class="col-lg-4"><button type="button" class="btn btn-outline-primary w-100" onclick="claimDailyReward()">Réclamer le bonus quotidien</button></div>
+                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('user.my_progress') }}">Suivre ma progression</a></div>
+                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('user.my_progress') }}">Continuer mon apprentissage</a></div>
+                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('skill.create_skill') }}">Ajouter un nouveau contenu</a></div>
+                <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('skill.create_skill') }}">Partager une compétence</a></div>
             </div>
         </div>
     </div>

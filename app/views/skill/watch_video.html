@@ -3,6 +3,8 @@
 {% block title %}Regarder: {{ video.title }} - SkillRush{% endblock %}
 
 {% block content %}
+{% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business', 'Marketing': 'Marketing', 'Languages': 'Langues', 'Other': 'Autre'} %}
+{% set difficulty_labels = {'Beginner': 'Débutant', 'Intermediate': 'Intermédiaire', 'Advanced': 'Avancé', 'Easy': 'Facile', 'Medium': 'Moyen', 'Hard': 'Difficile'} %}
 <div class="container-fluid py-5">
     <div class="row">
         <div class="col-md-9">
@@ -64,7 +66,7 @@
                             <div class="progress-bar" style="width: {{ progress.progress_percentage }}%"></div>
                         </div>
                         <p>{{ progress.progress_percentage|int }}% complété</p>
-                        <p class="small text-muted">Vidéos regardées: {{ progress.videos_watched }}</p>
+                        <p class="small text-muted">Vidéos regardées : {{ progress.videos_watched }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -78,8 +80,8 @@
                     <h6>{{ skill.name }}</h6>
                     <p class="small text-muted">{{ skill.description[:100] }}...</p>
                     <div class="mb-3">
-                        <span class="badge bg-info">{{ skill.category }}</span>
-                        <span class="badge bg-warning">{{ skill.difficulty }}</span>
+                        <span class="badge bg-info">{{ category_labels.get(skill.category, skill.category) }}</span>
+                        <span class="badge bg-warning">{{ difficulty_labels.get(skill.difficulty, skill.difficulty) }}</span>
                     </div>
                     <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-sm btn-outline-primary w-100">
                         Voir plus
@@ -92,7 +94,7 @@
 
 <script>
 function completeVideo() {
-    alert('Vidéo marquée comme regardée! +10 XP gagnés');
+    alert('Vidéo marquée comme regardée ! +10 XP gagnés');
     // AJAX pour enregistrer en arrière-plan
 }
 </script>

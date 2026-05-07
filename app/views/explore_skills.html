@@ -1,23 +1,25 @@
 ﻿{% extends "base.html" %}
-{% block title %}Learn Skills - SkillRush{% endblock %}
+{% block title %}Apprendre - SkillRush{% endblock %}
 {% block content %}
+{% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business', 'Marketing': 'Marketing', 'Languages': 'Langues', 'Other': 'Autre'} %}
+{% set difficulty_labels = {'Beginner': 'Débutant', 'Intermediate': 'Intermédiaire', 'Advanced': 'Avancé', 'Easy': 'Facile'} %}
 <div class="sr-main-card p-4 mb-3">
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-    <h3 class="mb-0">Learn</h3>
+    <h3 class="mb-0">Apprendre</h3>
     {% if current_user.is_authenticated %}
     <span class="sr-chip"><i class="fas fa-coins"></i> {{ current_user.xp }} XP</span>
     {% endif %}
   </div>
 
   <form method="GET" action="{{ url_for('main.explore_skills') }}" class="skill-search mb-3">
-    <input type="text" class="form-control" name="search" value="{{ search_query }}" placeholder="Search skills...">
+    <input type="text" class="form-control" name="search" value="{{ search_query }}" placeholder="Rechercher une compétence...">
     <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
   </form>
 
   <div class="d-flex flex-wrap mb-3">
-    <a class="skill-pill" href="{{ url_for('main.explore_skills') }}">All</a>
+    <a class="skill-pill" href="{{ url_for('main.explore_skills') }}">Toutes</a>
     {% for cat in categories %}
-    <a class="skill-pill" href="{{ url_for('main.explore_skills') }}?category={{ cat }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ cat }}</a>
+    <a class="skill-pill" href="{{ url_for('main.explore_skills') }}?category={{ cat }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ category_labels.get(cat, cat) }}</a>
     {% endfor %}
   </div>
 </div>
@@ -28,43 +30,43 @@
     <div class="card skill-card h-100 p-3">
       <div class="mb-3" style="height:140px;border-radius:12px;background: linear-gradient(140deg, rgba(123,97,255,.35), rgba(77,168,255,.3));"></div>
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="skill-category-badge">{{ skill.category }}</span>
-        <span class="badge bg-warning">{{ skill.xp_reward }} XP</span>
+        <span class="skill-category-badge">{{ category_labels.get(skill.category, skill.category) }}</span>
+        <span class="badge bg-warning">{{ skill.unlock_xp }} XP</span>
       </div>
       <h5 class="mb-1">{{ skill.name }}</h5>
       <p class="small text-muted mb-2">{{ skill.description[:95] }}...</p>
-      <div class="small text-muted mb-3">Creator: {{ skill.creator.username }} • {{ skill.difficulty }}</div>
+      <div class="small text-muted mb-3">Créateur : {{ skill.creator.username }} • {{ difficulty_labels.get(skill.difficulty, skill.difficulty) }}</div>
       <div class="d-flex justify-content-between align-items-center mt-auto">
-        {% if current_user.is_authenticated and current_user.xp >= skill.xp_reward %}
-        <span class="skill-unlocked"><i class="fas fa-check-circle"></i> Ready to unlock</span>
+        {% if current_user.is_authenticated and current_user.xp >= skill.unlock_xp %}
+        <span class="skill-unlocked"><i class="fas fa-check-circle"></i> Prêt à débloquer</span>
         {% else %}
-        <span class="skill-lock"><i class="fas fa-lock"></i> Locked</span>
+        <span class="skill-lock"><i class="fas fa-lock"></i> Verrouillé</span>
         {% endif %}
-        <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-sm btn-primary">Open</a>
+        <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-sm btn-primary">Ouvrir</a>
       </div>
     </div>
   </div>
   {% else %}
-  <div class="col-12"><div class="card p-4 text-center text-muted">No skills found.</div></div>
+  <div class="col-12"><div class="card p-4 text-center text-muted">Aucune compétence trouvée.</div></div>
   {% endfor %}
 </div>
 
 <div class="card p-3 mb-3">
-  <h6 class="mb-3">How to unlock a skill?</h6>
+  <h6 class="mb-3">Comment débloquer une compétence ?</h6>
   <div class="row g-2">
-    <div class="col-md-6"><div class="p-3 rounded" style="background: rgba(255,255,255,.04)"><strong>1. Earn XP</strong><br><small class="text-muted">Share a skill and complete daily missions.</small></div></div>
-    <div class="col-md-6"><div class="p-3 rounded" style="background: rgba(255,255,255,.04)"><strong>2. Unlock</strong><br><small class="text-muted">Spend XP to access premium learning skills.</small></div></div>
+    <div class="col-md-6"><div class="p-3 rounded" style="background: rgba(255,255,255,.04)"><strong>1. Gagner des XP</strong><br><small class="text-muted">Partage une compétence et termine tes missions quotidiennes.</small></div></div>
+    <div class="col-md-6"><div class="p-3 rounded" style="background: rgba(255,255,255,.04)"><strong>2. Débloquer</strong><br><small class="text-muted">Dépense tes XP pour accéder à de nouvelles compétences.</small></div></div>
   </div>
 </div>
 
 {% if skills.pages > 1 %}
 <nav>
   <ul class="pagination justify-content-center">
-    {% if skills.has_prev %}<li class="page-item"><a class="page-link" href="?page={{ skills.prev_num }}&search={{ search_query }}&category={{ current_category }}">Prev</a></li>{% endif %}
+    {% if skills.has_prev %}<li class="page-item"><a class="page-link" href="?page={{ skills.prev_num }}&search={{ search_query }}&category={{ current_category }}">Précédent</a></li>{% endif %}
     {% for page_num in skills.iter_pages() %}
       {% if page_num %}<li class="page-item {% if page_num == skills.page %}active{% endif %}"><a class="page-link" href="?page={{ page_num }}&search={{ search_query }}&category={{ current_category }}">{{ page_num }}</a></li>{% endif %}
     {% endfor %}
-    {% if skills.has_next %}<li class="page-item"><a class="page-link" href="?page={{ skills.next_num }}&search={{ search_query }}&category={{ current_category }}">Next</a></li>{% endif %}
+    {% if skills.has_next %}<li class="page-item"><a class="page-link" href="?page={{ skills.next_num }}&search={{ search_query }}&category={{ current_category }}">Suivant</a></li>{% endif %}
   </ul>
 </nav>
 {% endif %}

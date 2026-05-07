@@ -7,6 +7,39 @@ class MainController:
     """Contrôleur principal pour les pages générales"""
 
     @staticmethod
+    def _decorate_skill_cards(skills, progress_map=None, unlock_map=None):
+        """Expose à l'interface des infos cohérentes avec les use cases réels.
+
+        Le modèle Skill n'a pas de champ xp_reward. Le coût pertinent pour
+        l'interface est le premier coût de déverrouillage disponible dans le
+        contenu de la compétence (vidéo premium ou PDF complet), avec 100 XP
+        comme valeur par défaut alignée sur le reste de l'application.
+        """
+        progress_map = progress_map or {}
+        unlock_map = unlock_map or {}
+
+        for skill in skills:
+            premium_video = (
+                Video.query
+                .filter_by(skill_id=skill.id, is_free=False)
+                .order_by(Video.order.asc(), Video.id.asc())
+                .first()
+            )
+            video_cost = premium_video.xp_cost if premium_video else None
+
+            pdf_cost = 0
+            if skill.course_pdf:
+                free_pdf_pages = 5
+                pdf_cost = max(100, ((skill.pdf_total_pages or 0) - free_pdf_pages) * 100)
+
+            available_costs = [cost for cost in [video_cost, pdf_cost] if cost and cost > 0]
+            skill.unlock_xp = min(available_costs) if available_costs else 100
+            skill.is_started = skill.id in progress_map
+            skill.is_unlocked = skill.id in unlock_map or skill.is_started
+
+        return skills
+
+    @staticmethod
     def _render_user_dashboard():
         """Construit un dashboard utilisateur simple et centré sur l'action."""
         # Gestion du streak journalier (concept Duolingo):
@@ -36,6 +69,11 @@ class MainController:
         user_progress = UserProgress.query.filter_by(
             user_id=current_user.id
         ).all()
+        progress_map = {progress.skill_id: progress for progress in user_progress}
+        unlock_skill_ids = {
+            unlock.skill_id
+            for unlock in ContentUnlock.query.filter_by(user_id=current_user.id).all()
+        }
 
         total_skills_learning = len(user_progress)
         total_xp = current_user.xp
@@ -75,6 +113,17 @@ class MainController:
                 'status': 'todo',
                 'url': url_for('main.explore_skills')
             })
+
+        recommended_skills = MainController._decorate_skill_cards(
+            recommended_skills,
+            progress_map=progress_map,
+            unlock_map=unlock_skill_ids,
+        )
+        uploaded_skills = MainController._decorate_skill_cards(
+            uploaded_skills,
+            progress_map=progress_map,
+            unlock_map=unlock_skill_ids,
+        )
 
         return render_template(
             'dashboard.html',
@@ -138,6 +187,39 @@ class MainController:
             recommended_skills = trending_skills[:6]
 
         top_encg_skills = Skill.query.filter_by(is_approved=True).order_by(Skill.rating.desc(), Skill.views.desc()).limit(6).all()
+
+        progress_map = {}
+        unlock_skill_ids = set()
+        if current_user.is_authenticated:
+            progress_map = {
+                progress.skill_id: progress
+                for progress in UserProgress.query.filter_by(user_id=current_user.id).all()
+            }
+            unlock_skill_ids = {
+                unlock.skill_id
+                for unlock in ContentUnlock.query.filter_by(user_id=current_user.id).all()
+            }
+
+        skills.items = MainController._decorate_skill_cards(
+            skills.items,
+            progress_map=progress_map,
+            unlock_map=unlock_skill_ids,
+        )
+        trending_skills = MainController._decorate_skill_cards(
+            trending_skills,
+            progress_map=progress_map,
+            unlock_map=unlock_skill_ids,
+        )
+        recommended_skills = MainController._decorate_skill_cards(
+            recommended_skills,
+            progress_map=progress_map,
+            unlock_map=unlock_skill_ids,
+        )
+        top_encg_skills = MainController._decorate_skill_cards(
+            top_encg_skills,
+            progress_map=progress_map,
+            unlock_map=unlock_skill_ids,
+        )
         
         return render_template('explore_skills.html',
             skills=skills,

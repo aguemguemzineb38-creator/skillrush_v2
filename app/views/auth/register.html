@@ -1,28 +1,28 @@
 ﻿{% extends "base.html" %}
-{% block title %}Get Started - SkillRush{% endblock %}
+{% block title %}Inscription - SkillRush{% endblock %}
 {% block content %}
 <div class="container py-4">
   <div class="auth-layout">
     <section class="auth-hero d-flex flex-column justify-content-between">
       <div>
-        <span class="sr-chip mb-3 d-inline-flex"><i class="fas fa-rocket"></i> Create your SkillRush identity</span>
-        <h1 class="display-5 fw-bold mb-3">Build your skill economy profile.</h1>
-        <p class="text-muted mb-4">Publish one skill you master. Start earning XP instantly and unlock what you want to learn.</p>
+        <span class="sr-chip mb-3 d-inline-flex"><i class="fas fa-rocket"></i> Crée ton identité SkillRush</span>
+        <h1 class="display-5 fw-bold mb-3">Construis ton profil de partage de compétences.</h1>
+        <p class="text-muted mb-4">Publie une compétence que tu maîtrises. Commence à gagner des XP immédiatement et débloque ce que tu veux apprendre.</p>
         <div class="hero-avatar mb-3">🎮</div>
       </div>
       <div class="d-flex flex-wrap gap-2">
-        <span class="skill-pill">XP missions</span>
-        <span class="skill-pill">Streak system</span>
-        <span class="skill-pill">Community unlocks</span>
+        <span class="skill-pill">Missions XP</span>
+        <span class="skill-pill">Système de série</span>
+        <span class="skill-pill">Déblocages communautaires</span>
       </div>
     </section>
 
     <section class="auth-form">
-      <h4 class="fw-bold mb-1">Get Started</h4>
-      <p class="text-muted mb-4">It only takes one minute to join.</p>
+      <h4 class="fw-bold mb-1">Commencer</h4>
+      <p class="text-muted mb-4">Il ne faut qu'une minute pour rejoindre la plateforme.</p>
       <form method="POST" action="{{ url_for('auth.register') }}">
         <div class="mb-3">
-          <label for="username" class="form-label">Username</label>
+          <label for="username" class="form-label">Nom d'utilisateur</label>
           <input type="text" class="form-control" id="username" name="username" required>
         </div>
         <div class="mb-3">
@@ -30,17 +30,17 @@
           <input type="email" class="form-control" id="email" name="email" required>
         </div>
         <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
+          <label for="password" class="form-label">Mot de passe</label>
           <input type="password" class="form-control" id="password" name="password" required>
         </div>
         <div class="mb-3">
-          <label for="confirm_password" class="form-label">Confirm password</label>
+          <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
           <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
         </div>
-        <button type="submit" class="btn btn-primary w-100 pulse-glow">Create account</button>
+        <button type="submit" class="btn btn-primary w-100 pulse-glow">Créer mon compte</button>
       </form>
       <hr>
-      <p class="text-center mb-0 text-muted">Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
+      <p class="text-center mb-0 text-muted">Tu as déjà un compte ? <a href="{{ url_for('auth.login') }}">Connexion</a></p>
     </section>
   </div>
 </div>

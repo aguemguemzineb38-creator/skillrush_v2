@@ -205,7 +205,7 @@ class OnboardingController:
             video_url = None
             if has_video:
                 if not video_title:
-                    flash('Ajoute un titre pour la video.', 'error')
+                    flash('Ajoute un titre pour la vidéo.', 'error')
                     return render_template('onboarding/step2.html', categories=categories)
                 if not _allowed(video_file.filename, _ALLOWED_VIDEO):
                     flash('Format vidéo non supporté. Utilise MP4, MOV, AVI, MKV ou WEBM.', 'error')
@@ -240,7 +240,7 @@ class OnboardingController:
 
             if has_video:
                 if not video_title:
-                    video_title = 'Video du cours'
+                    video_title = 'Vidéo du cours'
 
                 # ── Découpage vidéo si > 3 min ──
                 video_abs = _static_url_to_abs_path(video_url)
@@ -291,7 +291,7 @@ class OnboardingController:
         if current_user.onboarding_done:
             return redirect(url_for('main.dashboard'))
         if current_user.onboarding_rejected:
-            flash('Votre cours a ete refuse. Consultez votre email puis revenez a l\'accueil.', 'warning')
+            flash('Votre cours a été refusé. Consultez votre email puis revenez à l\'accueil.', 'warning')
             return redirect(url_for('main.rejected_course'))
 
         skill = None

@@ -83,7 +83,7 @@ function showNotification(message, type = 'info') {
  * Gagner de l'XP (AJAX)
  */
 function earnXP(amount) {
-    const message = `+${amount} XP gagnés!`;
+    const message = `+${amount} XP gagnés !`;
     showNotification(message, 'info');
     updateUserStats();
 }
@@ -110,7 +110,7 @@ function startMission(missionId) {
         window.location.href = `/mission/${missionId}`;
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Erreur :', error);
         showNotification('Erreur lors du démarrage de la mission', 'danger');
     });
 }
@@ -119,7 +119,7 @@ function startMission(missionId) {
  * Compléter une mission
  */
 function completeMission(missionId) {
-    if (confirm('Êtes-vous sûr d\'avoir complété cette mission?')) {
+    if (confirm('Êtes-vous sûr d\'avoir complété cette mission ?')) {
         fetch(`/mission/${missionId}/complete`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -130,7 +130,7 @@ function completeMission(missionId) {
             window.location.href = '/user/my-progress';
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Erreur :', error);
             showNotification('Erreur lors de la complétion de la mission', 'danger');
         });
     }
@@ -140,7 +140,7 @@ function completeMission(missionId) {
  * Noter une compétence
  */
 function rateSkill(skillId) {
-    const rating = prompt('Notez cette compétence (1-5 étoiles):', '5');
+    const rating = prompt('Note cette compétence de 1 à 5 étoiles :', '5');
     
     if (rating && rating >= 1 && rating <= 5) {
         fetch(`/skill/${skillId}/rate`, {
@@ -155,11 +155,11 @@ function rateSkill(skillId) {
         .then(response => response.json())
         .then(data => {
             const xpEarned = data.xp_earned || 0;
-            showNotification(data.message + '\n+' + xpEarned + ' XP gagnés!', 'success');
+            showNotification(data.message + '\n+' + xpEarned + ' XP gagnés !', 'success');
             earnXP(xpEarned);
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Erreur :', error);
             showNotification('Erreur lors de la notation', 'danger');
         });
     }
@@ -226,7 +226,7 @@ function claimDailyReward() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Erreur :', error);
         showNotification('Erreur lors de la réclamation de la récompense', 'danger');
     });
 }
@@ -235,7 +235,7 @@ function claimDailyReward() {
  * Partager sur les réseaux sociaux
  */
 function shareSkill(skillName, skillUrl) {
-    const text = `Je suis en train d'apprendre "${skillName}" sur SkillRush! 🚀 Rejoins-moi!`;
+    const text = `J'apprends "${skillName}" sur SkillRush ! Rejoins-moi !`;
     
     const shareData = {
         title: 'SkillRush',
@@ -249,7 +249,7 @@ function shareSkill(skillName, skillUrl) {
         // Fallback - copier dans le presse-papiers
         const link = `${text} ${skillUrl}`;
         navigator.clipboard.writeText(link).then(() => {
-            showNotification('Lien copié dans le presse-papiers!', 'info');
+            showNotification('Lien copié dans le presse-papiers !', 'info');
         });
     }
 }

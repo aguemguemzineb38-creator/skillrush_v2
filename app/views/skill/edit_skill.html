@@ -3,6 +3,7 @@
 {% block title %}Modifier {{ skill.name }} - SkillRush{% endblock %}
 
 {% block content %}
+{% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business', 'Marketing': 'Marketing', 'Languages': 'Langues', 'Other': 'Autre'} %}
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -27,8 +28,8 @@
                                 <label for="category" class="form-label">Catégorie *</label>
                                 <select class="form-select" id="category" name="category" required>
                                     <option value="">Choisir une catégorie</option>
-                                    {% for cat in ['Excel','Canva','CV','Design','Programming','Business','Marketing','Other'] %}
-                                        <option value="{{ cat }}" {% if skill.category == cat %}selected{% endif %}>{{ cat }}</option>
+                                    {% for cat in ['Excel','Canva','CV','Design','Programming','Business','Marketing','Languages','Other'] %}
+                                        <option value="{{ cat }}" {% if skill.category == cat %}selected{% endif %}>{{ category_labels.get(cat, cat) }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

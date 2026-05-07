@@ -124,7 +124,7 @@ class UserController:
             current_user.email = email
             current_user.bio = bio
             db.session.commit()
-            flash('Profil mis à jour!', 'success')
+            flash('Profil mis à jour !', 'success')
             return redirect(url_for('user.profile', user_id=current_user.id))
         return render_template('user/edit_profile.html')
 
@@ -302,7 +302,12 @@ class UserController:
             return redirect(url_for('user.admin_users'))
         user.role = new_role
         db.session.commit()
-        flash(f"Rôle de {user.username} changé en {new_role}.", 'success')
+        role_label = {
+            'user': 'utilisateur',
+            'moderator': 'modérateur',
+            'admin': 'administrateur',
+        }.get(new_role, new_role)
+        flash(f"Rôle de {user.username} changé en {role_label}.", 'success')
         return redirect(url_for('user.admin_users'))
 
     # ── Modération : contenu ──────────────────────────────────────────────────
@@ -405,7 +410,7 @@ class UserController:
         skill_name = skill.name
         db.session.delete(skill)
         db.session.commit()
-        flash(f'Contenu "{skill_name}" supprime.', 'success')
+        flash(f'Contenu "{skill_name}" supprimé.', 'success')
         return redirect(url_for('moderation.moderation_dashboard'))
 
     @staticmethod

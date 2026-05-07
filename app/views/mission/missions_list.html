@@ -3,6 +3,7 @@
 {% block title %}Missions - SkillRush{% endblock %}
 
 {% block content %}
+{% set difficulty_labels = {'Easy': 'Facile', 'Medium': 'Moyen', 'Hard': 'Difficile', 'Beginner': 'Débutant', 'Intermediate': 'Intermédiaire', 'Advanced': 'Avancé'} %}
 <div class="container py-5">
     <h2 class="mb-4">Missions disponibles</h2>
     
@@ -15,7 +16,7 @@
                 </a>
                 {% for diff in difficulties %}
                     <a href="{{ url_for('mission.missions_list', difficulty=diff) }}" class="btn btn-outline-primary {% if diff == current_difficulty %}active{% endif %}">
-                        {{ diff }}
+                        {{ difficulty_labels.get(diff, diff) }}
                     </a>
                 {% endfor %}
             </div>
@@ -31,7 +32,7 @@
                         <div class="d-flex justify-content-between mb-2">
                             <h5 class="card-title flex-grow-1">{{ mission.title }}</h5>
                             <span class="badge bg-{{ 'success' if mission.difficulty == 'Easy' else 'warning' if mission.difficulty == 'Medium' else 'danger' }}">
-                                {{ mission.difficulty }}
+                                {{ difficulty_labels.get(mission.difficulty, mission.difficulty) }}
                             </span>
                         </div>
                         

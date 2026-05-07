@@ -1,18 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Analyse IA - Moderation{% endblock %}
+{% block title %}Analyse IA - Modération{% endblock %}
 {% block content %}
+{% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business', 'Marketing': 'Marketing', 'Languages': 'Langues', 'Other': 'Autre'} %}
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-robot text-info"></i> Analyse IA du contenu</h2>
         <a href="{{ url_for('moderation.moderation_dashboard') }}" class="btn btn-outline-secondary">
-            Retour moderation
+            Retour modération
         </a>
     </div>
 
     <div class="card border-0 shadow mb-4">
         <div class="card-body">
             <h4 class="mb-1">{{ skill.name }}</h4>
-            <p class="text-muted mb-2">Auteur: {{ skill.creator.username }} | Categorie: {{ skill.category }}</p>
+            <p class="text-muted mb-2">Auteur : {{ skill.creator.username }} | Catégorie : {{ category_labels.get(skill.category, skill.category) }}</p>
             <p class="mb-0">{{ skill.description }}</p>
         </div>
     </div>
@@ -22,24 +23,24 @@
             <div class="card border-0 shadow h-100">
                 <div class="card-header bg-light fw-bold">Diagnostic IA</div>
                 <div class="card-body">
-                    <p class="mb-2"><strong>Score qualite:</strong> {{ quality_score }}/100</p>
-                    <p class="mb-2"><strong>Videos detectees:</strong> {{ videos_count }}</p>
+                    <p class="mb-2"><strong>Score qualité :</strong> {{ quality_score }}/100</p>
+                    <p class="mb-2"><strong>Vidéos détectées :</strong> {{ videos_count }}</p>
                     <p class="mb-2"><strong>Support PDF:</strong> {{ 'Oui' if has_pdf else 'Non' }}</p>
-                    <p class="mb-3"><strong>Longueur description:</strong> {{ desc_len }} caracteres</p>
-                    <h6 class="fw-bold text-success">Forces detectees</h6>
+                    <p class="mb-3"><strong>Longueur de la description :</strong> {{ desc_len }} caractères</p>
+                    <h6 class="fw-bold text-success">Forces détectées</h6>
                     <ul class="mb-3">
                         {% for reason in reasons %}
                         <li>{{ reason }}</li>
                         {% else %}
-                        <li>Aucune force majeure detectee.</li>
+                        <li>Aucune force majeure détectée.</li>
                         {% endfor %}
                     </ul>
-                    <h6 class="fw-bold text-danger">Risques / points a corriger</h6>
+                    <h6 class="fw-bold text-danger">Risques / points à corriger</h6>
                     <ul class="mb-0">
                         {% for risk in risks %}
                         <li>{{ risk }}</li>
                         {% else %}
-                        <li>Aucun risque significatif detecte.</li>
+                        <li>Aucun risque significatif détecté.</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -47,14 +48,14 @@
         </div>
         <div class="col-md-6">
             <div class="card border-0 shadow h-100">
-                <div class="card-header bg-light fw-bold">Recommendation IA</div>
+                <div class="card-header bg-light fw-bold">Recommandation IA</div>
                 <div class="card-body d-flex flex-column">
                     {% if recommendation == 'VALIDER' %}
                     <div class="alert alert-success mb-3">L'IA recommande: VALIDER</div>
                     {% else %}
                     <div class="alert alert-warning mb-3">L'IA recommande: REVISION MANUELLE</div>
                     {% endif %}
-                    <p class="text-muted">Decision finale: equipe de moderation (humaine).</p>
+                    <p class="text-muted">Décision finale : équipe de modération humaine.</p>
                     <div class="d-flex gap-2 mt-auto">
                         <form method="POST" action="{{ url_for('moderation.approve_skill', skill_id=skill.id) }}" class="w-100">
                             <label class="form-label fw-bold">Message (optionnel) pour l'email formel</label>

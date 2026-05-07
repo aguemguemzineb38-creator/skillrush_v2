@@ -1,36 +1,36 @@
 {% extends "base.html" %}
-{% block title %}Espace Moderation - SkillRush{% endblock %}
+{% block title %}Espace Modération - SkillRush{% endblock %}
 {% block content %}
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-gavel text-info"></i> Espace Equipe de Moderation</h2>
-        <span class="badge bg-info text-dark">Interface Moderation + IA</span>
+        <h2><i class="fas fa-gavel text-info"></i> Espace équipe de modération</h2>
+        <span class="badge bg-info text-dark">Interface modération + IA</span>
     </div>
 
     <div class="card border-0 shadow mb-4">
         <div class="card-header bg-info text-white fw-bold">
-            <i class="fas fa-robot"></i> Systeme IA integre
+            <i class="fas fa-robot"></i> Système IA intégré
         </div>
         <div class="card-body">
-            <p class="mb-2">Le systeme IA assiste l'equipe pour analyser la qualite et la conformite des contenus.</p>
+            <p class="mb-2">Le système IA assiste l'équipe pour analyser la qualité et la conformité des contenus.</p>
             <ul class="mb-0">
-                <li>Detection des contenus potentiellement non conformes.</li>
-                <li>Priorisation des contenus signales.</li>
-                <li>Aide a la decision avant validation/refus final par le moderateur.</li>
+                <li>Détection des contenus potentiellement non conformes.</li>
+                <li>Priorisation des contenus signalés.</li>
+                <li>Aide à la décision avant validation ou refus final par le modérateur.</li>
             </ul>
         </div>
     </div>
 
     <div class="card border-0 shadow">
         <div class="card-body">
-            <h5 class="fw-bold mb-2"><i class="fas fa-list-check text-primary"></i> Actions de moderation</h5>
-            <p class="text-muted mb-3">Controler contenu signale, analyser qualite, valider, refuser ou supprimer contenu non conforme.</p>
+            <h5 class="fw-bold mb-2"><i class="fas fa-list-check text-primary"></i> Actions de modération</h5>
+            <p class="text-muted mb-3">Contrôler le contenu signalé, analyser sa qualité, valider, refuser ou supprimer un contenu non conforme.</p>
             <div class="d-flex flex-wrap gap-2">
                 <a href="{{ url_for('moderation.moderation_dashboard') }}" class="btn btn-primary">
-                    Ouvrir le tableau de moderation
+                    Ouvrir le tableau de modération
                 </a>
                 <a href="{{ url_for('moderation.moderation_dashboard') }}" class="btn btn-outline-info">
-                    Ouvrir les contenus signales
+                    Ouvrir les contenus signalés
                 </a>
             </div>
         </div>

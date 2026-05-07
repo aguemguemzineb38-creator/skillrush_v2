@@ -24,15 +24,15 @@ class AuthController:
                 return render_template('auth/role_login.html', page_title=page_title)
 
             if user.is_blocked:
-                flash('Votre compte est bloque. Contactez un administrateur.', 'error')
+                flash('Votre compte est bloqué. Contactez un administrateur.', 'error')
                 return render_template('auth/role_login.html', page_title=page_title)
 
             if user.role != required_role:
-                flash('Acces refuse: role non autorise pour cet espace.', 'error')
+                flash('Accès refusé : rôle non autorisé pour cet espace.', 'error')
                 return render_template('auth/role_login.html', page_title=page_title)
 
             login_user(user)
-            flash(f'Bienvenue {user.username}!', 'success')
+            flash(f'Bienvenue {user.username} !', 'success')
             return redirect(url_for(success_endpoint))
 
         return render_template('auth/role_login.html', page_title=page_title)
@@ -103,21 +103,21 @@ class AuthController:
                 return render_template('auth/login.html')
             
             if user.is_blocked:
-                flash('Votre compte est bloque. Contactez un administrateur.', 'error')
+                flash('Votre compte est bloqué. Contactez un administrateur.', 'error')
                 return render_template('auth/login.html')
             
             login_user(user)
             if getattr(user, 'onboarding_rejected', False) and not user.onboarding_done:
-                flash('Votre cours a ete refuse. Consultez votre email puis revenez a l\'accueil pour preparer une nouvelle soumission.', 'warning')
+                flash('Votre cours a été refusé. Consultez votre email puis revenez à l\'accueil pour préparer une nouvelle soumission.', 'warning')
                 return redirect(url_for('main.rejected_course'))
-            flash(f'Bienvenue {user.username}!', 'success')
+            flash(f'Bienvenue {user.username} !', 'success')
             return redirect(url_for('main.dashboard'))
         
         return render_template('auth/login.html')
 
     @staticmethod
     def admin_login():
-        """Connexion reservee aux administrateurs"""
+        """Connexion réservée aux administrateurs"""
         return AuthController._role_login(
             required_role='admin',
             page_title='Connexion Administrateur',
@@ -126,10 +126,10 @@ class AuthController:
 
     @staticmethod
     def moderator_login():
-        """Connexion reservee a l'equipe de moderation"""
+        """Connexion réservée à l'équipe de modération"""
         return AuthController._role_login(
             required_role='moderator',
-            page_title='Connexion Equipe de Moderation',
+            page_title='Connexion Équipe de modération',
             success_endpoint='main.moderation_space'
         )
     

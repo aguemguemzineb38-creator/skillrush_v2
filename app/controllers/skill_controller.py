@@ -41,7 +41,7 @@ class SkillController:
             db.session.add(skill)
             db.session.commit()
             
-            flash('Competence creee! Elle sera visible apres validation.', 'success')
+            flash('Compétence créée ! Elle sera visible après validation.', 'success')
             return redirect(url_for('skill.add_video', skill_id=skill.id))
         
         return render_template('skill/create_skill.html')
@@ -228,7 +228,7 @@ class SkillController:
             db.session.commit()
             
             return jsonify({
-                'message': 'Merci pour votre évaluation!',
+                'message': 'Merci pour votre évaluation !',
                 'xp_earned': 25
             })
         
@@ -295,7 +295,7 @@ class SkillController:
     @staticmethod
     @login_required
     def unlock_video(skill_id, video_id):
-        """Déverouille une vidéo en dépensant 100 XP."""
+        """Déverrouille une vidéo en dépensant 100 XP."""
         VIDEO_XP_COST = 100
         DAILY_MISSION_BONUS = 50
 
@@ -316,7 +316,7 @@ class SkillController:
         # Première vidéo (order=0) est gratuite
         first_video = Video.query.filter_by(skill_id=skill_id).order_by(Video.order, Video.id).first()
         if first_video and first_video.id == video_id:
-            return jsonify({'already_unlocked': True, 'message': 'Première vidéo gratuite'})
+            return jsonify({'already_unlocked': True, 'message': 'Première vidéo gratuite.'})
 
         if current_user.xp < VIDEO_XP_COST:
             return jsonify({'error': f'XP insuffisant. Il te faut {VIDEO_XP_COST} XP.',

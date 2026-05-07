@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container py-5">
-    <h2 class="mb-4">Classement Global</h2>
+    <h2 class="mb-4">Classement global</h2>
     
     <div class="row">
         <div class="col-md-8">
@@ -38,7 +38,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <span class="badge bg-primary">Lvl {{ user.level }}</span>
+                                    <span class="badge bg-primary">Niv. {{ user.level }}</span>
                                 </td>
                                 <td>{{ user.xp }} XP</td>
                             </tr>
@@ -56,10 +56,10 @@
                         Total d'utilisateurs: <strong>{{ top_users|length }}</strong>
                     </p>
                     <p class="card-text">
-                        Meilleur joueur: <strong>{{ top_users[0].username if top_users else 'N/A' }}</strong>
+                        Meilleur joueur : <strong>{{ top_users[0].username if top_users else 'N/D' }}</strong>
                     </p>
                     <p class="card-text">
-                        XP moyen: <strong>
+                        XP moyen : <strong>
                             {% set avg_xp = (top_users|map(attribute='xp')|sum) / (top_users|length) if top_users else 0 %}
                             {{ (avg_xp|int) }}
                         </strong>
@@ -67,7 +67,7 @@
                     <hr>
                     <h5 class="card-title mt-3">💡 Conseils</h5>
                     <ul>
-                        <li>Complétez des missions pour gagner XP</li>
+                        <li>Complétez des missions pour gagner des XP</li>
                         <li>Notez les compétences pour gagner des XP</li>
                         <li>Publiez des cours pour monter de niveau</li>
                     </ul>

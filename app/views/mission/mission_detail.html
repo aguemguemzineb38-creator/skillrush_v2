@@ -3,6 +3,7 @@
 {% block title %}{{ mission.title }} - SkillRush{% endblock %}
 
 {% block content %}
+{% set difficulty_labels = {'Easy': 'Facile', 'Medium': 'Moyen', 'Hard': 'Difficile', 'Beginner': 'Débutant', 'Intermediate': 'Intermédiaire', 'Advanced': 'Avancé'} %}
 <div class="container py-5">
     <div class="row">
         <div class="col-md-8">
@@ -12,7 +13,7 @@
                     
                     <div class="mission-meta mb-4">
                         <span class="badge bg-{{ 'success' if mission.difficulty == 'Easy' else 'warning' if mission.difficulty == 'Medium' else 'danger' }}">
-                            {{ mission.difficulty }}
+                            {{ difficulty_labels.get(mission.difficulty, mission.difficulty) }}
                         </span>
                         <span class="badge bg-info">{{ mission.skill.name }}</span>
                     </div>
@@ -55,7 +56,7 @@
                         </form>
                     {% else %}
                         <div class="alert alert-success">
-                            <i class="fas fa-check-circle"></i> Vous avez complété cette mission!
+                            <i class="fas fa-check-circle"></i> Vous avez complété cette mission !
                         </div>
                     {% endif %}
                 {% else %}
@@ -72,14 +73,14 @@
                     <h5>Détails de la mission</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Difficulté:</strong> {{ mission.difficulty }}</p>
+                    <p><strong>Difficulté :</strong> {{ difficulty_labels.get(mission.difficulty, mission.difficulty) }}</p>
                     <p><strong>Compétence:</strong> 
                         <a href="{{ url_for('main.skill_detail', skill_id=mission.skill.id) }}">
                             {{ mission.skill.name }}
                         </a>
                     </p>
-                    <p><strong>Par:</strong> {{ mission.skill.creator.username }}</p>
-                    <p><strong>XP:</strong> <i class="fas fa-star"></i> {{ mission.reward_xp }}</p>
+                    <p><strong>Par :</strong> {{ mission.skill.creator.username }}</p>
+                    <p><strong>XP :</strong> <i class="fas fa-star"></i> {{ mission.reward_xp }}</p>
                     
                     {% if user_mission %}
                         <hr>
@@ -95,7 +96,7 @@
                     {% endif %}
 
                     {% if latest_attempt %}
-                        <p class="mb-0"><strong>Dernier score quiz:</strong>
+                        <p class="mb-0"><strong>Dernier score au quiz :</strong>
                             <span class="badge bg-{{ 'success' if latest_attempt.passed else 'warning' }}">
                                 {{ latest_attempt.score_10 }}/10
                             </span>

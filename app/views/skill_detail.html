@@ -3,6 +3,8 @@
 {% block title %}{{ skill.name }} - SkillRush{% endblock %}
 
 {% block content %}
+{% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business', 'Marketing': 'Marketing', 'Languages': 'Langues', 'Other': 'Autre'} %}
+{% set difficulty_labels = {'Beginner': 'Débutant', 'Intermediate': 'Intermédiaire', 'Advanced': 'Avancé', 'Easy': 'Facile', 'Medium': 'Moyen', 'Hard': 'Difficile'} %}
 <div class="container py-5">
 
     <!-- ── En-tête ─────────────────────────────────────────────────────────── -->
@@ -15,8 +17,8 @@
                     <span class="stat-item"><i class="fas fa-user-circle"></i> Par {{ skill.creator.username }}</span>
                     <span class="stat-item"><i class="fas fa-star"></i> {{ skill.rating|round(1) }}/5</span>
                     <span class="stat-item"><i class="fas fa-eye"></i> {{ skill.views }} vues</span>
-                    <span class="badge bg-info">{{ skill.difficulty }}</span>
-                    <span class="badge bg-primary">{{ skill.category }}</span>
+                    <span class="badge bg-info">{{ difficulty_labels.get(skill.difficulty, skill.difficulty) }}</span>
+                    <span class="badge bg-primary">{{ category_labels.get(skill.category, skill.category) }}</span>
                 </div>
             </div>
         </div>
@@ -168,13 +170,13 @@
                             </h5>
                             {% if skill.pdf_total_pages and skill.pdf_total_pages > 0 %}
                             <p class="text-muted mb-1">
-                                <strong>{{ skill.pdf_total_pages }} slides</strong> au total —
+                                <strong>{{ skill.pdf_total_pages }} pages</strong> au total —
                                 {% if pdf_fully_unlocked or skill.pdf_total_pages <= FREE_PDF_PAGES %}
                                     <span class="text-success"><i class="fas fa-unlock"></i> Accès complet débloqué</span>
                                 {% else %}
-                                    <span class="text-success"><i class="fas fa-gift"></i> {{ FREE_PDF_PAGES }} premières slides gratuites</span>
+                                    <span class="text-success"><i class="fas fa-gift"></i> {{ FREE_PDF_PAGES }} premières pages gratuites</span>
                                     &nbsp;|&nbsp;
-                                    <span class="text-warning"><i class="fas fa-lock"></i> Slides {{ FREE_PDF_PAGES + 1 }}–{{ skill.pdf_total_pages }} verrouillées</span>
+                                    <span class="text-warning"><i class="fas fa-lock"></i> Pages {{ FREE_PDF_PAGES + 1 }}–{{ skill.pdf_total_pages }} verrouillées</span>
                                 {% endif %}
                             </p>
                             {% endif %}
@@ -187,7 +189,7 @@
                                 {% if pdf_fully_unlocked or not skill.pdf_total_pages or skill.pdf_total_pages <= FREE_PDF_PAGES %}
                                     Ouvrir le PDF
                                 {% else %}
-                                    Aperçu ({{ FREE_PDF_PAGES }} slides)
+                                    Aperçu ({{ FREE_PDF_PAGES }} pages)
                                 {% endif %}
                             </a>
 

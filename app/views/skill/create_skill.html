@@ -1,27 +1,27 @@
 ﻿{% extends "base.html" %}
-{% block title %}Publish Skill - SkillRush{% endblock %}
+{% block title %}Publier une compétence - SkillRush{% endblock %}
 {% block content %}
 <div class="sr-main-card p-4">
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
     <div>
-      <h3 class="mb-1">Publish a Skill</h3>
-      <p class="text-muted mb-0">Share what you master, help the community, and earn XP.</p>
+      <h3 class="mb-1">Publier une compétence</h3>
+      <p class="text-muted mb-0">Partage ce que tu maîtrises, aide la communauté et gagne des XP.</p>
     </div>
-    <span class="sr-chip"><i class="fas fa-star"></i> Reward: +150 XP</span>
+    <span class="sr-chip"><i class="fas fa-star"></i> Récompense : +150 XP</span>
   </div>
 
   <form method="POST" action="{{ url_for('skill.create_skill') }}" enctype="multipart/form-data">
     <div class="upload-dropzone mb-4">
       <i class="fas fa-cloud-upload-alt mb-2"></i>
-      <h6 class="mb-1">Drag and drop your files</h6>
-      <p class="text-muted mb-2">Video, PDF or image previews for your skill content</p>
+      <h6 class="mb-1">Glisse-dépose tes fichiers</h6>
+      <p class="text-muted mb-2">Vidéo, PDF ou image d'aperçu pour ton contenu</p>
       <input type="file" class="form-control" name="attachments" multiple>
     </div>
 
     <div class="row g-3">
       <div class="col-md-6">
-        <label for="title" class="form-label">Skill title</label>
-        <input type="text" class="form-control" id="title" name="title" required placeholder="Ex: Canva for social media">
+        <label for="title" class="form-label">Titre de la compétence</label>
+        <input type="text" class="form-control" id="title" name="title" required placeholder="Ex : Canva pour les réseaux sociaux">
       </div>
       <div class="col-md-6">
         <label for="tags" class="form-label">Tags</label>
@@ -29,40 +29,40 @@
       </div>
       <div class="col-12">
         <label for="description" class="form-label">Description</label>
-        <textarea class="form-control" id="description" name="description" rows="5" required placeholder="What will learners achieve after this skill?"></textarea>
+        <textarea class="form-control" id="description" name="description" rows="5" required placeholder="Que vont apprendre concrètement les apprenants ?"></textarea>
       </div>
       <div class="col-md-4">
-        <label for="category" class="form-label">Category</label>
+        <label for="category" class="form-label">Catégorie</label>
         <select class="form-select" id="category" name="category" required>
-          <option value="">Select</option>
+          <option value="">Sélectionner</option>
           <option value="Design">Design</option>
           <option value="Marketing">Marketing</option>
-          <option value="Programming">Coding</option>
+          <option value="Programming">Programmation</option>
           <option value="Business">Business</option>
-          <option value="Languages">Languages</option>
+          <option value="Languages">Langues</option>
           <option value="Excel">Excel</option>
           <option value="Canva">Canva</option>
           <option value="CV">CV</option>
-          <option value="Other">Other</option>
+          <option value="Other">Autre</option>
         </select>
       </div>
       <div class="col-md-4">
-        <label for="difficulty" class="form-label">Difficulty</label>
+        <label for="difficulty" class="form-label">Niveau</label>
         <select class="form-select" id="difficulty" name="difficulty">
-          <option value="Beginner">Beginner</option>
-          <option value="Intermediate">Intermediate</option>
-          <option value="Advanced">Advanced</option>
+          <option value="Beginner">Débutant</option>
+          <option value="Intermediate">Intermédiaire</option>
+          <option value="Advanced">Avancé</option>
         </select>
       </div>
       <div class="col-md-4">
-        <label for="thumbnail" class="form-label">Thumbnail</label>
+        <label for="thumbnail" class="form-label">Miniature</label>
         <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*">
       </div>
     </div>
 
     <div class="d-flex gap-2 mt-4">
-      <button type="submit" class="btn btn-primary pulse-glow"><i class="fas fa-bolt"></i> Publish and earn XP</button>
-      <a href="{{ url_for('main.explore_skills') }}" class="btn btn-outline-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary pulse-glow"><i class="fas fa-bolt"></i> Publier et gagner des XP</button>
+      <a href="{{ url_for('main.explore_skills') }}" class="btn btn-outline-secondary">Annuler</a>
     </div>
   </form>
 </div>

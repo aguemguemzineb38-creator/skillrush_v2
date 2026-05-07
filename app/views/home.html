@@ -1,45 +1,45 @@
 ﻿{% extends "base.html" %}
-{% block title %}SkillRush - Share skills. Learn anything.{% endblock %}
+{% block title %}SkillRush - Partage tes compétences, apprends sans limite.{% endblock %}
 {% block content %}
 <div class="container py-4">
   <div class="row g-3 align-items-stretch">
     <div class="col-lg-7">
       <div class="auth-hero h-100 d-flex flex-column justify-content-between">
         <div>
-          <span class="sr-chip mb-3 d-inline-flex"><i class="fas fa-bolt"></i> Free community learning economy</span>
-          <h1 class="display-4 fw-bold mb-3">Share skills. Learn anything.</h1>
-          <p class="lead text-muted mb-4">SkillRush is a gamified platform where students publish skills to earn XP, then use XP to unlock new knowledge. No money involved.</p>
+          <span class="sr-chip mb-3 d-inline-flex"><i class="fas fa-bolt"></i> Plateforme communautaire gratuite</span>
+          <h1 class="display-4 fw-bold mb-3">Partage tes compétences. Apprends tout.</h1>
+          <p class="lead text-muted mb-4">SkillRush est une plateforme gamifiée où les étudiants publient leurs compétences pour gagner des XP, puis utilisent ces XP pour débloquer de nouveaux savoirs. Aucun paiement.</p>
           <div class="d-flex flex-wrap gap-2 mb-4">
-            <span class="skill-pill">Discord community vibes</span>
-            <span class="skill-pill">Duolingo motivation loop</span>
-            <span class="skill-pill">LinkedIn career skills</span>
-            <span class="skill-pill">Notion clarity</span>
-            <span class="skill-pill">TikTok micro-learning</span>
+            <span class="skill-pill">Communauté à la Discord</span>
+            <span class="skill-pill">Motivation type Duolingo</span>
+            <span class="skill-pill">Compétences carrière</span>
+            <span class="skill-pill">Clarté type Notion</span>
+            <span class="skill-pill">Micro-learning</span>
           </div>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-          <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg pulse-glow">Get Started</a>
-          <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg pulse-glow">Commencer</a>
+          <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg">Connexion</a>
         </div>
       </div>
     </div>
     <div class="col-lg-5">
       <div class="card p-4 h-100">
-        <h5 class="mb-3">How it works</h5>
+        <h5 class="mb-3">Comment ça marche</h5>
         <div class="mb-3 p-3 rounded" style="background:rgba(255,255,255,.04)">
-          <strong>1. Publish one skill</strong>
-          <div class="text-muted small">Teach what you already know: Photoshop, Excel, Python, speaking, and more.</div>
+          <strong>1. Publie une compétence</strong>
+          <div class="text-muted small">Enseigne ce que tu maîtrises déjà : Photoshop, Excel, Python, prise de parole, etc.</div>
         </div>
         <div class="mb-3 p-3 rounded" style="background:rgba(255,255,255,.04)">
-          <strong>2. Earn XP</strong>
-          <div class="text-muted small">Get rewarded when your content helps other learners.</div>
+          <strong>2. Gagne des XP</strong>
+          <div class="text-muted small">Tu es récompensé quand ton contenu aide d'autres apprenants.</div>
         </div>
         <div class="mb-3 p-3 rounded" style="background:rgba(255,255,255,.04)">
-          <strong>3. Unlock knowledge</strong>
-          <div class="text-muted small">Use XP to access advanced skills and level up your profile.</div>
+          <strong>3. Débloque du savoir</strong>
+          <div class="text-muted small">Utilise tes XP pour accéder à d'autres compétences et faire progresser ton profil.</div>
         </div>
         <div class="mt-auto">
-          <span class="rank-badge">Daily missions • Streaks • Leaderboard • Badges</span>
+          <span class="rank-badge">Missions quotidiennes • Série • Classement • Badges</span>
         </div>
       </div>
     </div>

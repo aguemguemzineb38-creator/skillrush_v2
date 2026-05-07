@@ -20,7 +20,7 @@ def create_app(config_name='development'):
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
-    login_manager.login_message = 'Veuillez vous connecter pour accéder à cette page'
+    login_manager.login_message = 'Veuillez vous connecter pour accéder à cette page.'
     
     # Importer les modèles
     from app.models import User
