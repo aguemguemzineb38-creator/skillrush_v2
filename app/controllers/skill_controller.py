@@ -373,7 +373,7 @@ class SkillController:
         if already:
             return jsonify({'already_unlocked': True})
 
-        xp_cost = max(100, (total - FREE_PAGES) * 100)
+        xp_cost = 100
         if current_user.xp < xp_cost:
             return jsonify({'error': f'XP insuffisant. Il te faut {xp_cost} XP.',
                             'xp_needed': xp_cost, 'xp_current': current_user.xp}), 400

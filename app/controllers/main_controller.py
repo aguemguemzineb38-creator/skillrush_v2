@@ -30,7 +30,7 @@ class MainController:
             pdf_cost = 0
             if skill.course_pdf:
                 free_pdf_pages = 5
-                pdf_cost = max(100, ((skill.pdf_total_pages or 0) - free_pdf_pages) * 100)
+                pdf_cost = 100 if (skill.pdf_total_pages or 0) > free_pdf_pages else 0
 
             available_costs = [cost for cost in [video_cost, pdf_cost] if cost and cost > 0]
             skill.unlock_xp = min(available_costs) if available_costs else 100
@@ -271,7 +271,7 @@ class MainController:
         first_video_id = videos[0].id if videos else None
 
         FREE_PDF_PAGES = 5
-        pdf_cost = max(100, ((skill.pdf_total_pages or 0) - FREE_PDF_PAGES) * 100) if skill.course_pdf else 0
+        pdf_cost = 100 if skill.course_pdf and (skill.pdf_total_pages or 0) > FREE_PDF_PAGES else 0
 
         return render_template('skill_detail.html',
             skill=skill,

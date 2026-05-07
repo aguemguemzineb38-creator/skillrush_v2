@@ -47,14 +47,16 @@
 {% block extra_css %}
 <style>
 .rejected-wrap {
-    background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
-    border-radius: 20px;
+    background: rgba(18, 26, 47, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
     padding: 42px;
-    box-shadow: 0 18px 42px rgba(24,34,53,.16);
+    box-shadow: 0 18px 42px rgba(3, 8, 20, 0.45);
+    backdrop-filter: blur(12px);
 }
 .tips-card {
-    background: #fff4ef;
-    border: 1px solid #ffd8c5;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 200, 87, 0.22);
     border-radius: 16px;
     padding: 20px;
 }
@@ -63,7 +65,12 @@
 }
 .tips-card li {
     margin-bottom: .5rem;
-    color: #5d3b2f;
+    color: #dbe4ff;
+}
+.rejected-wrap h1,
+.rejected-wrap h5,
+.rejected-wrap .lead {
+    color: #ffffff !important;
 }
 </style>
 {% endblock %}

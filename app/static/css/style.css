@@ -407,6 +407,17 @@ a:hover {
     color: #fff !important;
 }
 
+.btn-outline-danger {
+    background: transparent;
+    border: 1px solid rgba(255, 95, 122, 0.45);
+    color: #ff9aad;
+}
+
+.btn-outline-danger:hover {
+    background: rgba(255, 95, 122, 0.12);
+    color: #ffffff;
+}
+
 .progress {
     background: rgba(255, 255, 255, 0.08);
     border-radius: 999px;
@@ -416,6 +427,44 @@ a:hover {
 
 .progress-bar {
     background: var(--gradient-primary);
+}
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-soft);
+    --bs-table-border-color: rgba(255, 255, 255, 0.08);
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.04);
+    --bs-table-hover-color: var(--text);
+    color: var(--text-soft);
+    margin-bottom: 0;
+}
+
+.table > :not(caption) > * > * {
+    background-color: transparent;
+    color: inherit;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.table thead.table-light,
+.table thead.table-dark,
+.table .table-light,
+.table .table-dark {
+    --bs-table-bg: rgba(255, 255, 255, 0.08);
+    --bs-table-color: var(--text);
+    color: var(--text);
+}
+
+.table a,
+.table strong,
+.table th,
+.table td {
+    color: inherit;
+}
+
+.table .form-select,
+.table .form-control {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
 }
 
 .skill-card {

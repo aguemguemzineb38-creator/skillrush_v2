@@ -112,9 +112,11 @@
 {% block extra_css %}
 <style>
   .onboarding-card {
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 18px 42px rgba(24,34,53,.18);
+    background: rgba(18, 26, 47, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 18px 42px rgba(3, 8, 20, 0.45);
+    backdrop-filter: blur(12px);
     padding: 44px 40px;
     max-width: 620px;
     width: 100%;
@@ -124,41 +126,55 @@
   .ob-progress { display: flex; align-items: center; justify-content: center; }
   .ob-step {
     width: 36px; height: 36px; border-radius: 50%;
-    background: #e2e8f0; color: #94a3b8;
+    background: rgba(255, 255, 255, 0.08); color: #94a3b8;
     display: flex; align-items: center; justify-content: center;
     font-weight: 700; font-size: .9rem; transition: all .3s;
   }
   .ob-step.done  { background: #20bf55; color: white; box-shadow: 0 4px 12px rgba(32,191,85,.3); }
   .ob-step.active {
-    background: var(--gradient-game, linear-gradient(130deg,#0f5fff,#20bf55));
+    background: linear-gradient(135deg, #7B61FF 0%, #4DA8FF 100%);
     color: white; box-shadow: 0 4px 14px rgba(15,95,255,.35);
   }
-  .ob-line { flex: 1; height: 3px; background: #e2e8f0; max-width: 60px; }
+  .ob-line { flex: 1; height: 3px; background: rgba(255, 255, 255, 0.12); max-width: 60px; }
   .ob-line.active-line { background: #20bf55; }
 
   /* Upload zones */
   .upload-section {
-    background: #f7fbff;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
     padding: 20px;
   }
   .upload-zone {
     display: block;
-    border: 2px dashed #cbd5e1;
+    border: 2px dashed rgba(123, 97, 255, 0.35);
     border-radius: 12px;
     padding: 28px 20px;
     text-align: center;
     cursor: pointer;
     transition: border-color .25s, background .25s;
-    background: white;
+    background: rgba(255, 255, 255, 0.03);
   }
   .upload-zone:hover, .upload-zone.has-file {
-    border-color: #0f5fff;
-    background: #f0f5ff;
+    border-color: #4DA8FF;
+    background: rgba(77, 168, 255, 0.08);
   }
   .uz-icon { font-size: 2.2rem; margin-bottom: 6px; }
-  .uz-title { font-weight: 600; color: #334155; margin: 0; font-size: .95rem; }
-  .uz-hint  { color: #94a3b8; font-size: .8rem; margin: 4px 0 0; }
+  .uz-title { font-weight: 700; color: #ffffff; margin: 0; font-size: .95rem; }
+  .uz-hint  { color: #aab8dc; font-size: .8rem; margin: 4px 0 0; }
+
+  .onboarding-card .form-label,
+  .onboarding-card .fw-semibold,
+  .onboarding-card h2,
+  .onboarding-card strong {
+    color: #ffffff;
+  }
+
+  .onboarding-card .badge.bg-light {
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #d9e4ff !important;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
 </style>
 {% endblock %}
 
