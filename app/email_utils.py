@@ -1,12 +1,23 @@
-import smtplib
 import threading
 import logging
-from email.message import EmailMessage
-from email.utils import formataddr, parseaddr
-
+import os
 from flask import current_app
 
 logger = logging.getLogger(__name__)
+
+try:
+	from resend import Resend
+	RESEND_AVAILABLE = True
+except ImportError:
+	RESEND_AVAILABLE = False
+
+
+def _get_resend_client():
+	"""Get Resend API client with configured API key."""
+	api_key = os.getenv('RESEND_API_KEY') or ''
+	if not api_key:
+		return None
+	return Resend(api_key=api_key)
 
 
 def _default_app_url(path='/dashboard'):
@@ -17,95 +28,57 @@ def _default_app_url(path='/dashboard'):
 	return f"{base}{path}"
 
 
-def _resolve_sender(mail_sender, mail_username, mail_server):
-	"""Build a sender compatible with SMTP providers (notably Gmail)."""
-	sender_name, sender_addr = parseaddr(mail_sender or '')
-	_, smtp_addr = parseaddr(mail_username or '')
-	smtp_addr = smtp_addr or (mail_username or '').strip()
-	server = (mail_server or '').lower()
-
-	if not sender_addr:
-		if smtp_addr:
-			return formataddr(('SkillRush', smtp_addr)), None
-		return 'SkillRush <no-reply@skillrush.app>', None
-
-	# Gmail often rejects a From address that differs from the authenticated account.
-	if 'gmail' in server and smtp_addr and sender_addr.lower() != smtp_addr.lower():
-		display = sender_name or 'SkillRush'
-		effective_sender = formataddr((display, smtp_addr))
-		reply_to = formataddr((display, sender_addr))
-		return effective_sender, reply_to
-
-	return mail_sender, None
-
-
-def _smtp_send(app, recipient, subject, text_body, html_body=None):
-	"""Runs inside a background thread; uses app context."""
+def _send_email_resend(recipient: str, subject: str, text_body: str, html_body: str = None):
+	"""Send email via Resend API (runs in background thread)."""
+	app = current_app._get_current_object()
+	
 	with app.app_context():
-		mail_server = app.config.get('MAIL_SERVER')
-		mail_port = int(app.config.get('MAIL_PORT', 587))
-		mail_username = app.config.get('MAIL_USERNAME')
-		mail_password = app.config.get('MAIL_PASSWORD')
-		mail_use_tls = app.config.get('MAIL_USE_TLS', True)
-		mail_use_ssl = app.config.get('MAIL_USE_SSL', False)
-		mail_sender = app.config.get('MAIL_DEFAULT_SENDER', 'SkillRush <no-reply@skillrush.app>')
-
-		if not recipient:
-			app.logger.warning('Email non envoyé: destinataire absent')
-			return
-
-		if not mail_server:
-			app.logger.warning('Email non envoyé: MAIL_SERVER absent | to=%s', recipient)
-			return
-
-		if mail_username and not mail_password:
-			app.logger.warning('Email non envoyé: MAIL_PASSWORD/SMTP_PASS absent | to=%s', recipient)
-			return
-
-		effective_sender, reply_to = _resolve_sender(mail_sender, mail_username, mail_server)
-
-		msg = EmailMessage()
-		msg['Subject'] = subject
-		msg['From'] = effective_sender
-		msg['To'] = recipient
-		if reply_to:
-			msg['Reply-To'] = reply_to
-		msg.set_content(text_body)
-
-		if html_body:
-			msg.add_alternative(html_body, subtype='html')
-
 		try:
-			app.logger.debug(f'[EMAIL] Tentative d\'envoi à {recipient} | Serveur={mail_server}:{mail_port} | TLS={mail_use_tls} | SSL={mail_use_ssl}')
-			smtp_cls = smtplib.SMTP_SSL if mail_use_ssl else smtplib.SMTP
-			with smtp_cls(mail_server, mail_port, timeout=20) as server:
-				server.ehlo()
-				if mail_use_tls and not mail_use_ssl:
-					app.logger.debug(f'[EMAIL] Activation de STARTTLS')
-					server.starttls()
-					server.ehlo()
-				if mail_username:
-					app.logger.debug(f'[EMAIL] Login avec {mail_username}')
-					server.login(mail_username, mail_password)
-				app.logger.debug(f'[EMAIL] Envoi du message')
-				server.send_message(msg)
-			app.logger.info(f'✅ Email ENVOYÉ | to={recipient} | subject={subject}')
+			if not RESEND_AVAILABLE:
+				app.logger.error('[RESEND] Package resend non installé - installez avec: pip install resend')
+				return
+
+			client = _get_resend_client()
+			if not client:
+				app.logger.error('[RESEND] RESEND_API_KEY non configuré dans les variables d\'environnement')
+				return
+
+			sender_email = os.getenv('RESEND_FROM_EMAIL') or 'SkillRush <onboarding@resend.dev>'
+			
+			app.logger.debug(f'[RESEND] Tentative d\'envoi | to={recipient} | from={sender_email} | subject={subject}')
+
+			# Prepare email payload
+			email_data = {
+				'from': sender_email,
+				'to': recipient,
+				'subject': subject,
+				'text': text_body,
+			}
+			
+			if html_body:
+				email_data['html'] = html_body
+
+			# Send via Resend API
+			result = client.emails.send(email_data)
+			
+			app.logger.info(f'✅ Email ENVOYÉ via Resend | to={recipient} | subject={subject} | id={result.get("id", "unknown")}')
+
 		except Exception as exc:
-			app.logger.error(f'❌ ERREUR EMAIL | to={recipient} | subject={subject} | Exception: {type(exc).__name__}: {exc}', exc_info=True)
+			app.logger.error(f'❌ ERREUR Resend | to={recipient} | subject={subject} | Exception: {type(exc).__name__}: {exc}', exc_info=True)
 
 
-def _send_async(recipient, subject, text_body, html_body=None):
+def _send_async(recipient: str, subject: str, text_body: str, html_body: str = None):
 	"""Non-blocking email dispatch via a daemon thread."""
 	app = current_app._get_current_object()
 	t = threading.Thread(
-		target=_smtp_send,
-		args=(app, recipient, subject, text_body, html_body),
+		target=_send_email_resend,
+		args=(recipient, subject, text_body, html_body),
 		daemon=True,
 	)
 	t.start()
 
 
-def send_email(recipient, subject, body):
+def send_email(recipient: str, subject: str, body: str):
 	"""Legacy helper: send plain-text email asynchronously."""
 	if not recipient:
 		return False
@@ -160,6 +133,7 @@ def _html_wrap(hero_html: str, body_html: str) -> str:
 
 
 def send_welcome_email(email: str, username: str, dashboard_url: str = None):
+	"""Send welcome email to new user."""
 	subject = "Bienvenue sur SkillRush 🎉 — Commence ton parcours !"
 	dashboard_url = dashboard_url or _default_app_url('/dashboard')
 
@@ -184,10 +158,10 @@ def send_welcome_email(email: str, username: str, dashboard_url: str = None):
 	body = f"""
 	  <h2>Salut {username}</h2>
 	  <p>On est ravis de t'avoir parmi nous ! Ton compte est actif et tu peux des maintenant explorer des centaines de competences professionnelles.</p>
-	  <div class="feature"><div class="icon">XP</div><div class="text"><strong>Systeme XP &amp; Niveaux</strong><br>Gagne des points d'experience a chaque video regardee et monte en niveau.</div></div>
-	  <div class="feature"><div class="icon">Streak</div><div class="text"><strong>Streak quotidien</strong><br>Reviens chaque jour pour maintenir ta serie et debloquer des bonus.</div></div>
-	  <div class="feature"><div class="icon">Video</div><div class="text"><strong>Mini-videos de competences</strong><br>Des cours courts et cibles sur Excel, Canva, Python, Marketing et plus.</div></div>
-	  <div class="feature"><div class="icon">Mission</div><div class="text"><strong>Missions &amp; Quiz</strong><br>Releve des defis, valide tes acquis et remporte des recompenses.</div></div>
+	  <div class="feature"><div class="icon">⭐</div><div class="text"><strong>Systeme XP &amp; Niveaux</strong><br>Gagne des points d'experience a chaque video regardee et monte en niveau.</div></div>
+	  <div class="feature"><div class="icon">🔥</div><div class="text"><strong>Streak quotidien</strong><br>Reviens chaque jour pour maintenir ta serie et debloquer des bonus.</div></div>
+	  <div class="feature"><div class="icon">📺</div><div class="text"><strong>Mini-videos de competences</strong><br>Des cours courts et cibles sur Excel, Canva, Python, Marketing et plus.</div></div>
+	  <div class="feature"><div class="icon">🎯</div><div class="text"><strong>Missions &amp; Quiz</strong><br>Releve des defis, valide tes acquis et remporte des recompenses.</div></div>
 	  <hr class="divider">
 	  <div class="cta"><a class="btn" href="{dashboard_url}">Commencer maintenant</a></div>"""
 
@@ -195,6 +169,7 @@ def send_welcome_email(email: str, username: str, dashboard_url: str = None):
 
 
 def send_course_approved_email(email: str, username: str, course_name: str, course_url: str = None):
+	"""Send course approval email to creator."""
 	subject = "✅ Votre cours a été approuvé — SkillRush"
 	course_url = course_url or _default_app_url('/dashboard')
 
@@ -208,48 +183,48 @@ def send_course_approved_email(email: str, username: str, course_name: str, cour
 
 	hero = """
 	  <div class="logo">SkillRush</div>
-	  <div class="badge" style="background:rgba(32,191,85,.25)">Cours approuve</div>
-	  <h1>Felicitations !</h1>
-	  <p>Votre cours a passe la moderation avec succes.</p>"""
+	  <h1>✅ Cours approuvé !</h1>
+	  <p>Votre contenu est maintenant en direct.</p>"""
 
 	body = f"""
-	  <h2>Bonjour {username}</h2>
-	  <p>Votre cours <strong>{course_name}</strong> a ete approuve. Il est maintenant visible pour tous les apprenants.</p>
+	  <h2>Bravo {username} !</h2>
+	  <p>Votre cours <strong>"{course_name}"</strong> a été approuvé par notre équipe de modération.</p>
+	  <p>Il est maintenant visible pour tous les utilisateurs SkillRush. Vos apprenants peuvent commencer à regarder votre contenu !</p>
+	  <div class="cta"><a class="btn" href="{course_url}">Voir votre cours</a></div>
 	  <hr class="divider">
-	  <div class="cta"><a class="btn" href="{course_url}">Voir mon cours</a></div>"""
+	  <p style="font-size:13px;color:#666;">Merci de contribuer à la communauté SkillRush ! 🙏</p>"""
 
 	_send_async(email, subject, text_body, _html_wrap(hero, body))
 
 
 def send_course_rejected_email(email: str, username: str, course_name: str, reason: str = None, edit_url: str = None):
-	subject = "❌ Votre cours nécessite des modifications — SkillRush"
+	"""Send course rejection email to creator."""
+	subject = "📝 Votre cours nécessite des modifications — SkillRush"
 	edit_url = edit_url or _default_app_url('/skill/my-skills')
-	reason_html = (
-		f'<p style="background:#fff5f5;border-left:4px solid #e53e3e;padding:12px 16px;'
-		f'border-radius:6px;color:#742a2a;"><strong>Motif :</strong> {reason}</p>'
-	) if reason else ""
-	reason_text = f"\nMotif du refus : {reason}\n" if reason else ""
 
+	reason_text = f"\n\nMotif du refus :\n{reason}" if reason else ""
+	
 	text_body = (
 		f"Bonjour {username},\n\n"
-		f"Votre cours '{course_name}' n'a pas passe la validation de moderation.{reason_text}\n"
-		"Ne vous decouragez pas ! Vous pouvez corriger votre contenu et le soumettre a nouveau.\n\n"
-		f"Modifier votre cours : {edit_url}\n\n"
+		f"Votre cours '{course_name}' n'a pas pu etre approuve par notre equipe de moderation.\n"
+		f"{reason_text}\n\n"
+		"Vous pouvez modifier votre cours et soumettre une nouvelle version.\n"
+		f"Lien pour editer : {edit_url}\n\n"
 		"L'equipe SkillRush"
 	)
 
 	hero = """
 	  <div class="logo">SkillRush</div>
-	  <div class="badge" style="background:rgba(229,62,62,.25)">Modifications requises</div>
-	  <h1>Votre cours necessite des ajustements</h1>
-	  <p>Notre equipe a examine votre soumission.</p>"""
+	  <h1>📝 Modifications requises</h1>
+	  <p>Nous avons besoin de quelques ajustements.</p>"""
+
+	reason_html = f"<p style='background:#fff9e6;padding:16px;border-radius:8px;border-left:4px solid #ff9800;'><strong>Motif :</strong><br>{reason}</p>" if reason else ""
 
 	body = f"""
 	  <h2>Bonjour {username}</h2>
-	  <p>Votre cours <strong>{course_name}</strong> n'a pas pu etre valide en l'etat.</p>
+	  <p>Merci d'avoir créé le cours <strong>"{course_name}"</strong>. Notre équipe l'a examiné et nous suggérons quelques modifications pour mieux correspondre à nos standards.</p>
 	  {reason_html}
-	  <p>Vous pouvez corriger votre contenu puis le resoumettre.</p>
-	  <hr class="divider">
-	  <div class="cta"><a class="btn" style="background:linear-gradient(130deg,#e53e3e,#ff6b35)" href="{edit_url}">Modifier mon cours</a></div>"""
+	  <p>Vous pouvez modifier votre cours et soumettre une nouvelle version pour approbation.</p>
+	  <div class="cta"><a class="btn" href="{edit_url}">Modifier mon cours</a></div>"""
 
 	_send_async(email, subject, text_body, _html_wrap(hero, body))

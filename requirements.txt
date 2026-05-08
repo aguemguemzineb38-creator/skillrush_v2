@@ -9,3 +9,4 @@ moviepy>=2.0.0
 PyPDF2>=3.0.0
 gunicorn==22.0.0
 psycopg2-binary==2.9.9
+resend==0.4.0
