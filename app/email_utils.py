@@ -9,18 +9,21 @@ from flask import current_app
 logger = logging.getLogger(__name__)
 
 try:
-	from resend import Resend
+	import resend as _resend_module
 	RESEND_AVAILABLE = True
 except ImportError:
 	RESEND_AVAILABLE = False
 
 
-def _get_resend_client():
-	"""Get Resend API client with configured API key."""
+def _configure_resend():
+	"""Set resend.api_key and return True if a key is available."""
+	if not RESEND_AVAILABLE:
+		return False
 	api_key = os.getenv('RESEND_API_KEY') or ''
 	if not api_key:
-		return None
-	return Resend(api_key=api_key)
+		return False
+	_resend_module.api_key = api_key
+	return True
 
 
 def _smtp_configured():
@@ -28,9 +31,10 @@ def _smtp_configured():
 	return bool(os.getenv('MAIL_USERNAME') or os.getenv('SMTP_USER'))
 
 
-def _send_email_smtp(recipient: str, subject: str, text_body: str, html_body: str = None):
-	"""Send email via SMTP (Gmail / any SMTP). Fallback when Resend is unavailable."""
-	app = current_app._get_current_object()
+def _send_email_smtp(recipient: str, subject: str, text_body: str, html_body: str = None, app=None):
+	"""Send email via SMTP. `app` must be passed when called from a background thread."""
+	if app is None:
+		app = current_app._get_current_object()
 	with app.app_context():
 		try:
 			server = (app.config.get('MAIL_SERVER') or '').strip()
@@ -73,53 +77,48 @@ def _default_app_url(path='/dashboard'):
 	return f"{base}{path}"
 
 
-def _send_email_resend(recipient: str, subject: str, text_body: str, html_body: str = None):
-	"""Send email via Resend API (runs in background thread)."""
-	app = current_app._get_current_object()
-	
+def _send_email_resend(app, recipient: str, subject: str, text_body: str, html_body: str = None):
+	"""Send email via Resend API v2 — runs in a background thread with the app object passed in."""
 	with app.app_context():
 		try:
-			if not RESEND_AVAILABLE:
-				app.logger.warning('[RESEND] Package resend non disponible — tentative SMTP')
-				_send_email_smtp(recipient, subject, text_body, html_body)
-				return
-
-			client = _get_resend_client()
-			if not client:
-				app.logger.warning('[RESEND] RESEND_API_KEY absent — tentative SMTP')
-				_send_email_smtp(recipient, subject, text_body, html_body)
+			if not _configure_resend():
+				if not RESEND_AVAILABLE:
+					app.logger.warning('[RESEND] Package resend non disponible — tentative SMTP')
+				else:
+					app.logger.warning('[RESEND] RESEND_API_KEY absent — tentative SMTP')
+				_send_email_smtp(recipient, subject, text_body, html_body, app=app)
 				return
 
 			sender_email = os.getenv('RESEND_FROM_EMAIL') or 'SkillRush <onboarding@resend.dev>'
-			
-			app.logger.debug(f'[RESEND] Tentative d\'envoi | to={recipient} | from={sender_email} | subject={subject}')
 
-			# Prepare email payload
+			app.logger.debug(f'[RESEND] Tentative | to={recipient} | from={sender_email} | subject={subject}')
+
 			email_data = {
 				'from': sender_email,
-				'to': recipient,
+				'to': [recipient],
 				'subject': subject,
 				'text': text_body,
 			}
-			
 			if html_body:
 				email_data['html'] = html_body
 
-			# Send via Resend API
-			result = client.emails.send(email_data)
-			
-			app.logger.info(f'✅ Email ENVOYÉ via Resend | to={recipient} | subject={subject} | id={result.get("id", "unknown")}')
+			result = _resend_module.Emails.send(email_data)
+			email_id = result.get('id', 'unknown') if isinstance(result, dict) else getattr(result, 'id', 'unknown')
+			app.logger.info(f'✅ Email ENVOYÉ via Resend | to={recipient} | subject={subject} | id={email_id}')
 
 		except Exception as exc:
-			app.logger.error(f'❌ ERREUR Resend | to={recipient} | subject={subject} | Exception: {type(exc).__name__}: {exc}', exc_info=True)
+			app.logger.error(
+				f'❌ ERREUR Resend | to={recipient} | subject={subject} | {type(exc).__name__}: {exc}',
+				exc_info=True
+			)
 
 
 def _send_async(recipient: str, subject: str, text_body: str, html_body: str = None):
-	"""Non-blocking email dispatch via a daemon thread."""
+	"""Non-blocking email dispatch — captures app object in the calling thread."""
 	app = current_app._get_current_object()
 	t = threading.Thread(
 		target=_send_email_resend,
-		args=(recipient, subject, text_body, html_body),
+		args=(app, recipient, subject, text_body, html_body),
 		daemon=True,
 	)
 	t.start()
