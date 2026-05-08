@@ -2,12 +2,20 @@ import threading
 import logging
 import os
 import smtplib
+import json
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import current_app
 
+try:
+	import urllib.request as _urllib_request
+	import urllib.error as _urllib_error
+except ImportError:
+	_urllib_request = None
+
 logger = logging.getLogger(__name__)
 
+# ── Resend (conservé en fallback si présent) ───────────────────────────────────
 try:
 	import resend as _resend_module
 	RESEND_AVAILABLE = True
@@ -16,7 +24,6 @@ except ImportError:
 
 
 def _configure_resend():
-	"""Set resend.api_key and return True if a key is available."""
 	if not RESEND_AVAILABLE:
 		return False
 	api_key = os.getenv('RESEND_API_KEY') or ''
@@ -24,6 +31,51 @@ def _configure_resend():
 		return False
 	_resend_module.api_key = api_key
 	return True
+
+
+# ── Brevo (priorité absolue) ───────────────────────────────────────────────────
+def _send_email_brevo(app, recipient: str, subject: str, text_body: str, html_body: str = None):
+	"""Send via Brevo HTTP API — works on any host, never blocked."""
+	with app.app_context():
+		try:
+			api_key = os.getenv('BREVO_API_KEY') or ''
+			if not api_key:
+				app.logger.warning('[BREVO] BREVO_API_KEY absent — fallback SMTP')
+				_send_email_smtp(recipient, subject, text_body, html_body, app=app)
+				return
+
+			sender_email = os.getenv('BREVO_SENDER_EMAIL') or 'aguemguemzineb38@gmail.com'
+			sender_name = os.getenv('BREVO_SENDER_NAME') or 'SkillRush'
+
+			payload = {
+				'sender': {'name': sender_name, 'email': sender_email},
+				'to': [{'email': recipient}],
+				'subject': subject,
+				'textContent': text_body,
+			}
+			if html_body:
+				payload['htmlContent'] = html_body
+
+			data = json.dumps(payload).encode('utf-8')
+			req = _urllib_request.Request(
+				'https://api.brevo.com/v3/smtp/email',
+				data=data,
+				headers={
+					'api-key': api_key,
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+				},
+				method='POST',
+			)
+			with _urllib_request.urlopen(req, timeout=15) as resp:
+				result = json.loads(resp.read().decode())
+			app.logger.info(f'✅ Email ENVOYÉ via Brevo | to={recipient} | subject={subject} | id={result.get("messageId","?")}')
+
+		except _urllib_error.HTTPError as exc:
+			body = exc.read().decode()
+			app.logger.error(f'❌ ERREUR Brevo HTTP {exc.code} | to={recipient} | {body}', exc_info=True)
+		except Exception as exc:
+			app.logger.error(f'❌ ERREUR Brevo | to={recipient} | {type(exc).__name__}: {exc}', exc_info=True)
 
 
 def _smtp_configured():
@@ -124,7 +176,7 @@ def _send_async(recipient: str, subject: str, text_body: str, html_body: str = N
 	"""Non-blocking email dispatch — captures app object in the calling thread."""
 	app = current_app._get_current_object()
 	t = threading.Thread(
-		target=_send_email_resend,
+		target=_send_email_brevo,
 		args=(app, recipient, subject, text_body, html_body),
 		daemon=True,
 	)
