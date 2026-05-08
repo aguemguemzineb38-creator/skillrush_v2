@@ -57,13 +57,20 @@ def _send_email_smtp(recipient: str, subject: str, text_body: str, html_body: st
 				msg.attach(MIMEText(html_body, 'html', 'utf-8'))
 
 			app.logger.debug(f'[SMTP] Tentative | to={recipient} | server={server}:{port}')
-			with smtplib.SMTP(server, port, timeout=20) as smtp:
-				if use_tls:
-					smtp.ehlo()
-					smtp.starttls()
-					smtp.ehlo()
-				smtp.login(username, password)
-				smtp.sendmail(sender, recipient, msg.as_string())
+			if port == 465:
+				# SSL direct (port 465)
+				with smtplib.SMTP_SSL(server, port, timeout=20) as smtp:
+					smtp.login(username, password)
+					smtp.sendmail(sender, recipient, msg.as_string())
+			else:
+				# STARTTLS (port 587)
+				with smtplib.SMTP(server, port, timeout=20) as smtp:
+					if use_tls:
+						smtp.ehlo()
+						smtp.starttls()
+						smtp.ehlo()
+					smtp.login(username, password)
+					smtp.sendmail(sender, recipient, msg.as_string())
 			app.logger.info(f'✅ Email envoyé via SMTP | to={recipient} | subject={subject}')
 		except Exception as exc:
 			app.logger.error(f'❌ ERREUR SMTP | to={recipient} | {type(exc).__name__}: {exc}', exc_info=True)
