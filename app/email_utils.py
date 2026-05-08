@@ -1,6 +1,9 @@
 import threading
 import logging
 import os
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from flask import current_app
 
 logger = logging.getLogger(__name__)
@@ -20,6 +23,48 @@ def _get_resend_client():
 	return Resend(api_key=api_key)
 
 
+def _smtp_configured():
+	"""Check if SMTP credentials are available."""
+	return bool(os.getenv('MAIL_USERNAME') or os.getenv('SMTP_USER'))
+
+
+def _send_email_smtp(recipient: str, subject: str, text_body: str, html_body: str = None):
+	"""Send email via SMTP (Gmail / any SMTP). Fallback when Resend is unavailable."""
+	app = current_app._get_current_object()
+	with app.app_context():
+		try:
+			server = (app.config.get('MAIL_SERVER') or '').strip()
+			port = int(app.config.get('MAIL_PORT') or 587)
+			username = (app.config.get('MAIL_USERNAME') or '').strip()
+			password = (app.config.get('MAIL_PASSWORD') or '').strip()
+			use_tls = app.config.get('MAIL_USE_TLS', True)
+			sender = (app.config.get('MAIL_DEFAULT_SENDER') or username).strip()
+
+			if not server or not username or not password:
+				app.logger.warning('[SMTP] Configuration incomplète (MAIL_USERNAME / MAIL_PASSWORD / MAIL_SERVER manquants)')
+				return
+
+			msg = MIMEMultipart('alternative')
+			msg['Subject'] = subject
+			msg['From'] = sender
+			msg['To'] = recipient
+			msg.attach(MIMEText(text_body, 'plain', 'utf-8'))
+			if html_body:
+				msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+
+			app.logger.debug(f'[SMTP] Tentative | to={recipient} | server={server}:{port}')
+			with smtplib.SMTP(server, port, timeout=20) as smtp:
+				if use_tls:
+					smtp.ehlo()
+					smtp.starttls()
+					smtp.ehlo()
+				smtp.login(username, password)
+				smtp.sendmail(sender, recipient, msg.as_string())
+			app.logger.info(f'✅ Email envoyé via SMTP | to={recipient} | subject={subject}')
+		except Exception as exc:
+			app.logger.error(f'❌ ERREUR SMTP | to={recipient} | {type(exc).__name__}: {exc}', exc_info=True)
+
+
 def _default_app_url(path='/dashboard'):
 	app = current_app._get_current_object()
 	base = (app.config.get('APP_BASE_URL') or 'https://web-production-skillrush.up.railway.app').rstrip('/')
@@ -35,12 +80,14 @@ def _send_email_resend(recipient: str, subject: str, text_body: str, html_body: 
 	with app.app_context():
 		try:
 			if not RESEND_AVAILABLE:
-				app.logger.error('[RESEND] Package resend non installé - installez avec: pip install resend')
+				app.logger.warning('[RESEND] Package resend non disponible — tentative SMTP')
+				_send_email_smtp(recipient, subject, text_body, html_body)
 				return
 
 			client = _get_resend_client()
 			if not client:
-				app.logger.error('[RESEND] RESEND_API_KEY non configuré dans les variables d\'environnement')
+				app.logger.warning('[RESEND] RESEND_API_KEY absent — tentative SMTP')
+				_send_email_smtp(recipient, subject, text_body, html_body)
 				return
 
 			sender_email = os.getenv('RESEND_FROM_EMAIL') or 'SkillRush <onboarding@resend.dev>'

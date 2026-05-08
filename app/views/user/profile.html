@@ -66,12 +66,17 @@
     </div>
 
     <div class="card p-3 mb-3">
-      <h5>Badges de réussite</h5>
+      <h5>🏅 Badges de réussite</h5>
       <div class="d-flex flex-wrap gap-2 mt-2">
-        <span class="skill-pill">🏅 Première compétence partagée</span>
-        <span class="skill-pill">🔥 Série active</span>
-        <span class="skill-pill">⚡ Collectionneur d'XP</span>
-        <span class="skill-pill">🤝 Pilier de la communauté</span>
+        {% if earned_badges is defined and earned_badges %}
+          {% for badge in earned_badges %}
+          <span class="badge-chip rarity-{{ badge.rarity }}" title="{{ badge.description }}">
+            {{ badge.icon }} {{ badge.name }}
+          </span>
+          {% endfor %}
+        {% else %}
+          <span class="text-muted" style="font-size:.88rem">Aucun badge encore. Complète des missions et gagne des XP !</span>
+        {% endif %}
       </div>
     </div>
 

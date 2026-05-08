@@ -11,18 +11,18 @@
         <p class="text-muted mb-0">Aide les autres → gagne des XP → débloque du savoir.</p>
       </div>
       <div class="d-flex gap-2 flex-wrap">
-        <span class="sr-chip"><i class="fas fa-star"></i> {{ total_xp }} XP</span>
-        <span class="sr-chip"><i class="fas fa-layer-group"></i> Niveau {{ level }}</span>
-        <span class="sr-chip"><i class="fas fa-fire"></i> {{ streak_count }} jours de série</span>
+        <span class="sr-chip"><i class="fas fa-star"></i> <span data-xp-display>{{ total_xp }}</span> XP</span>
+        <span class="sr-chip"><i class="fas fa-layer-group"></i> Niveau <span data-level-display>{{ level }}</span></span>
+        <span class="sr-chip"><i class="fas fa-fire"></i> <span data-streak-display>{{ streak_count }}</span> jours de série</span>
       </div>
     </div>
 
     <div class="card stat-card p-3 mb-3">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <strong>Progression XP</strong>
-        <span class="text-muted">{{ total_xp }} / {{ (level + 1) * 500 }} XP</span>
+        <span class="text-muted"><span data-xp-display>{{ total_xp }}</span> / <span data-next-level-xp>{{ (level + 1) * 500 }}</span> XP</span>
       </div>
-      <div class="progress"><div class="progress-bar" style="width: {{ ((total_xp % 500) / 5)|round(0) }}%"></div></div>
+      <div class="progress"><div class="progress-bar" id="dash-xp-bar" style="width: {{ ((total_xp % 500) / 5)|round(0) }}%"></div></div>
     </div>
 
     <div id="dailyRewardContainer" class="mb-2">
@@ -39,21 +39,27 @@
   </div>
 
   <div class="row g-3">
+    <!-- Daily missions (enhanced) -->
     <div class="col-xl-6">
       <div class="card p-3 h-100">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">Défis du jour</h5>
-          <a href="{{ url_for('mission.missions_list') }}" class="text-muted">Voir tout</a>
+          <h5 class="mb-0">⚡ Défis du jour</h5>
+          <a href="{{ url_for('mission.missions_list') }}" class="text-muted" style="font-size:.82rem">Voir tout</a>
         </div>
         {% for task in daily_tasks %}
-        <div class="d-flex justify-content-between align-items-start p-2 mb-2 rounded" style="background: rgba(255,255,255,0.03)">
-          <div>
-            <strong>{{ task.title }}</strong>
-            <div class="text-muted small">{{ task.description }}</div>
+        {% set icons = {'done': '✅', 'in_progress': '🔄', 'todo': '⬜'} %}
+        <div class="daily-mission-row {% if task.status == 'done' %}dm-done{% endif %}">
+          <div class="dm-icon">{{ icons.get(task.status, '⬜') }}</div>
+          <div class="dm-info">
+            <div class="dm-title">{{ task.title }}</div>
+            <div class="dm-desc">{{ task.description }}</div>
+            {% if task.xp_reward is defined %}<div class="dm-xp">+{{ task.xp_reward }} XP</div>{% endif %}
           </div>
-          {% if task.status == 'done' %}<span class="badge bg-success">Fait</span>
-          {% elif task.status == 'in_progress' %}<span class="badge bg-warning">En cours</span>
-          {% else %}<span class="badge bg-secondary">À faire</span>{% endif %}
+          <div class="dm-check">
+            {% if task.status == 'done' %}<i class="fas fa-check-circle"></i>
+            {% elif task.status == 'in_progress' %}<i class="fas fa-spinner fa-spin"></i>
+            {% else %}<i class="far fa-circle"></i>{% endif %}
+          </div>
         </div>
         {% endfor %}
       </div>
@@ -85,6 +91,38 @@
       </div>
     </div>
   </div>
+
+  <!-- Duolingo-style learning path -->
+  {% if user_progress %}
+  <div class="card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="mb-0">🗺️ Mon Parcours d'apprentissage</h5>
+      <a href="{{ url_for('main.explore_skills') }}" class="text-muted" style="font-size:.82rem">Découvrir plus</a>
+    </div>
+    <div class="duo-path" style="max-width:480px; margin:0 auto">
+      {% for progress in user_progress[:8] %}
+      {% set pct = progress.progress_percentage %}
+      <div class="duo-node">
+        {% if progress.is_completed %}
+        <a href="{{ url_for('main.skill_detail', skill_id=progress.skill_id) }}" class="duo-node-btn node-done" title="{{ progress.skill.name }}">✅</a>
+        {% elif pct > 0 %}
+        <a href="{{ url_for('main.skill_detail', skill_id=progress.skill_id) }}" class="duo-node-btn node-active" title="{{ progress.skill.name }}">📖</a>
+        {% else %}
+        <a href="{{ url_for('main.skill_detail', skill_id=progress.skill_id) }}" class="duo-node-btn node-locked" title="{{ progress.skill.name }}">🔒</a>
+        {% endif %}
+        <div class="duo-node-label">{{ progress.skill.name[:20] }}</div>
+        {% if not progress.is_completed and pct > 0 %}
+        <div style="margin-top:4px;width:68px">
+          <div class="progress" style="height:5px;border-radius:3px">
+            <div class="progress-bar" style="width:{{ pct }}%"></div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <div class="card p-3">
     <div class="d-flex justify-content-between align-items-center mb-3">

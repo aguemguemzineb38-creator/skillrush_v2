@@ -98,14 +98,16 @@
         <div class="glass-card p-3 mb-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-muted">Réserve XP</span>
-                <span class="sr-chip"><i class="fas fa-star"></i> {{ current_user.xp }} XP</span>
+                <span class="sr-chip" id="sidebar-xp-chip"><i class="fas fa-star"></i> <span data-xp-display>{{ current_user.xp }}</span> XP</span>
             </div>
-            <div class="progress mb-2"><div class="progress-bar" style="width: {{ ((current_user.xp % 500) / 5)|round(0) }}%"></div></div>
-            <small class="text-muted">Niveau {{ current_user.level }} • Prochain palier à {{ (current_user.level + 1) * 500 }} XP</small>
+            <div class="progress mb-2"><div class="progress-bar" id="sidebar-xp-bar" style="width: {{ ((current_user.xp % 500) / 5)|round(0) }}%"></div></div>
+            <small class="text-muted">Niveau <span data-level-display>{{ current_user.level }}</span> • Prochain palier à <span data-next-level-xp>{{ (current_user.level + 1) * 500 }}</span> XP</small>
         </div>
         <div class="glass-card p-3 mb-3 d-flex justify-content-between align-items-center">
             <span class="text-muted">Série du jour</span>
-            <span class="rank-badge"><i class="fas fa-fire"></i> {{ current_user.streak_count or 0 }} jours</span>
+            <span class="streak-fire {% if current_user.streak_count and current_user.streak_count > 0 %}streak-active{% endif %}">
+                <i class="fas fa-fire"></i> <span data-streak-display>{{ current_user.streak_count or 0 }}</span> jours
+            </span>
         </div>
         <div class="glass-card p-3">
             <h6 class="mb-2">Boucle SkillRush</h6>

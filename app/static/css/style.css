@@ -694,3 +694,216 @@ footer {
     border-top: 1px solid var(--glass);
     background: transparent !important;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   GAMIFICATION — XP Float, Level-up banner, Streaks, Badges,
+                  Duolingo-style path, Leaderboard social
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Floating +XP animation ───────────────────────────────── */
+@keyframes xpFloatUp {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    60%  { opacity: 1; transform: translateY(-48px) scale(1.18); }
+    100% { opacity: 0; transform: translateY(-80px) scale(0.9); }
+}
+.xp-float-anim {
+    position: absolute;
+    z-index: 9999;
+    pointer-events: none;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: #FFC857;
+    text-shadow: 0 0 12px rgba(255,200,87,0.7);
+    animation: xpFloatUp 1.4s ease-out forwards;
+    white-space: nowrap;
+}
+
+/* ── Level-up banner ───────────────────────────────────────── */
+@keyframes levelUpIn {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(0.85); }
+    25%  { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1.06); }
+    75%  { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(0.95); }
+}
+.levelup-banner {
+    position: fixed;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9998;
+    background: linear-gradient(135deg, #7B61FF, #FFC857);
+    color: #fff;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    padding: 14px 36px;
+    border-radius: 999px;
+    box-shadow: 0 8px 32px rgba(123,97,255,.5);
+    pointer-events: none;
+    animation: levelUpIn 3.2s ease forwards;
+    text-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+
+/* ── Streak fire indicator ────────────────────────────────── */
+.streak-fire {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, rgba(255,159,28,.18), rgba(255,95,122,.12));
+    border: 1px solid rgba(255,159,28,.35);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #ffbf69;
+}
+.streak-fire.streak-active {
+    animation: pulseGlow 2s infinite;
+    box-shadow: 0 0 10px rgba(255,159,28,.25);
+}
+
+/* ── Badge chips ──────────────────────────────────────────── */
+.badge-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    border: 1px solid transparent;
+    cursor: default;
+    transition: transform 0.2s;
+}
+.badge-chip:hover { transform: translateY(-2px); }
+.badge-chip.rarity-common   { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.15); color: var(--text-soft); }
+.badge-chip.rarity-rare     { background: rgba(77,168,255,.15);  border-color: rgba(77,168,255,.35);  color: #8dd4ff; }
+.badge-chip.rarity-epic     { background: rgba(123,97,255,.18);  border-color: rgba(123,97,255,.4);   color: #c5b8ff; }
+.badge-chip.rarity-legendary{ background: linear-gradient(135deg,rgba(255,200,87,.22),rgba(255,159,28,.18)); border-color: rgba(255,200,87,.5); color: #ffe5a0; box-shadow: 0 0 14px rgba(255,200,87,.2);}
+
+/* ── Duolingo-style learning path ─────────────────────────── */
+.duo-path {
+    position: relative;
+    padding: 8px 0;
+}
+.duo-path::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--purple) 0%, rgba(77,168,255,.4) 100%);
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+.duo-node {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 28px;
+}
+.duo-node-btn {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    cursor: pointer;
+}
+.duo-node-btn:hover { transform: scale(1.12); }
+.duo-node-btn.node-done {
+    background: linear-gradient(135deg, #32d583, #20c997);
+    border-color: #32d583;
+    box-shadow: 0 0 20px rgba(50,213,131,.35);
+}
+.duo-node-btn.node-active {
+    background: var(--gradient-primary);
+    border-color: var(--purple);
+    box-shadow: 0 0 24px rgba(123,97,255,.5);
+    animation: pulseGlow 2s infinite;
+}
+.duo-node-btn.node-locked {
+    background: rgba(255,255,255,.06);
+    border-color: rgba(255,255,255,.15);
+    color: var(--muted);
+    cursor: not-allowed;
+}
+.duo-node-label {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-align: center;
+    max-width: 90px;
+}
+
+/* ── Leaderboard social ───────────────────────────────────── */
+.lb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--glass);
+    background: var(--surface);
+    margin-bottom: 8px;
+    transition: background 0.2s;
+}
+.lb-row:hover { background: rgba(123,97,255,.12); }
+.lb-row.lb-me  { background: rgba(123,97,255,.2); border-color: rgba(123,97,255,.5); }
+.lb-rank {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    width: 32px;
+    text-align: center;
+    color: var(--muted);
+}
+.lb-rank.rank-1 { color: gold; }
+.lb-rank.rank-2 { color: #c0c0c0; }
+.lb-rank.rank-3 { color: #cd7f32; }
+.lb-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    color: #fff;
+    flex-shrink: 0;
+}
+.lb-info { flex: 1; min-width: 0; }
+.lb-name { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-meta { font-size: 0.75rem; color: var(--muted); }
+.lb-xp { font-family: 'Baloo 2', sans-serif; font-weight: 800; color: var(--gold); font-size: 0.95rem; white-space: nowrap; }
+
+/* ── Daily missions progress ─────────────────────────────── */
+.daily-mission-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.04);
+    margin-bottom: 8px;
+    border: 1px solid var(--glass);
+    transition: background 0.2s;
+}
+.daily-mission-row.dm-done { background: rgba(50,213,131,.08); border-color: rgba(50,213,131,.25); }
+.daily-mission-row.dm-done .dm-check { color: #32d583; }
+.dm-icon { font-size: 1.3rem; width: 32px; text-align: center; }
+.dm-info { flex: 1; }
+.dm-title { font-weight: 700; font-size: 0.9rem; }
+.dm-desc  { font-size: 0.75rem; color: var(--muted); }
+.dm-check { margin-left: auto; font-size: 1.1rem; color: var(--muted); }
+.dm-xp    { font-size: 0.78rem; font-weight: 700; color: var(--gold); margin-top: 2px; }
+

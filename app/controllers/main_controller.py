@@ -286,9 +286,34 @@ class MainController:
             VIDEO_XP_COST=100)
     
     @staticmethod
+    @login_required
     def leaderboard():
-        """Le classement est désactivé dans cette version produit."""
-        return redirect(url_for('main.dashboard'))
+        """Classement social — top 50 par XP."""
+        top_users = (
+            User.query
+            .filter_by(is_blocked=False)
+            .filter(User.role == 'user')
+            .order_by(User.xp.desc())
+            .limit(50)
+            .all()
+        )
+        # Find current user's rank
+        my_rank = None
+        for i, u in enumerate(top_users, 1):
+            if u.id == current_user.id:
+                my_rank = i
+                break
+        if my_rank is None:
+            my_rank = (
+                User.query
+                .filter_by(is_blocked=False)
+                .filter(User.role == 'user')
+                .filter(User.xp > current_user.xp)
+                .count()
+            ) + 1
+        return render_template('leaderboard.html',
+            top_users=top_users,
+            my_rank=my_rank)
     
     @staticmethod
     def user_profile(user_id):

@@ -283,6 +283,17 @@ function claimDailyReward() {
             if (data.level_up) msg += ` 🎉 Niveau ${data.new_level}!`;
             showNotification(msg, 'success');
             markClaimedInUi();
+            // Update XP counters in the DOM immediately (no refresh needed)
+            updateXpDisplays(data.total_xp, data.level_up ? data.new_level : null);
+            // Show floating XP animation
+            showXpFloat('+' + data.xp + ' XP', document.querySelector('[data-daily-claim-btn]'));
+            if (data.level_up) triggerLevelUpBanner(data.new_level);
+            // Notify newly earned badges
+            if (data.new_badges && data.new_badges.length > 0) {
+                data.new_badges.forEach(b => {
+                    setTimeout(() => showNotification(`${b.icon} Badge débloqué : <strong>${b.name}</strong> !`, 'success'), 600);
+                });
+            }
         }
     })
     .catch(error => {
@@ -290,6 +301,55 @@ function claimDailyReward() {
         restoreButtons();
         showNotification('Erreur lors de la réclamation de la récompense', 'danger');
     });
+}
+
+/**
+ * Update all XP/level display elements in the DOM
+ */
+function updateXpDisplays(newXp, newLevel) {
+    document.querySelectorAll('[data-xp-display]').forEach(el => { el.textContent = newXp; });
+    if (newLevel) {
+        document.querySelectorAll('[data-level-display]').forEach(el => { el.textContent = newLevel; });
+        const nextXp = newLevel * 500;
+        document.querySelectorAll('[data-next-level-xp]').forEach(el => { el.textContent = nextXp; });
+    }
+    // Update progress bars
+    const level = newLevel || parseInt((document.querySelector('[data-level-display]') || {}).textContent || '1');
+    const pct = Math.round((newXp % 500) / 5);
+    ['#sidebar-xp-bar', '#dash-xp-bar'].forEach(sel => {
+        const bar = document.querySelector(sel);
+        if (bar) bar.style.width = pct + '%';
+    });
+}
+
+/**
+ * Floating +XP animation anchored near a DOM element
+ */
+function showXpFloat(text, anchorEl) {
+    const el = document.createElement('div');
+    el.className = 'xp-float-anim';
+    el.textContent = text;
+    document.body.appendChild(el);
+    if (anchorEl) {
+        const rect = anchorEl.getBoundingClientRect();
+        el.style.left = (rect.left + rect.width / 2) + 'px';
+        el.style.top = (rect.top + window.scrollY - 20) + 'px';
+    } else {
+        el.style.left = '50%';
+        el.style.top = '200px';
+    }
+    setTimeout(() => el.remove(), 1500);
+}
+
+/**
+ * Level-up banner animation
+ */
+function triggerLevelUpBanner(level) {
+    const el = document.createElement('div');
+    el.className = 'levelup-banner';
+    el.innerHTML = `<i class="fas fa-star"></i> Niveau ${level} atteint ! <i class="fas fa-star"></i>`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3200);
 }
 
 /**

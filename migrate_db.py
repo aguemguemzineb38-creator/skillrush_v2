@@ -160,6 +160,57 @@ def migrate():
         cur.execute("CREATE INDEX idx_umqa_user_mission ON user_mission_quiz_attempts(user_id, mission_id)")
         print("Table user_mission_quiz_attempts creee"); n+=1
 
+    # 11. Badges system
+    if not table_exists(cur, 'badges'):
+        cur.execute("""
+            CREATE TABLE badges (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                key VARCHAR(50) UNIQUE NOT NULL,
+                icon VARCHAR(10) NOT NULL,
+                name VARCHAR(100) NOT NULL,
+                description VARCHAR(255) NOT NULL,
+                rarity VARCHAR(20) DEFAULT 'common',
+                condition_type VARCHAR(30) NOT NULL,
+                condition_value INTEGER DEFAULT 0
+            )
+        """)
+        print("Table badges creee"); n+=1
+
+    # Always seed badges if table is empty
+    cur.execute("SELECT count(*) FROM badges")
+    if cur.fetchone()[0] == 0:
+        badges_data = [
+            ('first_mission',  '🎯', 'Premiere Mission',    'Completer sa premiere mission',             'common',   'missions_completed', 1),
+            ('streak_3',       '🔥', 'Serie de 3 jours',    'Maintenir un streak de 3 jours consecutifs','common',   'streak',             3),
+            ('streak_7',       '🔥🔥','Flamme de la semaine','Maintenir un streak de 7 jours',            'rare',     'streak',             7),
+            ('streak_30',      '⚡', 'Mois de feu',          'Maintenir un streak de 30 jours',           'epic',     'streak',             30),
+            ('xp_100',         '⚡', 'Club 100 XP',          'Accumuler 100 XP',                          'common',   'xp',                 100),
+            ('xp_500',         '💎', 'Club 500 XP',          'Accumuler 500 XP',                          'rare',     'xp',                 500),
+            ('xp_1000',        '👑', 'Club 1000 XP',         'Accumuler 1000 XP',                         'epic',     'xp',                 1000),
+            ('xp_5000',        '🌟', 'Legende XP',           'Accumuler 5000 XP',                         'legendary','xp',                 5000),
+            ('first_skill',    '📚', 'Premier Cours',        'Publier son premier cours',                 'common',   'skills_created',     1),
+            ('five_skills',    '🏆', 'Formateur Expert',     'Publier 5 cours',                           'rare',     'skills_created',     5),
+            ('five_missions',  '🏅', 'Maitre des Missions',  'Completer 5 missions',                      'rare',     'missions_completed', 5),
+            ('ten_missions',   '🎖', 'Champion des Missions','Completer 10 missions',                     'epic',     'missions_completed', 10),
+        ]
+        cur.executemany(
+            "INSERT OR IGNORE INTO badges (key, icon, name, description, rarity, condition_type, condition_value) VALUES (?,?,?,?,?,?,?)",
+            badges_data
+        )
+        print("Badges seedes"); n+=1
+
+    if not table_exists(cur, 'user_badges'):
+        cur.execute("""
+            CREATE TABLE user_badges (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                badge_id INTEGER NOT NULL REFERENCES badges(id),
+                earned_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cur.execute("CREATE UNIQUE INDEX idx_ub_user_badge ON user_badges(user_id, badge_id)")
+        print("Table user_badges creee"); n+=1
+
     conn.commit()
     conn.close()
     print(f"\n{'Migration terminee: '+str(n)+' changement(s).' if n else 'Deja a jour.'}")

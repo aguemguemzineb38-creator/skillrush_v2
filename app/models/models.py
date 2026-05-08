@@ -223,3 +223,38 @@ class ContentUnlock(db.Model):
 
     def __repr__(self):
         return f'<ContentUnlock user={self.user_id} type={self.content_type} ref={self.content_ref}>'
+
+
+# ── Badges ───────────────────────────────────────────────────────────────────
+
+class Badge(db.Model):
+    """Badge rare gagnable (définition globale)."""
+    __tablename__ = 'badges'
+
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(50), unique=True, nullable=False)   # identifiant unique
+    icon = db.Column(db.String(10), nullable=False)               # emoji
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+    rarity = db.Column(db.String(20), default='common')           # common | rare | epic | legendary
+    # Condition: type + valeur numérique (ex. xp >= 500)
+    condition_type = db.Column(db.String(30), nullable=False)
+    condition_value = db.Column(db.Integer, default=0)
+
+    user_badges = db.relationship('UserBadge', backref='badge', lazy=True, cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<Badge {self.key}>'
+
+
+class UserBadge(db.Model):
+    """Badge obtenu par un utilisateur."""
+    __tablename__ = 'user_badges'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    badge_id = db.Column(db.Integer, db.ForeignKey('badges.id'), nullable=False)
+    earned_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<UserBadge user={self.user_id} badge={self.badge_id}>'

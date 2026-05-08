@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, current_app
-from app.models import db, User, UserProgress, UserMission, Mission, XPPurchase, Skill, Video, ContentUnlock
+from app.models import db, User, UserProgress, UserMission, Mission, XPPurchase, Skill, Video, ContentUnlock, Badge, UserBadge
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta, date
 from functools import wraps
@@ -90,6 +90,44 @@ XP_PACKAGES = [
     {'id': 4, 'xp': 10000,'price': 39.99, 'label': 'Legendary', 'icon': '👑'},
 ]
 
+# ── Badge award helper ────────────────────────────────────────────────────────
+
+def check_and_award_badges(user):
+    """Check all badge conditions for a user and award any newly earned badges.
+    Returns list of newly awarded Badge objects (for immediate notification)."""
+    all_badges = Badge.query.all()
+    if not all_badges:
+        return []
+
+    already_earned = {ub.badge_id for ub in UserBadge.query.filter_by(user_id=user.id).all()}
+    missions_completed = UserMission.query.filter_by(user_id=user.id, is_completed=True).count()
+    skills_created = Skill.query.filter_by(creator_id=user.id).count()
+    newly_earned = []
+
+    for badge in all_badges:
+        if badge.id in already_earned:
+            continue
+        earned = False
+        ct = badge.condition_type
+        cv = badge.condition_value
+        if ct == 'xp' and user.xp >= cv:
+            earned = True
+        elif ct == 'streak' and (user.streak_count or 0) >= cv:
+            earned = True
+        elif ct == 'missions_completed' and missions_completed >= cv:
+            earned = True
+        elif ct == 'skills_created' and skills_created >= cv:
+            earned = True
+
+        if earned:
+            ub = UserBadge(user_id=user.id, badge_id=badge.id)
+            db.session.add(ub)
+            newly_earned.append(badge)
+
+    if newly_earned:
+        db.session.flush()
+    return newly_earned
+
 class UserController:
 
     # ── Profil ────────────────────────────────────────────────────────────────
@@ -106,6 +144,13 @@ class UserController:
         )
         completed_missions = UserMission.query.filter_by(user_id=user_id, is_completed=True).count()
         learned_skills = UserProgress.query.filter_by(user_id=user_id, is_completed=True).count()
+        user_badges = (
+            UserBadge.query
+            .filter_by(user_id=user_id)
+            .join(Badge, UserBadge.badge_id == Badge.id)
+            .all()
+        )
+        earned_badges = [ub.badge for ub in user_badges]
         return render_template('user/profile.html',
             profile_user=user,
             created_skills=created_skills,
@@ -113,7 +158,8 @@ class UserController:
             skills_created=created_skills,
             completed_missions=completed_missions,
             missions_count=completed_missions,
-            learned_skills=learned_skills)
+            learned_skills=learned_skills,
+            earned_badges=earned_badges)
 
     @staticmethod
     @login_required
@@ -226,15 +272,17 @@ class UserController:
             level_up = True
             new_level = current_user.level
 
+        new_badges = check_and_award_badges(current_user)
         db.session.commit()
-        
+
         return jsonify({
             'success': True,
             'message': 'Récompense quotidienne reçue !',
             'xp': daily_xp,
             'total_xp': current_user.xp,
             'level_up': level_up,
-            'new_level': new_level if level_up else None
+            'new_level': new_level if level_up else None,
+            'new_badges': [{'icon': b.icon, 'name': b.name} for b in new_badges],
         }), 200
 
     # ── Admin : gestion utilisateurs ─────────────────────────────────────────
