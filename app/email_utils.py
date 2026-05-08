@@ -1,9 +1,12 @@
 import smtplib
 import threading
+import logging
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 
 from flask import current_app
+
+logger = logging.getLogger(__name__)
 
 
 def _default_app_url(path='/dashboard'):
@@ -73,18 +76,22 @@ def _smtp_send(app, recipient, subject, text_body, html_body=None):
 			msg.add_alternative(html_body, subtype='html')
 
 		try:
+			app.logger.debug(f'[EMAIL] Tentative d\'envoi à {recipient} | Serveur={mail_server}:{mail_port} | TLS={mail_use_tls} | SSL={mail_use_ssl}')
 			smtp_cls = smtplib.SMTP_SSL if mail_use_ssl else smtplib.SMTP
 			with smtp_cls(mail_server, mail_port, timeout=20) as server:
 				server.ehlo()
 				if mail_use_tls and not mail_use_ssl:
+					app.logger.debug(f'[EMAIL] Activation de STARTTLS')
 					server.starttls()
 					server.ehlo()
 				if mail_username:
+					app.logger.debug(f'[EMAIL] Login avec {mail_username}')
 					server.login(mail_username, mail_password)
+				app.logger.debug(f'[EMAIL] Envoi du message')
 				server.send_message(msg)
-			app.logger.info('Email envoyé | to=%s | subject=%s', recipient, subject)
+			app.logger.info(f'✅ Email ENVOYÉ | to={recipient} | subject={subject}')
 		except Exception as exc:
-			app.logger.exception('Erreur envoi email | to=%s | %s', recipient, exc)
+			app.logger.error(f'❌ ERREUR EMAIL | to={recipient} | subject={subject} | Exception: {type(exc).__name__}: {exc}', exc_info=True)
 
 
 def _send_async(recipient, subject, text_body, html_body=None):

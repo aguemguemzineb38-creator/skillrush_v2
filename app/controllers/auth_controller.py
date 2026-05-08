@@ -78,8 +78,9 @@ class AuthController:
             try:
                 dashboard_url = url_for('main.dashboard', _external=True)
                 send_welcome_email(user.email, user.username, dashboard_url=dashboard_url)
-            except Exception:
-                pass  # Ne pas bloquer l'inscription si l'email échoue
+            except Exception as e:
+                from flask import current_app
+                current_app.logger.error(f'[AUTH] Erreur envoi email bienvenue pour {user.username}: {e}', exc_info=True)
 
             login_user(user)
             return redirect(url_for('onboarding.step1'))

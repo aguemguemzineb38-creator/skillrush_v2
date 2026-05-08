@@ -210,8 +210,18 @@ function filterByCategory(category) {
  * Recevoir une récompense quotidienne
  */
 function claimDailyReward() {
+    console.log('[DAILY CLAIM] Début de la fonction claimDailyReward');
+    
     const claimButtons = Array.from(document.querySelectorAll('[data-daily-claim-btn]'));
     const claimedBadges = Array.from(document.querySelectorAll('[data-daily-claimed-badge]'));
+
+    console.log(`[DAILY CLAIM] Trouvé ${claimButtons.length} boutons et ${claimedBadges.length} badges`);
+    
+    if (claimButtons.length === 0) {
+        console.error('[DAILY CLAIM] ❌ Aucun bouton trouvé! Vérifiez les sélecteurs');
+        showNotification('Erreur: Interface non trouvée', 'danger');
+        return;
+    }
 
     claimButtons.forEach(button => {
         button.disabled = true;
@@ -222,37 +232,53 @@ function claimDailyReward() {
     });
 
     const markClaimedInUi = () => {
+        console.log('[DAILY CLAIM] ✅ Marquage comme réclamé dans l\'interface');
         claimButtons.forEach(button => {
             button.classList.add('d-none');
+            console.log('[DAILY CLAIM] Bouton caché');
         });
         claimedBadges.forEach(badge => {
             badge.classList.remove('d-none');
+            console.log('[DAILY CLAIM] Badge affiché');
         });
     };
 
     const restoreButtons = () => {
+        console.log('[DAILY CLAIM] 🔄 Restauration des boutons');
         claimButtons.forEach(button => {
             button.disabled = false;
             button.innerHTML = button.dataset.originalText || '<i class="fas fa-gift"></i> Réclamer le bonus quotidien +100 XP';
         });
     };
 
+    console.log('[DAILY CLAIM] Envoi requête POST /user/daily-reward');
     fetch('/user/daily-reward', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log(`[DAILY CLAIM] Réponse reçue: status=${response.status}`);
+        if (!response.ok && response.status !== 429) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('[DAILY CLAIM] Données JSON reçues:', data);
+        
         if (data.already_claimed) {
+            console.log('[DAILY CLAIM] ⚠️ Bonus déjà réclamé');
             markClaimedInUi();
             showNotification(data.error || 'Bonus déjà réclamé aujourd\'hui.', 'info');
             return;
         }
 
         if (data.error) {
+            console.error('[DAILY CLAIM] ❌ Erreur API:', data.error);
             restoreButtons();
             showNotification(data.error, 'warning');
         } else {
+            console.log('[DAILY CLAIM] ✅ Succès! XP gagné:', data.xp);
             let msg = `${data.message} +${data.xp} XP`;
             if (data.level_up) msg += ` 🎉 Niveau ${data.new_level}!`;
             showNotification(msg, 'success');
@@ -260,7 +286,7 @@ function claimDailyReward() {
         }
     })
     .catch(error => {
-        console.error('Erreur :', error);
+        console.error('[DAILY CLAIM] ❌ Erreur réseau/parsing:', error);
         restoreButtons();
         showNotification('Erreur lors de la réclamation de la récompense', 'danger');
     });

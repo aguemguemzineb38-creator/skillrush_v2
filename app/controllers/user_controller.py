@@ -203,28 +203,39 @@ class UserController:
     @staticmethod
     @login_required
     def daily_reward():
+        from datetime import datetime, date
         now = datetime.utcnow()
         today = date.today()
+        
+        # Vérifier si déjà réclamé aujourd'hui
         if current_user.last_daily_reward and current_user.last_daily_reward.date() == today:
-            return jsonify({'error': 'Récompense déjà récupérée aujourd\'hui.', 'already_claimed': True}), 429
+            return jsonify({
+                'error': 'Récompense déjà récupérée aujourd\'hui.',
+                'already_claimed': True,
+                'message': 'Reviens demain!'
+            }), 200  # 200 au lieu de 429 pour que le frontend traite correctement
 
         daily_xp = 100
         current_user.xp += daily_xp
         current_user.last_daily_reward = now
 
         level_up = False
+        new_level = current_user.level
         while current_user.xp >= current_user.level * 1000:
             current_user.level += 1
             level_up = True
+            new_level = current_user.level
 
         db.session.commit()
+        
         return jsonify({
+            'success': True,
             'message': 'Récompense quotidienne reçue !',
             'xp': daily_xp,
             'total_xp': current_user.xp,
             'level_up': level_up,
-            'new_level': current_user.level if level_up else None
-        })
+            'new_level': new_level if level_up else None
+        }), 200
 
     # ── Admin : gestion utilisateurs ─────────────────────────────────────────
 
