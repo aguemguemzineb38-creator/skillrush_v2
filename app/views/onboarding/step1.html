@@ -5,15 +5,15 @@
   <div class="onboarding-card p-4 p-md-5">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
       <div>
-        <h3 class="mb-1">What skill can you share?</h3>
-        <p class="text-muted mb-0">Publish at least one skill to join the SkillRush economy.</p>
+        <h3 class="mb-1">Quelle compétence peux-tu partager ?</h3>
+        <p class="text-muted mb-0">Publie au moins une compétence pour rejoindre l'économie SkillRush.</p>
       </div>
-      <span class="sr-chip"><i class="fas fa-gift"></i> +150 XP after first publish</span>
+      <span class="sr-chip"><i class="fas fa-gift"></i> +150 XP après la première publication</span>
     </div>
 
     <div class="mb-4">
       <div class="progress"><div class="progress-bar" style="width: 33%"></div></div>
-      <small class="text-muted">Step 1 / 3</small>
+      <small class="text-muted">Étape 1 / 3</small>
     </div>
 
     <div id="screen-choice" class="{{ 'd-none' if show_formateur else '' }}">
@@ -29,7 +29,7 @@
           <button type="button" class="card p-4 w-100 text-start pulse-glow" onclick="showSection('formateur')">
             <div class="mb-2" style="font-size:2rem">🚀</div>
             <h5>Je veux partager</h5>
-            <p class="text-muted mb-0">Publish your expertise and earn XP.</p>
+            <p class="text-muted mb-0">Publie ton expertise et gagne des XP.</p>
           </button>
         </div>
       </div>
@@ -47,7 +47,7 @@
           </button>
           {% endfor %}
         </div>
-        <button type="submit" name="skip" value="1" class="btn btn-outline-primary">Skip and explore now</button>
+        <button type="submit" name="skip" value="1" class="btn btn-outline-primary">Passer et explorer maintenant</button>
       </form>
     </div>
 
@@ -57,16 +57,16 @@
         <input type="hidden" name="role_choice" value="formateur">
         <div class="mb-3">
           <label class="form-label">Ta compétence principale</label>
-          <input type="text" class="form-control form-control-lg" name="competence" placeholder="Ex: Python automation, Excel dashboard, Guitar basics" maxlength="120" value="{{ current_user.competence or '' }}" required>
+          <input type="text" class="form-control form-control-lg" name="competence" placeholder="Ex : Automatisation Python, Dashboard Excel, Bases de la guitare" maxlength="120" value="{{ current_user.competence or '' }}" required>
         </div>
         <div class="d-flex flex-wrap gap-2 mb-4">
           <span class="skill-pill">Photoshop</span>
           <span class="skill-pill">Excel</span>
-          <span class="skill-pill">Public Speaking</span>
+          <span class="skill-pill">Prise de parole</span>
           <span class="skill-pill">Python</span>
-          <span class="skill-pill">Guitar</span>
+          <span class="skill-pill">Guitare</span>
         </div>
-        <button type="submit" class="btn btn-primary btn-lg pulse-glow">Add skill and continue</button>
+        <button type="submit" class="btn btn-primary btn-lg pulse-glow">Ajouter la compétence et continuer</button>
       </form>
       <p class="text-muted mt-3 mb-0">La modération prend généralement 24 à 48 h. Tu recevras tes XP une fois le contenu approuvé.</p>
     </div>

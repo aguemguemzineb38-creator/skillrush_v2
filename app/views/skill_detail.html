@@ -10,6 +10,9 @@
     <!-- ── En-tête ─────────────────────────────────────────────────────────── -->
     <div class="row mb-4">
         <div class="col-md-8">
+            {% if skill.thumbnail %}
+            <img src="{{ skill.thumbnail }}" alt="{{ skill.name }}" class="mb-3 w-100" style="height:220px;border-radius:16px;object-fit:cover;">
+            {% endif %}
             <div class="skill-header">
                 <h1>{{ skill.name }}</h1>
                 <p class="lead text-muted">{{ skill.description }}</p>

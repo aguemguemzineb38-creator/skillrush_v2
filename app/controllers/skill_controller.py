@@ -37,8 +37,21 @@ class SkillController:
                 is_approved=False,
                 creator_id=current_user.id
             )
-            
+
             db.session.add(skill)
+            db.session.flush()  # get skill.id before commit
+
+            # ── Thumbnail upload ────────────────────────────────────────────
+            thumbnail_file = request.files.get('thumbnail')
+            if thumbnail_file and thumbnail_file.filename:
+                ext = os.path.splitext(secure_filename(thumbnail_file.filename))[1].lower()
+                if ext in {'.jpg', '.jpeg', '.png', '.webp', '.gif'}:
+                    upload_dir = os.path.join(current_app.static_folder, 'uploads', 'thumbnails')
+                    os.makedirs(upload_dir, exist_ok=True)
+                    filename = f"skill_{skill.id}_{uuid.uuid4().hex[:8]}{ext}"
+                    thumbnail_file.save(os.path.join(upload_dir, filename))
+                    skill.thumbnail = f"/static/uploads/thumbnails/{filename}"
+
             db.session.commit()
             
             flash('Compétence créée ! Elle sera visible après validation.', 'success')
@@ -276,6 +289,18 @@ class SkillController:
             skill.description = description
             skill.category = category
             skill.difficulty = difficulty
+
+            # ── Nouveau thumbnail ───────────────────────────────────────────
+            thumbnail_file = request.files.get('thumbnail')
+            if thumbnail_file and thumbnail_file.filename:
+                ext = os.path.splitext(secure_filename(thumbnail_file.filename))[1].lower()
+                if ext in {'.jpg', '.jpeg', '.png', '.webp', '.gif'}:
+                    upload_dir = os.path.join(current_app.static_folder, 'uploads', 'thumbnails')
+                    os.makedirs(upload_dir, exist_ok=True)
+                    filename = f"skill_{skill.id}_{uuid.uuid4().hex[:8]}{ext}"
+                    thumbnail_file.save(os.path.join(upload_dir, filename))
+                    skill.thumbnail = f"/static/uploads/thumbnails/{filename}"
+
             db.session.commit()
             flash('Cours modifié avec succès.', 'success')
             return redirect(url_for('skill.my_skills'))

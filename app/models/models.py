@@ -98,6 +98,9 @@ class Skill(db.Model):
     course_pdf = db.Column(db.String(500), nullable=True)
     pdf_total_pages = db.Column(db.Integer, default=0)   # Counted on upload
 
+    # Image de couverture
+    thumbnail = db.Column(db.String(500), nullable=True)
+
     # Modération
     is_flagged = db.Column(db.Boolean, default=False)
     is_approved = db.Column(db.Boolean, default=True)

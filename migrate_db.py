@@ -77,6 +77,11 @@ def migrate():
         cur.execute("ALTER TABLE skills ADD COLUMN course_pdf VARCHAR(500)")
         print("Ajout: skills.course_pdf"); n+=1
 
+    # 4c. thumbnail sur skills
+    if not col_exists(cur, 'skills', 'thumbnail'):
+        cur.execute("ALTER TABLE skills ADD COLUMN thumbnail VARCHAR(500)")
+        print("Ajout: skills.thumbnail"); n+=1
+
     # 4b. is_flagged / is_approved sur skills
     if not col_exists(cur, 'skills', 'is_flagged'):
         cur.execute("ALTER TABLE skills ADD COLUMN is_flagged BOOLEAN DEFAULT 0")
