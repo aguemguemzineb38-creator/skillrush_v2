@@ -47,7 +47,10 @@
                 <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('main.explore_skills') }}">Accéder à un contenu gratuit</a></div>
                 <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('user.buy_xp') }}">Débloquer avec mes XP</a></div>
                 <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('mission.my_missions') }}">Suivre mes missions</a></div>
-                <div class="col-lg-4"><button type="button" class="btn btn-outline-primary w-100" onclick="claimDailyReward()">Réclamer le bonus quotidien</button></div>
+                <div class="col-lg-4">
+                    <button type="button" class="btn btn-outline-primary w-100" data-daily-claim-btn onclick="claimDailyReward()">Réclamer le bonus quotidien</button>
+                    <span class="badge bg-success w-100 mt-1 d-none" data-daily-claimed-badge><i class="fas fa-check-circle"></i> Bonus déjà récupéré</span>
+                </div>
                 <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('user.my_progress') }}">Suivre ma progression</a></div>
                 <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('user.my_progress') }}">Continuer mon apprentissage</a></div>
                 <div class="col-lg-4"><a class="btn btn-outline-primary w-100" href="{{ url_for('skill.create_skill') }}">Ajouter un nouveau contenu</a></div>

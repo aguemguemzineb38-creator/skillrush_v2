@@ -354,7 +354,7 @@ class UserController:
         if creator:
             try:
                 from flask import url_for
-                course_url = url_for('skill.skill_detail', skill_id=skill.id, _external=True)
+                course_url = url_for('main.skill_detail', skill_id=skill.id, _external=True)
             except Exception:
                 course_url = None
             try:

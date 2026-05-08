@@ -25,11 +25,17 @@
       <div class="progress"><div class="progress-bar" style="width: {{ ((total_xp % 500) / 5)|round(0) }}%"></div></div>
     </div>
 
-    {% if not daily_reward_claimed %}
-    <button class="btn btn-warning mb-2" onclick="claimDailyReward()"><i class="fas fa-gift"></i> Réclamer le bonus quotidien +100 XP</button>
-    {% else %}
-    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Bonus quotidien déjà récupéré</span>
-    {% endif %}
+    <div id="dailyRewardContainer" class="mb-2">
+      <button
+        class="btn btn-warning {% if daily_reward_claimed %}d-none{% endif %}"
+        data-daily-claim-btn
+        onclick="claimDailyReward()">
+        <i class="fas fa-gift"></i> Réclamer le bonus quotidien +100 XP
+      </button>
+      <span class="badge bg-success {% if not daily_reward_claimed %}d-none{% endif %}" data-daily-claimed-badge>
+        <i class="fas fa-check-circle"></i> Bonus quotidien déjà récupéré
+      </span>
+    </div>
   </div>
 
   <div class="row g-3">
@@ -106,12 +112,4 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-function claimDailyReward(){
-  fetch('/user/daily-reward',{method:'POST',headers:{'Content-Type':'application/json'}})
-    .then(r=>r.json()).then(d=>{ if(d.success){location.reload();} else {alert(d.message || 'Bonus déjà réclamé aujourd\'hui.');}})
-    .catch(()=>location.reload());
-}
-</script>
-{% endblock %}
+{% block extra_js %}{% endblock %}

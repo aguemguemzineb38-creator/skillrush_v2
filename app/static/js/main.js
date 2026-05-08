@@ -210,23 +210,58 @@ function filterByCategory(category) {
  * Recevoir une récompense quotidienne
  */
 function claimDailyReward() {
+    const claimButtons = Array.from(document.querySelectorAll('[data-daily-claim-btn]'));
+    const claimedBadges = Array.from(document.querySelectorAll('[data-daily-claimed-badge]'));
+
+    claimButtons.forEach(button => {
+        button.disabled = true;
+        if (!button.dataset.originalText) {
+            button.dataset.originalText = button.innerHTML;
+        }
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Réclamation...';
+    });
+
+    const markClaimedInUi = () => {
+        claimButtons.forEach(button => {
+            button.classList.add('d-none');
+        });
+        claimedBadges.forEach(badge => {
+            badge.classList.remove('d-none');
+        });
+    };
+
+    const restoreButtons = () => {
+        claimButtons.forEach(button => {
+            button.disabled = false;
+            button.innerHTML = button.dataset.originalText || '<i class="fas fa-gift"></i> Réclamer le bonus quotidien +100 XP';
+        });
+    };
+
     fetch('/user/daily-reward', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     })
     .then(response => response.json())
     .then(data => {
+        if (data.already_claimed) {
+            markClaimedInUi();
+            showNotification(data.error || 'Bonus déjà réclamé aujourd\'hui.', 'info');
+            return;
+        }
+
         if (data.error) {
+            restoreButtons();
             showNotification(data.error, 'warning');
         } else {
             let msg = `${data.message} +${data.xp} XP`;
             if (data.level_up) msg += ` 🎉 Niveau ${data.new_level}!`;
             showNotification(msg, 'success');
-            setTimeout(() => document.location.reload(), 2000);
+            markClaimedInUi();
         }
     })
     .catch(error => {
         console.error('Erreur :', error);
+        restoreButtons();
         showNotification('Erreur lors de la réclamation de la récompense', 'danger');
     });
 }
