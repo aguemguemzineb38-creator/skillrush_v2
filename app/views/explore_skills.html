@@ -1,7 +1,7 @@
 ﻿{% extends "base.html" %}
 {% block title %}Apprendre - SkillRush{% endblock %}
 {% block content %}
-{% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business', 'Marketing': 'Marketing', 'Languages': 'Langues', 'Other': 'Autre'} %}
+{% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business', 'Marketing': 'Marketing', 'Languages': 'Langues', 'Art': 'Art & Musique', 'Other': 'Autre'} %}
 {% set difficulty_labels = {'Beginner': 'Débutant', 'Intermediate': 'Intermédiaire', 'Advanced': 'Avancé', 'Easy': 'Facile'} %}
 <div class="sr-main-card p-4 mb-3">
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
@@ -34,7 +34,7 @@
       {% set cat_colors = {'Design': 'rgba(255,77,144,.35), rgba(255,160,77,.3)', 'Programming': 'rgba(77,168,255,.35), rgba(123,97,255,.3)', 'Marketing': 'rgba(255,197,77,.35), rgba(255,120,77,.3)', 'Business': 'rgba(77,255,168,.35), rgba(77,200,255,.3)', 'Languages': 'rgba(200,77,255,.35), rgba(77,180,255,.3)', 'Excel': 'rgba(77,255,120,.35), rgba(77,220,77,.3)', 'Canva': 'rgba(255,120,200,.35), rgba(200,77,255,.3)'} %}
       {% set grad = cat_colors.get(skill.category, 'rgba(123,97,255,.35), rgba(77,168,255,.3)') %}
       <div class="mb-3 d-flex align-items-center justify-content-center" style="height:140px;border-radius:12px;background:linear-gradient(140deg, {{ grad }});font-size:3rem;">
-        {% set cat_icons = {'Design': '🎨', 'Programming': '💻', 'Marketing': '📣', 'Business': '💼', 'Languages': '🌍', 'Excel': '📊', 'Canva': '✏️', 'CV': '📄', 'Other': '🧠'} %}
+        {% set cat_icons = {'Design': '🎨', 'Programming': '💻', 'Marketing': '📣', 'Business': '💼', 'Languages': '🌍', 'Excel': '📊', 'Canva': '✏️', 'CV': '📄', 'Art': '🎵', 'Other': '🧠'} %}
         {{ cat_icons.get(skill.category, '📚') }}
       </div>
       {% endif %}

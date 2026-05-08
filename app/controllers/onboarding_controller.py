@@ -128,6 +128,7 @@ class OnboardingController:
             {'value': 'Design',   'label': 'Design & Canva',   'icon': '🎨'},
             {'value': 'Programming', 'label': 'Digital Skills','icon': '💻'},
             {'value': 'Marketing','label': 'Marketing',        'icon': '📈'},
+            {'value': 'Art',      'label': 'Art & Musique',    'icon': '🎵'},
         ]
 
         if request.method == 'POST':

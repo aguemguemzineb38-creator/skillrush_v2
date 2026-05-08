@@ -28,7 +28,7 @@
                                 <label for="category" class="form-label">Catégorie *</label>
                                 <select class="form-select" id="category" name="category" required>
                                     <option value="">Choisir une catégorie</option>
-                                    {% for cat in ['Excel','Canva','CV','Design','Programming','Business','Marketing','Languages','Other'] %}
+                                    {% for cat in ['Excel','Canva','CV','Design','Programming','Business','Marketing','Languages','Art','Other'] %}
                                         <option value="{{ cat }}" {% if skill.category == cat %}selected{% endif %}>{{ category_labels.get(cat, cat) }}</option>
                                     {% endfor %}
                                 </select>
