@@ -70,6 +70,14 @@ def register_blueprints(app):
     def logout():
         return AuthController.logout()
 
+    @auth_bp.route('/google')
+    def google_login():
+        return AuthController.google_login()
+
+    @auth_bp.route('/google/callback')
+    def google_callback():
+        return AuthController.google_callback()
+
     app.register_blueprint(auth_bp)
 
     # ── Skills ────────────────────────────────────────────────────────────────
