@@ -49,8 +49,19 @@ class SkillController:
                     upload_dir = os.path.join(current_app.static_folder, 'uploads', 'thumbnails')
                     os.makedirs(upload_dir, exist_ok=True)
                     filename = f"skill_{skill.id}_{uuid.uuid4().hex[:8]}{ext}"
-                    thumbnail_file.save(os.path.join(upload_dir, filename))
-                    skill.thumbnail = f"/static/uploads/thumbnails/{filename}"
+                    local_path = os.path.join(upload_dir, filename)
+                    thumbnail_file.save(local_path)
+                    # Try cloud upload
+                    from app.storage import upload_file
+                    cloud_url = upload_file(local_path, public_id=f'skillrush/thumbnails/{filename}', resource_type='image')
+                    if cloud_url:
+                        skill.thumbnail = cloud_url
+                        try:
+                            os.remove(local_path)
+                        except Exception:
+                            pass
+                    else:
+                        skill.thumbnail = f"/static/uploads/thumbnails/{filename}"
 
             db.session.commit()
 
@@ -113,7 +124,17 @@ class SkillController:
                     pdf_pages = len(PdfReader(pdf_path).pages)
                 except Exception:
                     pdf_pages = 0
-                skill.course_pdf = f'/static/uploads/pdfs/{pdf_filename}'
+                # Try cloud upload
+                from app.storage import upload_file
+                cloud_url = upload_file(pdf_path, public_id=f'skillrush/pdfs/{pdf_filename}', resource_type='raw')
+                if cloud_url:
+                    skill.course_pdf = cloud_url
+                    try:
+                        os.remove(pdf_path)
+                    except Exception:
+                        pass
+                else:
+                    skill.course_pdf = f'/static/uploads/pdfs/{pdf_filename}'
                 skill.pdf_total_pages = pdf_pages
                 db.session.commit()
                 if not has_video:
@@ -131,6 +152,18 @@ class SkillController:
                 final_path = os.path.join(upload_folder, final_filename)
                 video_file.save(final_path)
 
+                # Try cloud upload for persistent storage on Railway
+                from app.storage import upload_file
+                cloud_url = upload_file(final_path, public_id=f'skillrush/videos/{final_filename}', resource_type='video')
+                if cloud_url:
+                    video_url = cloud_url
+                    try:
+                        os.remove(final_path)
+                    except Exception:
+                        pass
+                else:
+                    video_url = f'/static/uploads/videos/{final_filename}'
+
                 # Try to read duration (optional — won't block if ffmpeg missing)
                 duration = 0
                 try:
@@ -145,7 +178,7 @@ class SkillController:
                 video = Video(
                     title=title,
                     description=description,
-                    video_url=f'/static/uploads/videos/{final_filename}',
+                    video_url=video_url,
                     duration=duration,
                     is_free=is_free,
                     order=existing_count + 1,
