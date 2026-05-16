@@ -157,6 +157,10 @@ def register_blueprints(app):
     def daily_reward():
         return UserController.daily_reward()
 
+    @user_bp.route('/<int:user_id>/follow', methods=['POST'])
+    def follow_user(user_id):
+        return UserController.follow_user(user_id)
+
     app.register_blueprint(user_bp)
 
     # ── Missions ──────────────────────────────────────────────────────────────

@@ -1,29 +1,130 @@
 {% extends "base.html" %}
 {% block title %}Classement — SkillRush{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── League banner ─────────────────────────────────────────────────────── */
+.league-banner {
+  border-radius: 16px;
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(135deg, var(--surface), var(--bg));
+  border: 2px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.league-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 50%, var(--league-color, #ffd700) 0%, transparent 65%);
+  opacity: .10;
+  pointer-events: none;
+}
+.league-trophy { font-size: 3.2rem; line-height: 1; }
+.league-name   { font-size: 1.35rem; font-weight: 700; color: var(--league-color, #ffd700); }
+.league-sub    { font-size: .82rem; color: var(--text-soft); margin-top: 2px; }
+
+/* ── Zones (promotion / relegation) ─────────────────────────────────────── */
+.zone-label {
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 4px 12px 4px 8px;
+  border-radius: 6px 6px 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.zone-promotion  { background: rgba(34,197,94,.15); color: #22c55e; }
+.zone-relegation { background: rgba(239,68,68,.13);  color: #ef4444; }
+
+/* ── Rows ─────────────────────────────────────────────────────────────── */
+.lb-zone-promo  { border-left: 3px solid #22c55e; background: rgba(34,197,94,.04); }
+.lb-zone-relega { border-left: 3px solid #ef4444; background: rgba(239,68,68,.04); }
+
+/* ── League pills next to name ───────────────────────────────────────── */
+.league-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: .68rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--pill-color, #ffd700) 15%, transparent);
+  color: var(--pill-color, #ffd700);
+  border: 1px solid color-mix(in srgb, var(--pill-color, #ffd700) 40%, transparent);
+}
+
+/* ── League tiers sidebar ─────────────────────────────────────────────── */
+.tier-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+.tier-row.active { background: var(--surface); border: 1px solid var(--border); }
+.tier-icon { font-size: 1.25rem; width: 30px; text-align: center; }
+.tier-xp   { font-size: .74rem; color: var(--text-soft); margin-left: auto; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row g-3">
-  <!-- Left: ranking list -->
+  <!-- ── Left: league banner + ranking ─────────────────────────────────── -->
   <div class="col-lg-8">
-    <div class="card p-4">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h4 class="mb-1">🏆 Classement communauté</h4>
-          <p class="text-muted mb-0" style="font-size:.85rem">Top apprenants par XP accumulé</p>
-        </div>
+
+    <!-- My league banner -->
+    {% if current_user.is_authenticated %}
+    {% set ml = my_league %}
+    <div class="league-banner" style="--league-color:{{ ml.color }}">
+      <span class="league-trophy">{{ ml.icon }}</span>
+      <div>
+        <div class="league-name">Ligue {{ ml.name }}</div>
+        <div class="league-sub">Votre ligue actuelle · {{ current_user.xp }} XP</div>
         {% if my_rank %}
-        <span class="sr-chip">Votre rang : <strong style="color:var(--gold)">#{{ my_rank }}</strong></span>
+        <div class="league-sub mt-1">Rang communauté : <strong style="color:{{ ml.color }}">#{{ my_rank }}</strong></div>
         {% endif %}
       </div>
+    </div>
+    {% endif %}
+
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">🏆 Top 50 — Classement global</h5>
+        <span class="text-muted" style="font-size:.8rem">par XP total</span>
+      </div>
+
+      <!-- Promotion zone label -->
+      {% if top_users|length >= 5 %}
+      <div class="zone-label zone-promotion mb-1"><i class="fas fa-arrow-up"></i> Zone promotion (top 5)</div>
+      {% endif %}
 
       {% for user in top_users %}
       {% set rank = loop.index %}
-      <div class="lb-row {% if user.id == current_user.id %}lb-me{% endif %}">
-        <!-- Rank number -->
+      {% set ul = get_league(user.xp) %}
+      {% set is_promo = (rank <= 5) %}
+      {% set is_relega = (rank > top_users|length - 3 and top_users|length >= 10) %}
+
+      {% if rank == 6 %}<div class="my-2"></div>{% endif %}
+      {% if is_relega and rank == top_users|length - 2 %}
+      <div class="zone-label zone-relegation mt-2 mb-1"><i class="fas fa-arrow-down"></i> Zone relégation</div>
+      {% endif %}
+
+      <div class="lb-row
+        {% if user.id == current_user.id %}lb-me{% endif %}
+        {% if is_promo %}lb-zone-promo{% elif is_relega %}lb-zone-relega{% endif %}">
+
+        <!-- Rank -->
         <div class="lb-rank {% if rank == 1 %}rank-1{% elif rank == 2 %}rank-2{% elif rank == 3 %}rank-3{% endif %}">
-          {% if rank == 1 %}👑
-          {% elif rank == 2 %}🥈
-          {% elif rank == 3 %}🥉
-          {% else %}{{ rank }}{% endif %}
+          {% if rank == 1 %}👑{% elif rank == 2 %}🥈{% elif rank == 3 %}🥉{% else %}{{ rank }}{% endif %}
         </div>
 
         <!-- Avatar -->
@@ -31,16 +132,17 @@
 
         <!-- Info -->
         <div class="lb-info">
-          <div class="lb-name">
+          <div class="lb-name d-flex align-items-center gap-2 flex-wrap">
             <a href="{{ url_for('main.user_profile', user_id=user.id) }}" class="text-decoration-none" style="color:inherit">
               {{ user.username }}
-              {% if user.id == current_user.id %}<span class="badge bg-primary ms-1" style="font-size:.65rem">Moi</span>{% endif %}
             </a>
+            {% if user.id == current_user.id %}<span class="badge bg-primary" style="font-size:.62rem">Moi</span>{% endif %}
+            <span class="league-pill" style="--pill-color:{{ ul.color }}">{{ ul.icon }} {{ ul.name }}</span>
           </div>
-          <div class="lb-meta d-flex gap-3">
+          <div class="lb-meta d-flex gap-3 flex-wrap">
             <span><i class="fas fa-layer-group" style="opacity:.6"></i> Niv. {{ user.level }}</span>
             {% if user.streak_count and user.streak_count > 0 %}
-            <span><i class="fas fa-fire" style="color:#ff9f1c;opacity:.9"></i> {{ user.streak_count }}j</span>
+            <span><i class="fas fa-fire" style="color:#ff9f1c"></i> {{ user.streak_count }}j</span>
             {% endif %}
           </div>
         </div>
@@ -54,22 +156,46 @@
     </div>
   </div>
 
-  <!-- Right: stats + tips -->
+  <!-- ── Right: league tiers + tips ────────────────────────────────────── -->
   <div class="col-lg-4">
+
+    <!-- League tiers -->
+    <div class="card p-4 mb-3">
+      <h5 class="mb-3">🏅 Ligues SkillRush</h5>
+      {% set tiers = [
+        ('🔴','Rubis',   '#e8136c','ruby',    '25 000+ XP'),
+        ('💎','Diamant', '#29d4ff','diamond', '10 000+ XP'),
+        ('🏆','Platine', '#b0c4d8','platinum','4 000+ XP'),
+        ('🥇','Or',      '#ffd700','gold',    '1 500+ XP'),
+        ('🥈','Argent',  '#c0c0c0','silver',  '500+ XP'),
+        ('🥉','Bronze',  '#cd7f32','bronze',  '0 XP'),
+      ] %}
+      {% for icon, name, color, key, xp_req in tiers %}
+      {% set is_active = (my_league is defined and my_league.key == key) %}
+      <div class="tier-row {% if is_active %}active{% endif %}">
+        <span class="tier-icon">{{ icon }}</span>
+        <span style="font-weight:{% if is_active %}700{% else %}400{% endif %};color:{% if is_active %}{{ color }}{% else %}var(--text-soft){% endif %}">{{ name }}</span>
+        <span class="tier-xp">{{ xp_req }}</span>
+        {% if is_active %}<span class="badge ms-1" style="background:{{ color }};color:#000;font-size:.6rem">Vous</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Stats -->
     <div class="card p-4 mb-3">
       <h5 class="mb-3">📊 Statistiques</h5>
-      <div class="d-flex flex-column gap-2">
+      <div class="d-flex flex-column gap-2" style="font-size:.88rem">
         <div class="d-flex justify-content-between">
           <span class="text-muted">Participants</span>
           <strong>{{ top_users|length }}</strong>
         </div>
         {% if top_users %}
         <div class="d-flex justify-content-between">
-          <span class="text-muted">Meilleur</span>
+          <span class="text-muted">N°1 actuel</span>
           <strong>{{ top_users[0].username }}</strong>
         </div>
         <div class="d-flex justify-content-between">
-          <span class="text-muted">XP max</span>
+          <span class="text-muted">XP record</span>
           <strong style="color:var(--gold)">{{ top_users[0].xp }}</strong>
         </div>
         <div class="d-flex justify-content-between">
@@ -86,13 +212,14 @@
       </div>
     </div>
 
+    <!-- Tips -->
     <div class="card p-4">
-      <h5 class="mb-3">💡 Comment progresser</h5>
-      <div class="d-flex flex-column gap-2" style="font-size:.88rem; color:var(--text-soft)">
-        <div><i class="fas fa-gift text-warning me-2"></i> Réclamez le bonus +100 XP chaque jour</div>
-        <div><i class="fas fa-bolt text-primary me-2"></i> Complétez des missions pour gagner de l'XP</div>
-        <div><i class="fas fa-fire" style="color:#ff9f1c"></i><span class="ms-2">Maintenez votre streak quotidien</span></div>
-        <div><i class="fas fa-graduation-cap text-success me-2"></i> Publiez des cours pour la communauté</div>
+      <h5 class="mb-3">💡 Progresser dans les ligues</h5>
+      <div class="d-flex flex-column gap-2" style="font-size:.85rem; color:var(--text-soft)">
+        <div><i class="fas fa-gift text-warning me-2"></i> +100 XP bonus quotidien</div>
+        <div><i class="fas fa-bolt text-primary me-2"></i> +XP à chaque mission complétée</div>
+        <div><i class="fas fa-fire" style="color:#ff9f1c"></i><span class="ms-2">Streak quotidien = bonus multiplicateur</span></div>
+        <div><i class="fas fa-graduation-cap text-success me-2"></i> +200 XP pour chaque cours publié</div>
       </div>
     </div>
   </div>

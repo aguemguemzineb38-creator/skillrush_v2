@@ -53,8 +53,20 @@ class SkillController:
                     skill.thumbnail = f"/static/uploads/thumbnails/{filename}"
 
             db.session.commit()
-            
-            flash('Compétence créée ! Elle sera visible après validation.', 'success')
+
+            # Award XP for submitting a skill
+            try:
+                from app.controllers.user_controller import check_and_award_badges
+                current_user.xp = (current_user.xp or 0) + 200
+                new_badges = check_and_award_badges(current_user)
+                db.session.commit()
+                if new_badges:
+                    for b in new_badges:
+                        flash(f'Badge débloqué : {b.icon} {b.name} !', 'success')
+            except Exception:
+                pass  # XP failure must not block skill creation
+
+            flash('Compétence créée ! +200 XP gagnés. Elle sera visible après validation.', 'success')
             return redirect(url_for('skill.add_video', skill_id=skill.id))
         
         return render_template('skill/create_skill.html')
@@ -111,67 +123,40 @@ class SkillController:
             upload_folder = os.path.join(current_app.static_folder, 'uploads', 'videos')
             os.makedirs(upload_folder, exist_ok=True)
 
-            ext = os.path.splitext(video_file.filename)[1].lower() or '.mp4'
-            temp_filename = f'skill_{skill_id}_temp_{int(datetime.utcnow().timestamp())}{ext}'
-            temp_path = os.path.join(upload_folder, temp_filename)
-            video_file.save(temp_path)
-
             try:
-                from moviepy import VideoFileClip
-
-                clip = VideoFileClip(temp_path)
-                total_duration = clip.duration  # secondes
-                segment_seconds = 150  # 2 min 30 s par segment
-
+                ext = os.path.splitext(secure_filename(video_file.filename))[1].lower() or '.mp4'
+                ts = int(datetime.utcnow().timestamp())
                 existing_count = Video.query.filter_by(skill_id=skill_id).count()
+                final_filename = f'skill_{skill_id}_vid_{existing_count + 1}_{ts}{ext}'
+                final_path = os.path.join(upload_folder, final_filename)
+                video_file.save(final_path)
 
-                seg_num = 1
-                start = 0.0
-                created_titles = []
+                # Try to read duration (optional — won't block if ffmpeg missing)
+                duration = 0
+                try:
+                    from moviepy import VideoFileClip
+                    clip = VideoFileClip(final_path)
+                    duration = int(clip.duration)
+                    clip.close()
+                except Exception:
+                    pass
 
-                while start < total_duration:
-                    end = min(start + segment_seconds, total_duration)
-                    ts = int(datetime.utcnow().timestamp())
-                    seg_filename = f'skill_{skill_id}_seg_{existing_count + seg_num}_{ts}.mp4'
-                    seg_path = os.path.join(upload_folder, seg_filename)
-
-                    sub = clip.subclipped(start, end)
-                    sub.write_videofile(seg_path, logger=None, codec='libx264', audio_codec='aac')
-                    sub.close()
-
-                    if total_duration > segment_seconds:
-                        seg_title = f'{title} — Partie {existing_count + seg_num}'
-                    else:
-                        seg_title = title
-
-                    # Premier segment global gratuit, le reste premium
-                    is_free = (existing_count + seg_num == 1)
-
-                    video = Video(
-                        title=seg_title,
-                        description=description if seg_num == 1 else '',
-                        video_url=f'/static/uploads/videos/{seg_filename}',
-                        duration=int(end - start),
-                        is_free=is_free,
-                        order=existing_count + seg_num,
-                        skill_id=skill_id
-                    )
-                    db.session.add(video)
-                    created_titles.append(seg_title)
-
-                    start = end
-                    seg_num += 1
-
-                clip.close()
+                is_free = (existing_count == 0)
+                video = Video(
+                    title=title,
+                    description=description,
+                    video_url=f'/static/uploads/videos/{final_filename}',
+                    duration=duration,
+                    is_free=is_free,
+                    order=existing_count + 1,
+                    skill_id=skill_id
+                )
+                db.session.add(video)
                 db.session.commit()
-                os.remove(temp_path)
-
-                flash(f'{len(created_titles)} segment(s) créé(s) avec succès !', 'success')
-
+                flash('Vidéo ajoutée avec succès !', 'success')
             except Exception as e:
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
-                flash(f'Erreur lors du traitement vidéo : {e}', 'error')
+                db.session.rollback()
+                flash(f'Erreur lors de l\'upload vidéo : {e}', 'error')
 
             return redirect(url_for('skill.add_video', skill_id=skill_id))
 

@@ -41,6 +41,12 @@ class User(UserMixin, db.Model):
     missions_completed = db.relationship('UserMission', backref='user', lazy=True)
     progress = db.relationship('UserProgress', backref='user', lazy=True)
     xp_purchases = db.relationship('XPPurchase', backref='user', lazy=True)
+    following = db.relationship('Follow', foreign_keys='Follow.follower_id',
+                                backref='follower_user', lazy='dynamic',
+                                cascade='all, delete-orphan')
+    followers_rel = db.relationship('Follow', foreign_keys='Follow.following_id',
+                                    backref='following_user', lazy='dynamic',
+                                    cascade='all, delete-orphan')
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -261,3 +267,20 @@ class UserBadge(db.Model):
 
     def __repr__(self):
         return f'<UserBadge user={self.user_id} badge={self.badge_id}>'
+
+
+# ── Follow ───────────────────────────────────────────────────────────────────
+
+class Follow(db.Model):
+    """Suivi entre utilisateurs."""
+    __tablename__ = 'follows'
+
+    id = db.Column(db.Integer, primary_key=True)
+    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    following_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (db.UniqueConstraint('follower_id', 'following_id'),)
+
+    def __repr__(self):
+        return f'<Follow {self.follower_id} -> {self.following_id}>'

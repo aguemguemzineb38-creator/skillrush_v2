@@ -23,14 +23,22 @@
       </div>
 
       <div class="row g-2 mt-2">
-        <div class="col-6"><div class="card p-2 text-center"><strong>{{ published_skills|length }}</strong><small class="text-muted">Compétences publiées</small></div></div>
-        <div class="col-6"><div class="card p-2 text-center"><strong>{{ done_missions }}</strong><small class="text-muted">Missions terminées</small></div></div>
+        <div class="col-6"><div class="card p-2 text-center"><strong>{{ published_skills|length }}</strong><small class="d-block text-muted">Cours publiés</small></div></div>
+        <div class="col-6"><div class="card p-2 text-center"><strong>{{ done_missions }}</strong><small class="d-block text-muted">Missions</small></div></div>
+        <div class="col-6"><div class="card p-2 text-center"><strong id="followersCount">{{ followers_count|default(0) }}</strong><small class="d-block text-muted">Abonnés</small></div></div>
+        <div class="col-6"><div class="card p-2 text-center"><strong>{{ following_count|default(0) }}</strong><small class="d-block text-muted">Abonnements</small></div></div>
       </div>
 
       {% if current_user.is_authenticated and current_user.id == profile_user.id %}
       <a href="{{ url_for('user.edit_profile') }}" class="btn btn-primary w-100 mt-3">Modifier le profil</a>
       <a href="{{ url_for('user.buy_xp') }}" class="btn btn-outline-primary w-100 mt-2">Obtenir plus d'XP</a>
       <a href="{{ url_for('skill.my_skills') }}" class="btn btn-outline-primary w-100 mt-2">Consulter mes contenus publiés</a>
+      {% elif current_user.is_authenticated %}
+      <button id="followBtn" class="btn w-100 mt-3 {% if is_following %}btn-outline-primary{% else %}btn-primary{% endif %}"
+              onclick="toggleFollow({{ profile_user.id }})">
+        <i class="fas fa-{% if is_following %}user-minus{% else %}user-plus{% endif %} me-1"></i>
+        <span id="followBtnText">{% if is_following %}Ne plus suivre{% else %}Suivre{% endif %}</span>
+      </button>
       {% endif %}
     </div>
   </div>
@@ -95,6 +103,34 @@ function confirmDeleteFromProfile(skillId, skillName) {
   if (confirm('Supprimer le contenu "' + skillName + '" ?\nCette action est irreversible.')) {
     document.getElementById('delete-profile-skill-' + skillId).submit();
   }
+}
+
+function toggleFollow(userId) {
+  const btn = document.getElementById('followBtn');
+  const btnText = document.getElementById('followBtnText');
+  if (!btn) return;
+  btn.disabled = true;
+  fetch('/user/' + userId + '/follow', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'}
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { btn.disabled = false; return; }
+    if (data.action === 'followed') {
+      btnText.textContent = 'Ne plus suivre';
+      btn.classList.replace('btn-primary', 'btn-outline-primary');
+      btn.querySelector('i').className = 'fas fa-user-minus me-1';
+    } else {
+      btnText.textContent = 'Suivre';
+      btn.classList.replace('btn-outline-primary', 'btn-primary');
+      btn.querySelector('i').className = 'fas fa-user-plus me-1';
+    }
+    const fc = document.getElementById('followersCount');
+    if (fc) fc.textContent = data.followers_count;
+    btn.disabled = false;
+  })
+  .catch(() => { btn.disabled = false; });
 }
 </script>
 {% endblock %}

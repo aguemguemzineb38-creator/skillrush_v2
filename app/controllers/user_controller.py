@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, current_app
-from app.models import db, User, UserProgress, UserMission, Mission, XPPurchase, Skill, Video, ContentUnlock, Badge, UserBadge
+from app.models import db, User, UserProgress, UserMission, Mission, XPPurchase, Skill, Video, ContentUnlock, Badge, UserBadge, Follow
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta, date
 from functools import wraps
@@ -151,6 +151,16 @@ class UserController:
             .all()
         )
         earned_badges = [ub.badge for ub in user_badges]
+
+        # Follow data
+        is_following = False
+        if current_user.is_authenticated:
+            is_following = Follow.query.filter_by(
+                follower_id=current_user.id, following_id=user_id
+            ).first() is not None
+        followers_count = Follow.query.filter_by(following_id=user_id).count()
+        following_count = Follow.query.filter_by(follower_id=user_id).count()
+
         return render_template('user/profile.html',
             profile_user=user,
             created_skills=created_skills,
@@ -159,7 +169,34 @@ class UserController:
             completed_missions=completed_missions,
             missions_count=completed_missions,
             learned_skills=learned_skills,
-            earned_badges=earned_badges)
+            earned_badges=earned_badges,
+            is_following=is_following,
+            followers_count=followers_count,
+            following_count=following_count)
+
+    @staticmethod
+    @login_required
+    def follow_user(user_id):
+        """Suivre ou ne plus suivre un utilisateur (toggle)."""
+        target = User.query.get_or_404(user_id)
+        if target.id == current_user.id:
+            return jsonify({'error': 'Impossible de vous suivre vous-même'}), 400
+
+        existing = Follow.query.filter_by(
+            follower_id=current_user.id, following_id=target.id
+        ).first()
+        if existing:
+            db.session.delete(existing)
+            db.session.commit()
+            action = 'unfollowed'
+        else:
+            follow = Follow(follower_id=current_user.id, following_id=target.id)
+            db.session.add(follow)
+            db.session.commit()
+            action = 'followed'
+
+        followers_count = Follow.query.filter_by(following_id=target.id).count()
+        return jsonify({'action': action, 'followers_count': followers_count})
 
     @staticmethod
     @login_required

@@ -3,6 +3,23 @@ from app.models import db, User, Skill, Video, Mission, UserProgress, UserMissio
 from flask_login import login_required, current_user
 from datetime import date
 
+
+def _get_league(xp):
+    """Retourne la ligue d'un utilisateur selon ses XP totaux."""
+    xp = xp or 0
+    if xp >= 25000:
+        return {'name': 'Rubis',    'icon': '🔴', 'color': '#e8136c', 'key': 'ruby'}
+    if xp >= 10000:
+        return {'name': 'Diamant',  'icon': '💎', 'color': '#29d4ff', 'key': 'diamond'}
+    if xp >= 4000:
+        return {'name': 'Platine',  'icon': '🏆', 'color': '#b0c4d8', 'key': 'platinum'}
+    if xp >= 1500:
+        return {'name': 'Or',       'icon': '🥇', 'color': '#ffd700', 'key': 'gold'}
+    if xp >= 500:
+        return {'name': 'Argent',   'icon': '🥈', 'color': '#c0c0c0', 'key': 'silver'}
+    return      {'name': 'Bronze',  'icon': '🥉', 'color': '#cd7f32', 'key': 'bronze'}
+
+
 class MainController:
     """Contrôleur principal pour les pages générales"""
 
@@ -313,7 +330,9 @@ class MainController:
             ) + 1
         return render_template('leaderboard.html',
             top_users=top_users,
-            my_rank=my_rank)
+            my_rank=my_rank,
+            my_league=_get_league(current_user.xp),
+            get_league=_get_league)
     
     @staticmethod
     def user_profile(user_id):
