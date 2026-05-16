@@ -155,10 +155,10 @@ class AuthController:
         if not client_id:
             flash("L'authentification Google n'est pas configurée.", 'error')
             return redirect(url_for('auth.login'))
-        # Générer un state CSRF
         state = secrets.token_urlsafe(16)
         session['oauth_state'] = state
-        callback_url = url_for('auth.google_callback', _external=True)
+        # Utiliser GOOGLE_CALLBACK_URL si défini (Railway), sinon url_for
+        callback_url = os.getenv('GOOGLE_CALLBACK_URL') or url_for('auth.google_callback', _external=True)
         google_auth_url = (
             "https://accounts.google.com/o/oauth2/v2/auth"
             f"?client_id={client_id}"
@@ -172,7 +172,6 @@ class AuthController:
     @staticmethod
     def google_callback():
         """Reçoit le code Google et connecte/crée l'utilisateur."""
-        # Vérification CSRF state
         if request.args.get('state') != session.pop('oauth_state', None):
             flash('Erreur de sécurité OAuth. Veuillez réessayer.', 'error')
             return redirect(url_for('auth.login'))
@@ -184,7 +183,8 @@ class AuthController:
 
         client_id     = os.getenv('GOOGLE_CLIENT_ID', '')
         client_secret = os.getenv('GOOGLE_CLIENT_SECRET', '')
-        callback_url  = url_for('auth.google_callback', _external=True)
+        # Utiliser la même URL que celle envoyée à Google dans google_login()
+        callback_url  = os.getenv('GOOGLE_CALLBACK_URL') or url_for('auth.google_callback', _external=True)
 
         # Échanger le code contre un token
         token_resp = http_requests.post(
