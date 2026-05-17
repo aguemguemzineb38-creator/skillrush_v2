@@ -152,6 +152,18 @@ class UserController:
         )
         earned_badges = [ub.badge for ub in user_badges]
 
+        # Retroactive badge check — awards any missed badges when user views their own profile
+        if current_user.is_authenticated and current_user.id == user_id:
+            try:
+                new_badges = check_and_award_badges(current_user)
+                if new_badges:
+                    db.session.commit()
+                    earned_badges = [ub.badge for ub in
+                                     UserBadge.query.filter_by(user_id=user_id)
+                                     .join(Badge, UserBadge.badge_id == Badge.id).all()]
+            except Exception:
+                db.session.rollback()
+
         # Follow data
         is_following = False
         if current_user.is_authenticated:

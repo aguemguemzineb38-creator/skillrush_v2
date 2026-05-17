@@ -20,12 +20,12 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 80% 50%, var(--league-color, #ffd700) 0%, transparent 65%);
-  opacity: .10;
+  background: radial-gradient(circle at 80% 50%, #9b8aff 0%, transparent 65%);
+  opacity: .08;
   pointer-events: none;
 }
 .league-trophy { font-size: 3.2rem; line-height: 1; }
-.league-name   { font-size: 1.35rem; font-weight: 700; color: var(--league-color, #ffd700); }
+.league-name   { font-size: 1.35rem; font-weight: 700; }
 .league-sub    { font-size: .82rem; color: var(--text-soft); margin-top: 2px; }
 
 /* ── Zones (promotion / relegation) ─────────────────────────────────────── */
@@ -56,9 +56,7 @@
   font-weight: 600;
   padding: 1px 7px;
   border-radius: 20px;
-  background: color-mix(in srgb, var(--pill-color, #ffd700) 15%, transparent);
-  color: var(--pill-color, #ffd700);
-  border: 1px solid color-mix(in srgb, var(--pill-color, #ffd700) 40%, transparent);
+  opacity: .9;
 }
 
 /* ── League tiers sidebar ─────────────────────────────────────────────── */
@@ -82,19 +80,17 @@
   <div class="col-lg-8">
 
     <!-- My league banner -->
-    {% if current_user.is_authenticated %}
     {% set ml = my_league %}
-    <div class="league-banner" style="--league-color:{{ ml.color }}">
+    <div class="league-banner">
       <span class="league-trophy">{{ ml.icon }}</span>
       <div>
-        <div class="league-name">Ligue {{ ml.name }}</div>
+        <div class="league-name" style="color:{{ ml.color }}">Ligue {{ ml.name }}</div>
         <div class="league-sub">Votre ligue actuelle · {{ current_user.xp }} XP</div>
         {% if my_rank %}
         <div class="league-sub mt-1">Rang communauté : <strong style="color:{{ ml.color }}">#{{ my_rank }}</strong></div>
         {% endif %}
       </div>
     </div>
-    {% endif %}
 
     <div class="card p-4">
       <div class="d-flex justify-content-between align-items-center mb-3">
@@ -107,9 +103,8 @@
       <div class="zone-label zone-promotion mb-1"><i class="fas fa-arrow-up"></i> Zone promotion (top 5)</div>
       {% endif %}
 
-      {% for user in top_users %}
+      {% for user, ul in users_with_leagues %}
       {% set rank = loop.index %}
-      {% set ul = get_league(user.xp) %}
       {% set is_promo = (rank <= 5) %}
       {% set is_relega = (rank > top_users|length - 3 and top_users|length >= 10) %}
 
@@ -137,7 +132,7 @@
               {{ user.username }}
             </a>
             {% if user.id == current_user.id %}<span class="badge bg-primary" style="font-size:.62rem">Moi</span>{% endif %}
-            <span class="league-pill" style="--pill-color:{{ ul.color }}">{{ ul.icon }} {{ ul.name }}</span>
+            <span class="league-pill" style="background:{{ ul.color }}22;color:{{ ul.color }};border:1px solid {{ ul.color }}66">{{ ul.icon }} {{ ul.name }}</span>
           </div>
           <div class="lb-meta d-flex gap-3 flex-wrap">
             <span><i class="fas fa-layer-group" style="opacity:.6"></i> Niv. {{ user.level }}</span>

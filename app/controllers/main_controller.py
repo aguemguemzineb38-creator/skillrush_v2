@@ -1,5 +1,6 @@
 from flask import render_template, request, abort, redirect, url_for
 from app.models import db, User, Skill, Video, Mission, UserProgress, UserMission, ContentUnlock
+from app.controllers.user_controller import check_and_award_badges
 from flask_login import login_required, current_user
 from datetime import date
 
@@ -79,6 +80,15 @@ class MainController:
 
         recommended_skills = Skill.query.filter_by(is_approved=True).order_by(Skill.created_at.desc()).limit(6).all()
         uploaded_skills = Skill.query.filter_by(creator_id=current_user.id).order_by(Skill.created_at.desc()).limit(6).all()
+
+        # Retroactive badge check on each dashboard visit
+        try:
+            new_badges = check_and_award_badges(current_user)
+            if new_badges:
+                db.session.commit()
+        except Exception:
+            db.session.rollback()
+
         active_missions = UserMission.query.filter_by(
             user_id=current_user.id,
             is_completed=False
@@ -330,9 +340,9 @@ class MainController:
             ) + 1
         return render_template('leaderboard.html',
             top_users=top_users,
+            users_with_leagues=[(u, _get_league(u.xp)) for u in top_users],
             my_rank=my_rank,
-            my_league=_get_league(current_user.xp),
-            get_league=_get_league)
+            my_league=_get_league(current_user.xp))
     
     @staticmethod
     def user_profile(user_id):
