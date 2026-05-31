@@ -448,26 +448,35 @@ class SkillController:
     def serve_skill_pdf(skill_id):
         """Sert le PDF: 5 premières pages libres, le reste après unlock."""
         import io
-        try:
-            from PyPDF2 import PdfReader, PdfWriter
-        except ImportError:
-            # Si PyPDF2 absent, servir le PDF brut
-            skill = Skill.query.get_or_404(skill_id)
-            if not skill.course_pdf:
-                abort(404)
-            pdf_path = _static_url_to_abs_path(skill.course_pdf)
-            return send_file(os.path.abspath(pdf_path), mimetype='application/pdf')
-
+        import requests
+        
         FREE_PAGES = 5
         skill = Skill.query.get_or_404(skill_id)
         if not skill.course_pdf:
             abort(404)
 
-        pdf_path = _static_url_to_abs_path(skill.course_pdf)
-        if not os.path.exists(pdf_path):
-            abort(404)
+        is_remote = skill.course_pdf.startswith('http://') or skill.course_pdf.startswith('https://')
 
-        reader = PdfReader(pdf_path)
+        try:
+            from PyPDF2 import PdfReader, PdfWriter
+        except ImportError:
+            if is_remote:
+                return redirect(skill.course_pdf)
+            pdf_path = _static_url_to_abs_path(skill.course_pdf)
+            return send_file(os.path.abspath(pdf_path), mimetype='application/pdf')
+
+        if is_remote:
+            response = requests.get(skill.course_pdf)
+            if response.status_code != 200:
+                abort(404)
+            file_stream = io.BytesIO(response.content)
+        else:
+            pdf_path = _static_url_to_abs_path(skill.course_pdf)
+            if not os.path.exists(pdf_path):
+                abort(404)
+            file_stream = open(pdf_path, 'rb')
+
+        reader = PdfReader(file_stream)
         total = len(reader.pages)
 
         # Mettre à jour le total si nécessaire
@@ -480,8 +489,12 @@ class SkillController:
         ).first()
 
         if unlocked or total <= FREE_PAGES:
-            return send_file(pdf_path, mimetype='application/pdf',
-                             download_name=f"{skill.name}.pdf")
+            if is_remote:
+                file_stream.seek(0)
+                return send_file(file_stream, mimetype='application/pdf', download_name=f"{skill.name}.pdf")
+            else:
+                file_stream.close()
+                return send_file(pdf_path, mimetype='application/pdf', download_name=f"{skill.name}.pdf")
 
         # Aperçu: 5 premières pages uniquement
         writer = PdfWriter()
@@ -490,5 +503,8 @@ class SkillController:
         buf = io.BytesIO()
         writer.write(buf)
         buf.seek(0)
-        return send_file(buf, mimetype='application/pdf',
-                         download_name=f"{skill.name}_apercu.pdf")
+        
+        if not is_remote:
+            file_stream.close()
+            
+        return send_file(buf, mimetype='application/pdf', download_name=f"{skill.name}_apercu.pdf")

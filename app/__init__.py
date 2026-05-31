@@ -67,6 +67,20 @@ def create_app(config_name='development'):
     from app.routes import register_blueprints
     register_blueprints(app)
 
+    @app.context_processor
+    def inject_global_vars():
+        return dict(
+            difficulty_labels={
+                'Beginner': 'Débutant',
+                'Intermediate': 'Intermédiaire',
+                'Advanced': 'Avancé',
+                'Expert': 'Expert',
+                'Easy': 'Facile',
+                'Medium': 'Moyen',
+                'Hard': 'Difficile'
+            }
+        )
+
     # ── Onboarding gate : redirige les nouveaux utilisateurs ─────────────────
     from flask import request as flask_request, redirect as flask_redirect, url_for as flask_url_for
     from flask_login import current_user as _current_user

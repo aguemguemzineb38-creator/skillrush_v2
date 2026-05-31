@@ -1,5 +1,5 @@
 from flask import render_template, request, abort, redirect, url_for
-from app.models import db, User, Skill, Video, Mission, UserProgress, UserMission, ContentUnlock
+from app.models import db, User, Skill, Video, Mission, UserProgress, UserMission, ContentUnlock, Badge, UserBadge
 from app.controllers.user_controller import check_and_award_badges
 from flask_login import login_required, current_user
 from datetime import date
@@ -22,6 +22,28 @@ def _get_league(xp):
 
 
 class MainController:
+    @staticmethod
+    def _compute_compatibility(user, current_user):
+        score = 40
+        if current_user.competence and user.competence:
+            if current_user.competence.lower() in user.competence.lower() or user.competence.lower() in current_user.competence.lower():
+                score += 30
+        if user.level == current_user.level:
+            score += 10
+        if abs((user.xp or 0) - (current_user.xp or 0)) <= 500:
+            score += 10
+        if (user.streak_count or 0) >= 3:
+            score += 5
+        if getattr(user, 'skills_created', None) and len(user.skills_created) > 0:
+            score += 5
+        return min(100, score)
+
+    @staticmethod
+    def _next_badge(user):
+        earned_ids = {ub.badge_id for ub in UserBadge.query.filter_by(user_id=user.id).all()}
+        next_badge = Badge.query.filter(~Badge.id.in_(earned_ids)).order_by(Badge.condition_type.asc(), Badge.condition_value.asc()).first()
+        return next_badge
+
     """Contrôleur principal pour les pages générales"""
 
     @staticmethod
@@ -152,6 +174,62 @@ class MainController:
             unlock_map=unlock_skill_ids,
         )
 
+        earned_badge_ids = {ub.badge_id for ub in UserBadge.query.filter_by(user_id=current_user.id).all()}
+        next_badge = MainController._next_badge(current_user)
+        next_badge_progress = None
+        if next_badge and next_badge.condition_type == 'xp':
+            next_badge_progress = min(100, int((current_user.xp or 0) / next_badge.condition_value * 100))
+
+        partner_matches = []
+        if current_user.competence:
+            partners = (
+                User.query
+                .filter(User.id != current_user.id)
+                .filter(User.role == 'user')
+                .filter(User.competence.ilike(f"%{current_user.competence}%"))
+                .order_by(User.xp.desc())
+                .limit(4)
+                .all()
+            )
+        else:
+            partners = []
+
+        for partner in partners:
+            partner_matches.append({
+                'id': partner.id,
+                'username': partner.username,
+                'competence': partner.competence or 'Aucune compétence renseignée',
+                'level': partner.level,
+                'xp': partner.xp,
+                'compatibility': MainController._compute_compatibility(partner, current_user),
+                'profile_url': url_for('main.user_profile', user_id=partner.id)
+            })
+
+        collaborator_matches = []
+        collaborators = (
+            User.query
+            .filter(User.id != current_user.id)
+            .filter(User.role == 'user')
+            .order_by(User.xp.desc())
+            .limit(4)
+            .all()
+        )
+        for collab in collaborators:
+            collaborator_matches.append({
+                'id': collab.id,
+                'username': collab.username,
+                'competence': collab.competence or 'Aucune compétence renseignée',
+                'level': collab.level,
+                'xp': collab.xp,
+                'compatibility': MainController._compute_compatibility(collab, current_user),
+                'profile_url': url_for('main.user_profile', user_id=collab.id)
+            })
+
+        onboarding_status = 'Terminé' if current_user.onboarding_done else ('Rejeté' if current_user.onboarding_rejected else 'À compléter')
+        onboarding_action = None
+        if not current_user.onboarding_done:
+            onboarding_action = url_for('onboarding.step1') if not current_user.onboarding_rejected else url_for('main.rejected_course')
+
         return render_template(
             'dashboard.html',
             recommended_skills=recommended_skills,
@@ -161,7 +239,14 @@ class MainController:
             total_xp=total_xp,
             daily_reward_claimed=daily_reward_claimed,
             streak_count=current_user.streak_count or 0,
-            level=current_user.level
+            level=current_user.level,
+            onboarding_status=onboarding_status,
+            onboarding_action=onboarding_action,
+            partner_matches=partner_matches,
+            collaborator_matches=collaborator_matches,
+            next_badge=next_badge,
+            next_badge_progress=next_badge_progress,
+            gamified_emails_enabled=True
         )
     
     @staticmethod
@@ -172,6 +257,39 @@ class MainController:
                 return redirect(url_for('main.rejected_course'))
             return MainController._render_user_dashboard()
         return render_template('home.html')
+
+    @staticmethod
+    @login_required
+    def network():
+        """Affiche le réseau d'apprentissage et de collaboration."""
+        category = current_user.competence or ''
+        partner_candidates = (
+            User.query
+            .filter(User.id != current_user.id)
+            .filter(User.role == 'user')
+        )
+        if category:
+            partner_candidates = partner_candidates.filter(User.competence.ilike(f"%{category}%"))
+        partners = partner_candidates.order_by(User.xp.desc()).limit(12).all()
+
+        partner_matches = [
+            {
+                'id': u.id,
+                'username': u.username,
+                'competence': u.competence or 'Aucune compétence renseignée',
+                'level': u.level,
+                'xp': u.xp,
+                'compatibility': MainController._compute_compatibility(u, current_user),
+                'profile_url': url_for('main.user_profile', user_id=u.id)
+            }
+            for u in partners
+        ]
+
+        return render_template('network.html',
+            partner_matches=partner_matches,
+            category=category,
+            current_user=current_user
+        )
 
     @staticmethod
     @login_required

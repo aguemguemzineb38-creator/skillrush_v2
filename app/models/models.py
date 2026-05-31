@@ -17,7 +17,7 @@ class User(UserMixin, db.Model):
     competence = db.Column(db.String(120), default='')
 
     # Onboarding
-    onboarding_done = db.Column(db.Boolean, default=False)
+    onboarding_done = db.Column(db.Boolean, default=True)
     onboarding_rejected = db.Column(db.Boolean, default=False)
     onboarding_skill_id = db.Column(db.Integer, db.ForeignKey('skills.id'), nullable=True)
 
@@ -26,7 +26,7 @@ class User(UserMixin, db.Model):
 
     # Gamification
     level = db.Column(db.Integer, default=1)
-    xp = db.Column(db.Integer, default=0)
+    xp = db.Column(db.Integer, default=500)
     last_daily_reward = db.Column(db.DateTime, nullable=True)
     profile_daily_bonus_date = db.Column(db.Date, nullable=True)
     streak_count = db.Column(db.Integer, default=0)

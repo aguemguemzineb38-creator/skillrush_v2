@@ -1,40 +1,284 @@
 ﻿{% extends "base.html" %}
 {% block title %}Accueil - SkillRush{% endblock %}
+{% block extra_css %}
+<style>
+/* ── Animations principales ─────────────────────────────────────────────── */
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(155, 138, 255, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(155, 138, 255, 0.6); }
+}
+
+@keyframes progress-fill {
+  from { width: 0 !important; }
+  to { width: var(--progress-width, 50%) !important; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ── Hero Header ────────────────────────────────────────────────────── */
+.hero-header {
+  background: linear-gradient(135deg, #7b61ff 0%, #2da8ff 100%);
+  border-radius: 20px;
+  padding: 2.5rem;
+  color: white;
+  margin-bottom: 2rem;
+  animation: fadeInScale 0.6s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1), transparent 50%);
+  pointer-events: none;
+}
+
+.hero-header h2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0;
+  animation: slideInRight 0.6s ease-out 0.1s both;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.hero-stat {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  animation: slideInRight 0.6s ease-out calc(0.2s + var(--stat-delay, 0s)) both;
+}
+
+.hero-stat strong { font-size: 1.5rem; }
+
+/* ── Quick Action Cards ─────────────────────────────────────────────────── */
+.quick-card {
+  background: linear-gradient(135deg, var(--card-from), var(--card-to));
+  border-radius: 16px;
+  padding: 1.8rem;
+  color: white;
+  border: none;
+  animation: fadeInScale 0.5s ease-out var(--card-delay, 0s);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.quick-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2), transparent 60%);
+  pointer-events: none;
+}
+
+.quick-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+
+.quick-card-icon { font-size: 3rem; margin-bottom: 1rem; }
+.quick-card h3 { font-size: 1.4rem; margin: 0 0 0.5rem 0; font-weight: 700; }
+.quick-card p { font-size: 0.95rem; margin: 0; opacity: 0.9; }
+
+.card-onboarding { --card-from: #6366f1; --card-to: #8b5cf6; --card-delay: 0.1s; }
+.card-streak { --card-from: #f59e0b; --card-to: #d97706; --card-delay: 0.2s; }
+.card-recommended { --card-from: #06b6d4; --card-to: #0891b2; --card-delay: 0.3s; }
+.card-badge { --card-from: #10b981; --card-to: #059669; --card-delay: 0.4s; }
+
+/* ── XP Progress Bar ────────────────────────────────────────────────────── */
+.xp-bar-container {
+  background: linear-gradient(135deg, rgba(123, 97, 255, 0.1), rgba(45, 168, 255, 0.1));
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  animation: fadeInScale 0.6s ease-out;
+  border: 1px solid rgba(123, 97, 255, 0.2);
+}
+
+.xp-bar-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.progress {
+  height: 28px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #7b61ff, #2da8ff);
+  animation: progress-fill 1.2s ease-out forwards;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+/* ── Daily Button ─────────────────────────────────────────────────────── */
+.btn-daily-reward {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: none;
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  color: white;
+  font-weight: 700;
+  width: 100%;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  font-size: 1rem;
+}
+
+.btn-daily-reward:hover {
+  transform: scale(1.05);
+  box-shadow: 0 15px 40px rgba(245, 158, 11, 0.4);
+}
+</style>
+{% endblock %}
 {% block content %}
 <div class="feed-grid">
-  {% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business', 'Marketing': 'Marketing', 'Languages': 'Langues', 'Other': 'Autre'} %}
-  {% set difficulty_labels = {'Beginner': 'Débutant', 'Intermediate': 'Intermédiaire', 'Advanced': 'Avancé', 'Easy': 'Facile'} %}
-  <div class="sr-main-card p-4">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-      <div>
-        <h2 class="feed-title mb-1">Bonjour {{ current_user.username }} 👋</h2>
-        <p class="text-muted mb-0">Aide les autres → gagne des XP → débloque du savoir.</p>
+  {% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business'} %}
+  
+  <!-- ── Hero Header ────────────────────────────────────────────────────── -->
+  <div class="hero-header">
+    <h2>🎯 Salut {{ current_user.username }} !</h2>
+    <div class="hero-stats">
+      <div class="hero-stat" style="--stat-delay: 0s">
+        <i class="fas fa-star" style="font-size: 1.8rem"></i>
+        <div><strong data-xp-display>{{ total_xp }}</strong><small>XP</small></div>
       </div>
-      <div class="d-flex gap-2 flex-wrap">
-        <span class="sr-chip"><i class="fas fa-star"></i> <span data-xp-display>{{ total_xp }}</span> XP</span>
-        <span class="sr-chip"><i class="fas fa-layer-group"></i> Niveau <span data-level-display>{{ level }}</span></span>
-        <span class="sr-chip"><i class="fas fa-fire"></i> <span data-streak-display>{{ streak_count }}</span> jours de série</span>
+      <div class="hero-stat" style="--stat-delay: 0.1s">
+        <i class="fas fa-layer-group" style="font-size: 1.8rem"></i>
+        <div><strong data-level-display>{{ level }}</strong><small>Niveau</small></div>
+      </div>
+      <div class="hero-stat" style="--stat-delay: 0.2s">
+        <i class="fas fa-fire" style="font-size: 1.8rem; color: #ff9f1c"></i>
+        <div><strong data-streak-display>{{ streak_count }}</strong><small>Jours 🔥</small></div>
       </div>
     </div>
+  </div>
 
-    <div class="card stat-card p-3 mb-3">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <strong>Progression XP</strong>
-        <span class="text-muted"><span data-xp-display>{{ total_xp }}</span> / <span data-next-level-xp>{{ (level + 1) * 500 }}</span> XP</span>
-      </div>
-      <div class="progress"><div class="progress-bar" id="dash-xp-bar" style="width: {{ ((total_xp % 500) / 5)|round(0) }}%"></div></div>
+  <!-- ── XP Progress ─────────────────────────────────────────────────────── -->
+  <div class="xp-bar-container">
+    <div class="xp-bar-label">
+      <span>🚀 Progression du Niveau</span>
+      <span><data-xp-display>{{ total_xp }}</data-xp-display> / <data-next-level-xp>{{ (level + 1) * 500 }}</data-next-level-xp> XP</span>
     </div>
+    <div class="progress">
+      <div class="progress-bar" id="dash-xp-bar" style="--progress-width: {{ ((total_xp % 500) / 5)|round(0) }}%"></div>
+    </div>
+  </div>
 
-    <div id="dailyRewardContainer" class="mb-2">
-      <button
-        class="btn btn-warning {% if daily_reward_claimed %}d-none{% endif %}"
-        data-daily-claim-btn
-        onclick="claimDailyReward()">
-        <i class="fas fa-gift"></i> Réclamer le bonus quotidien +100 XP
-      </button>
-      <span class="badge bg-success {% if not daily_reward_claimed %}d-none{% endif %}" data-daily-claimed-badge>
-        <i class="fas fa-check-circle"></i> Bonus quotidien déjà récupéré
-      </span>
+  <!-- ── Daily Reward ────────────────────────────────────────────────────── -->
+  <div class="mb-3">
+    {% if not daily_reward_claimed %}
+    <button class="btn btn-daily-reward" onclick="claimDailyReward()">
+      <i class="fas fa-gift me-2"></i> 🎁 Réclamer +100 XP Bonus Quotidien
+    </button>
+    {% else %}
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-0">
+      <i class="fas fa-check-circle"></i>
+      <span>✓ Bonus déjà réclamé ! Reviens demain.</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── Quick Action Cards ──────────────────────────────────────────────– -->
+  <div class="row g-3 mb-3">
+    <div class="col-md-6 col-xl-3">
+      <div class="quick-card card-onboarding">
+        <div>
+          <div class="quick-card-icon">🎓</div>
+          <h3>Onboarding</h3>
+          <p>{{ onboarding_status }}</p>
+        </div>
+        {% if onboarding_action %}
+        <a href="{{ onboarding_action }}" class="btn btn-light btn-sm">Continuer →</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="quick-card card-streak">
+        <div>
+          <div class="quick-card-icon">🔥</div>
+          <h3>Série Quotidienne</h3>
+          <p>{{ streak_count }} jours d'affilée</p>
+        </div>
+        <span style="opacity: 0.9">Connecte-toi chaque jour +5 XP</span>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="quick-card card-recommended">
+        <div>
+          <div class="quick-card-icon">⭐</div>
+          <h3>Recommandé</h3>
+          <p>{{ recommended_skills|length }} compétences</p>
+        </div>
+        <a href="{{ url_for('main.explore_skills') }}" class="btn btn-light btn-sm">Explorer →</a>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="quick-card card-badge">
+        <div>
+          <div class="quick-card-icon">🏆</div>
+          <h3>Prochain Badge</h3>
+          {% if next_badge %}
+          <p>{{ next_badge.icon }} {{ next_badge.name }}</p>
+          {% else %}
+          <p>Tous débloqués! 🎉</p>
+          {% endif %}
+        </div>
+        {% if next_badge_progress is not none %}
+        <div class="progress mt-2" style="height: 6px">
+          <div class="progress-bar" style="width: {{ next_badge_progress }}%"></div>
+        </div>
+        {% endif %}
+      </div>
     </div>
   </div>
 
@@ -88,6 +332,71 @@
         {% else %}
         <p class="text-muted">Aucune recommandation pour le moment.</p>
         {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-xl-6">
+      <div class="card p-3 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">🤝 Partenaires d'apprentissage</h5>
+          <a href="{{ url_for('main.network') }}" class="text-muted" style="font-size:.82rem">Voir tout</a>
+        </div>
+        {% if partner_matches %}
+        <div class="row g-2">
+          {% for partner in partner_matches %}
+          <div class="col-12">
+            <div class="skill-card p-3">
+              <div class="d-flex justify-content-between align-items-start gap-3">
+                <div>
+                  <strong>{{ partner.username }}</strong>
+                  <div class="text-muted small">{{ partner.competence }}</div>
+                </div>
+                <span class="badge bg-primary">{{ partner.compatibility }}%</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <small class="text-muted">Niv. {{ partner.level }} • {{ partner.xp }} XP</small>
+                <a href="{{ partner.profile_url }}" class="btn btn-sm btn-outline-primary">Voir</a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">Aucun partenaire pertinent trouvé. Complète ton onboarding ou précise ta compétence dans ton profil.</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-xl-6">
+      <div class="card p-3 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">💼 Collaborateurs de projet</h5>
+          <a href="{{ url_for('main.network') }}" class="text-muted" style="font-size:.82rem">Explorer</a>
+        </div>
+        {% if collaborator_matches %}
+        <div class="row g-2">
+          {% for collab in collaborator_matches %}
+          <div class="col-12">
+            <div class="skill-card p-3">
+              <div class="d-flex justify-content-between align-items-start gap-3">
+                <div>
+                  <strong>{{ collab.username }}</strong>
+                  <div class="text-muted small">{{ collab.competence }}</div>
+                </div>
+                <span class="badge bg-secondary">{{ collab.compatibility }}%</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <small class="text-muted">Niv. {{ collab.level }} • {{ collab.xp }} XP</small>
+                <a href="{{ collab.profile_url }}" class="btn btn-sm btn-outline-primary">Voir</a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">Aucun collaborateur disponible pour l'instant. Reviens plus tard ou publie un nouveau contenu.</p>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -150,4 +459,71 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}{% endblock %}
+{% block extra_js %}
+<script>
+function claimDailyReward() {
+  const btn = event.target.closest('button');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> 🎁 Réclamation en cours...';
+  
+  fetch('/user/daily-reward', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'}
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      // Animation de succès
+      btn.style.cssText = 'background: linear-gradient(135deg, #10b981, #059669); transform: scale(0.98);';
+      btn.innerHTML = '<i class="fas fa-check me-2"></i> ✨ +100 XP Gagné !';
+      
+      setTimeout(() => {
+        btn.closest('.mb-3').innerHTML = '<div class="alert alert-success d-flex align-items-center gap-2 mb-0"><i class="fas fa-check-circle"></i><span><strong>Bonus réclamé!</strong> Reviens demain. 🎁</span></div>';
+      }, 1200);
+      
+      // Mettre à jour XP
+      const xpElements = document.querySelectorAll('[data-xp-display]');
+      xpElements.forEach(el => el.textContent = data.total_xp);
+      
+      // Level up notification
+      if (data.level_up) {
+        const levelEl = document.querySelector('[data-level-display]');
+        levelEl.textContent = data.new_level;
+        alert('🚀 LEVEL UP! Félicitations niveau ' + data.new_level + '!');
+      }
+      
+      // Badges unlocked
+      if (data.new_badges && data.new_badges.length > 0) {
+        const badges_text = data.new_badges.map(b => b.icon + ' ' + b.name).join(', ');
+        alert('🏆 BADGES DÉBLOQUÉS!\n' + badges_text);
+      }
+    }
+    btn.disabled = false;
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i> Erreur, réessaye';
+  });
+}
+
+// Animation de chargement - rendre les cartes encore plus vives
+document.addEventListener('DOMContentLoaded', function() {
+  const cards = document.querySelectorAll('.quick-card, .skill-card');
+  cards.forEach((card, idx) => {
+    card.style.animationDelay = (idx * 0.1) + 's';
+    card.addEventListener('mouseenter', function() {
+      this.style.animation = 'none';
+      setTimeout(() => this.style.animation = '', 10);
+    });
+  });
+  
+  // Animer la barre de progression XP
+  const progressBar = document.getElementById('dash-xp-bar');
+  if (progressBar) {
+    setTimeout(() => {
+      progressBar.style.animation = 'progress-fill 1.5s ease-out forwards';
+    }, 300);
+  }
+});
+</script>
+{% endblock %}

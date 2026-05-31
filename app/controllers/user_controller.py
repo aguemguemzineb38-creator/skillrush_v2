@@ -400,12 +400,12 @@ class UserController:
         user = User.query.get_or_404(user_id)
         if user.is_admin:
             flash("Impossible de bloquer un administrateur.", 'danger')
-            return redirect(url_for('user.admin_users'))
+            return redirect(url_for('admin.admin_users'))
         user.is_blocked = not user.is_blocked
         db.session.commit()
         action = 'bloqué' if user.is_blocked else 'débloqué'
         flash(f"Utilisateur {user.username} {action}.", 'success')
-        return redirect(url_for('user.admin_users'))
+        return redirect(url_for('admin.admin_users'))
 
     @staticmethod
     @login_required
@@ -415,7 +415,7 @@ class UserController:
         new_role = request.form.get('role')
         if new_role not in ('user', 'moderator', 'admin'):
             flash('Rôle invalide.', 'danger')
-            return redirect(url_for('user.admin_users'))
+            return redirect(url_for('admin.admin_users'))
         user.role = new_role
         db.session.commit()
         role_label = {
@@ -424,7 +424,7 @@ class UserController:
             'admin': 'administrateur',
         }.get(new_role, new_role)
         flash(f"Rôle de {user.username} changé en {role_label}.", 'success')
-        return redirect(url_for('user.admin_users'))
+        return redirect(url_for('admin.admin_users'))
 
     # ── Modération : contenu ──────────────────────────────────────────────────
 

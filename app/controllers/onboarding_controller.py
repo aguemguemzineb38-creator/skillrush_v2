@@ -19,7 +19,11 @@ def _allowed(filename, allowed_set):
 
 def _save_upload(file, subdir):
     """Sauvegarde un fichier uploadé, retourne l'URL relative."""
-    ext = secure_filename(file.filename).rsplit('.', 1)[1].lower()
+    filename = secure_filename(file.filename)
+    if not filename:
+        filename = "upload.bin"
+    parts = filename.rsplit('.', 1)
+    ext = parts[1].lower() if len(parts) > 1 else 'bin'
     unique_name = f"{uuid.uuid4().hex}.{ext}"
     dest_dir = os.path.join(current_app.static_folder, 'uploads', subdir)
     os.makedirs(dest_dir, exist_ok=True)

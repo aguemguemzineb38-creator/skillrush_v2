@@ -25,6 +25,10 @@ def register_blueprints(app):
     def leaderboard():
         return MainController.leaderboard()
 
+    @main_bp.route('/network')
+    def network():
+        return MainController.network()
+
     @main_bp.route('/cours-refuse')
     def rejected_course():
         return MainController.rejected_course()

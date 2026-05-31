@@ -86,7 +86,7 @@ class AuthController:
                 current_app.logger.error(f'[AUTH] Erreur envoi email bienvenue pour {user.username}: {e}', exc_info=True)
 
             login_user(user)
-            return redirect(url_for('onboarding.step1'))
+            return redirect(url_for('main.dashboard'))
         
         return render_template('auth/register.html')
     
@@ -234,7 +234,7 @@ class AuthController:
                 username=username,
                 email=google_email,
                 password=generate_password_hash(secrets.token_urlsafe(24)),
-                onboarding_done=False,
+                onboarding_done=True,
             )
             db.session.add(user)
             db.session.commit()
@@ -250,6 +250,4 @@ class AuthController:
 
         login_user(user)
         flash(f'Bienvenue {user.username} !', 'success')
-        if not user.onboarding_done:
-            return redirect(url_for('onboarding.step1'))
         return redirect(url_for('main.dashboard'))
