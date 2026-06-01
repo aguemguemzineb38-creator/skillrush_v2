@@ -1,48 +1,741 @@
 ﻿{% extends "base.html" %}
-{% block title %}SkillRush - Partage tes compétences, apprends sans limite.{% endblock %}
+{% block title %}Apprends. Partage. Progresse. | SkillRush{% endblock %}
 {% block content %}
-<div class="container py-4">
-  <div class="row g-3 align-items-stretch">
-    <div class="col-lg-7">
-      <div class="auth-hero h-100 d-flex flex-column justify-content-between">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+
+:root {
+  --ink: #0d0d1a;
+  --ink-soft: #1e1e36;
+  --ink-muted: #2e2e50;
+  --violet: #7b3fe4;
+  --violet-light: #9d68f5;
+  --cyan: #00d4ff;
+  --mint: #00f5c4;
+  --amber: #ffb800;
+  --rose: #ff4d7e;
+  --white: #ffffff;
+  --off-white: #f4f3ff;
+  --card-bg: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.09);
+  --glow-violet: rgba(123,63,228,0.35);
+  --glow-cyan: rgba(0,212,255,0.25);
+}
+
+/* ─── RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+#skillrush-landing { font-family: 'DM Sans', sans-serif; background: var(--ink); color: var(--white); overflow-x: hidden; }
+#skillrush-landing h1, #skillrush-landing h2, #skillrush-landing h3, #skillrush-landing h4 { font-family: 'Syne', sans-serif; }
+
+/* ─── NOISE OVERLAY ─── */
+#skillrush-landing::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+
+/* ─── SHARED ─── */
+.sr-section { position: relative; z-index: 1; }
+.sr-container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.sr-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(123,63,228,0.18); border: 1px solid rgba(123,63,228,0.4);
+  color: var(--violet-light); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 100px; margin-bottom: 18px;
+}
+.sr-eyebrow { font-size: 13px; color: var(--cyan); letter-spacing: 2px; text-transform: uppercase; font-weight: 600; margin-bottom: 10px; }
+
+/* ─── HERO ─── */
+.sr-hero {
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 100px 0 60px;
+  position: relative; overflow: hidden;
+}
+.sr-hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(123,63,228,0.22) 0%, transparent 70%),
+              radial-gradient(ellipse 50% 40% at 20% 80%, rgba(0,212,255,0.12) 0%, transparent 70%),
+              var(--ink);
+}
+.sr-hero-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+  position: relative; z-index: 1;
+}
+.sr-hero-title {
+  font-size: clamp(30px, 3.8vw, 52px); font-weight: 800; line-height: 1.1; letter-spacing: -1.5px;
+  margin-bottom: 22px;
+}
+.sr-hero-title .accent-violet { color: var(--violet-light); }
+.sr-hero-title .accent-cyan { color: var(--cyan); }
+.sr-hero-desc { font-size: 18px; line-height: 1.65; color: rgba(255,255,255,0.65); max-width: 480px; margin-bottom: 36px; }
+.sr-hero-desc strong { color: var(--white); font-weight: 500; }
+.sr-btn-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 48px; }
+.sr-btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--violet) 0%, #5b2fd4 100%);
+  color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
+  padding: 15px 32px; border-radius: 14px; border: none; cursor: pointer; text-decoration: none;
+  box-shadow: 0 0 30px var(--glow-violet), 0 4px 16px rgba(0,0,0,0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; overflow: hidden;
+}
+.sr-btn-primary::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  border-radius: inherit;
+}
+.sr-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 45px var(--glow-violet), 0 8px 24px rgba(0,0,0,0.35); }
+.sr-btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85);
+  font-family: 'Syne', sans-serif; font-weight: 600; font-size: 16px;
+  padding: 15px 28px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);
+  cursor: pointer; text-decoration: none; transition: background 0.2s, border-color 0.2s;
+}
+.sr-btn-ghost:hover { background: rgba(255,255,255,0.11); border-color: rgba(255,255,255,0.25); }
+
+/* ─── HERO STATS BAR ─── */
+.sr-stats-row {
+  display: flex; gap: 28px; flex-wrap: wrap;
+}
+.sr-stat {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 10px 18px;
+}
+.sr-stat-icon { font-size: 20px; }
+.sr-stat-num { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+.sr-stat-label { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+/* ─── HERO CARD ─── */
+.sr-hero-card-wrap { position: relative; display: flex; justify-content: center; align-items: center; }
+.sr-hero-card-glow {
+  position: absolute; width: 340px; height: 340px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(123,63,228,0.35) 0%, transparent 70%);
+  filter: blur(40px); z-index: 0;
+}
+.sr-hero-card {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 28px; padding: 32px; width: 320px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.sr-avatar-row { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+.sr-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--violet), var(--cyan));
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+  box-shadow: 0 0 20px var(--glow-violet);
+  flex-shrink: 0;
+}
+.sr-avatar-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 17px; }
+.sr-avatar-sub { font-size: 12px; color: rgba(255,255,255,0.45); }
+.sr-level-badge {
+  margin-left: auto; background: linear-gradient(135deg, var(--violet), #9d68f5);
+  color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+  padding: 5px 13px; border-radius: 100px;
+  box-shadow: 0 0 14px var(--glow-violet);
+}
+.sr-xp-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.sr-xp-label { font-size: 13px; color: rgba(255,255,255,0.55); }
+.sr-xp-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--cyan); }
+.sr-xp-bar { height: 10px; border-radius: 100px; background: rgba(255,255,255,0.1); overflow: hidden; margin-bottom: 20px; }
+.sr-xp-fill {
+  height: 100%; border-radius: 100px; width: 72%;
+  background: linear-gradient(90deg, var(--violet), var(--cyan));
+  box-shadow: 0 0 12px var(--glow-cyan);
+  animation: xpload 1.4s cubic-bezier(.23,1,.32,1) both;
+}
+@keyframes xpload { from{width:0} to{width:72%} }
+.sr-badges-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.sr-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 100px;
+  border: 1px solid;
+}
+.sr-badge.amber { background: rgba(255,184,0,0.12); border-color: rgba(255,184,0,0.35); color: var(--amber); }
+.sr-badge.mint  { background: rgba(0,245,196,0.1);  border-color: rgba(0,245,196,0.3);  color: var(--mint); }
+.sr-badge.violet{ background: rgba(157,104,245,0.12);border-color: rgba(157,104,245,0.35); color: var(--violet-light); }
+.sr-badge.cyan  { background: rgba(0,212,255,0.1);  border-color: rgba(0,212,255,0.3);  color: var(--cyan); }
+.sr-skill-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.sr-skill-chip {
+  font-size: 12px; color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+  padding: 4px 12px; border-radius: 100px;
+}
+.sr-skill-chip.unlocked { color: var(--mint); border-color: rgba(0,245,196,0.3); background: rgba(0,245,196,0.08); }
+
+/* ─── SOCIAL PROOF ─── */
+.sr-proof { padding: 32px 0; border-top: 1px solid rgba(255,255,255,0.07); border-bottom: 1px solid rgba(255,255,255,0.07); position: relative; z-index: 1; }
+.sr-proof-inner { display: flex; align-items: center; justify-content: center; gap: 48px; flex-wrap: wrap; }
+.sr-proof-stat { text-align: center; }
+.sr-proof-stat .num { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; background: linear-gradient(90deg, var(--violet-light), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.sr-proof-stat .lbl { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 4px; }
+.sr-proof-divider { width: 1px; height: 44px; background: rgba(255,255,255,0.1); }
+
+/* ─── SECTION TITLES ─── */
+.sr-title { font-size: clamp(22px, 3vw, 34px); font-weight: 800; letter-spacing: -0.5px; margin-bottom: 12px; }
+.sr-subtitle { font-size: 17px; color: rgba(255,255,255,0.55); max-width: 540px; margin: 0 auto; line-height: 1.6; }
+
+/* ─── HOW IT WORKS ─── */
+.sr-how { padding: 100px 0; }
+.sr-how-header { text-align: center; margin-bottom: 60px; }
+.sr-steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+.sr-step {
+  position: relative;
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 24px; padding: 32px 24px;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  overflow: hidden;
+}
+.sr-step::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(123,63,228,0.07) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.25s;
+  border-radius: inherit;
+}
+.sr-step:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.35); border-color: rgba(123,63,228,0.4); }
+.sr-step:hover::before { opacity: 1; }
+.sr-step-num {
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  color: rgba(255,255,255,0.25); margin-bottom: 20px; text-transform: uppercase;
+  font-style: normal;
+}
+.sr-step-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+  margin-bottom: 20px;
+}
+.icon-violet { background: rgba(123,63,228,0.2); box-shadow: 0 0 20px rgba(123,63,228,0.2); }
+.icon-cyan   { background: rgba(0,212,255,0.15); box-shadow: 0 0 20px rgba(0,212,255,0.15); }
+.icon-amber  { background: rgba(255,184,0,0.15); box-shadow: 0 0 20px rgba(255,184,0,0.15); }
+.icon-mint   { background: rgba(0,245,196,0.15); box-shadow: 0 0 20px rgba(0,245,196,0.15); }
+.sr-step h4 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+.sr-step p  { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+.sr-connector {
+  position: absolute; top: 38px; right: -14px; z-index: 2;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--violet); display: flex; align-items: center; justify-content: center;
+  font-size: 12px; box-shadow: 0 0 14px var(--glow-violet);
+}
+
+/* ─── WHY SECTION ─── */
+.sr-why { padding: 100px 0; background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(123,63,228,0.08) 0%, transparent 70%); }
+.sr-why-header { text-align: center; margin-bottom: 60px; }
+.sr-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; }
+.sr-compare-card {
+  border-radius: 24px; padding: 36px;
+  border: 1px solid;
+}
+.sr-compare-card.old {
+  background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07);
+}
+.sr-compare-card.new {
+  background: linear-gradient(135deg, rgba(123,63,228,0.2) 0%, rgba(0,212,255,0.1) 100%);
+  border-color: rgba(123,63,228,0.4);
+  box-shadow: 0 0 40px rgba(123,63,228,0.15), 0 20px 40px rgba(0,0,0,0.2);
+}
+.sr-compare-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+.sr-compare-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; font-size: 15px; }
+.sr-compare-item.bad { color: rgba(255,255,255,0.4); }
+.sr-compare-item.good { color: rgba(255,255,255,0.9); }
+.sr-compare-item .dot { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-top: 1px; }
+.dot-bad  { background: rgba(255,77,126,0.2); color: var(--rose); }
+.dot-good { background: rgba(0,245,196,0.2); color: var(--mint); }
+.sr-vs {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--violet), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px;
+  box-shadow: 0 0 24px var(--glow-violet);
+}
+
+/* ─── SKILLS GRID ─── */
+.sr-skills { padding: 100px 0; }
+.sr-skills-header { text-align: center; margin-bottom: 56px; }
+.sr-skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.sr-skill-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 20px; padding: 28px 24px;
+  display: flex; align-items: center; gap: 18px;
+  transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+  cursor: pointer;
+}
+.sr-skill-card:hover { transform: translateY(-4px); border-color: rgba(123,63,228,0.5); box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 20px rgba(123,63,228,0.15); }
+.sr-skill-ico { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.sr-skill-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+.sr-skill-meta { font-size: 13px; color: rgba(255,255,255,0.4); }
+.sr-skill-arrow { margin-left: auto; color: rgba(255,255,255,0.2); font-size: 18px; transition: color 0.2s, transform 0.2s; }
+.sr-skill-card:hover .sr-skill-arrow { color: var(--violet-light); transform: translateX(3px); }
+
+/* ─── PROGRESSION CARD ─── */
+.sr-progress-section { padding: 100px 0; }
+.sr-progress-inner { max-width: 600px; margin: 0 auto; text-align: center; }
+.sr-progress-header { margin-bottom: 48px; }
+.sr-big-card {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 28px; padding: 40px;
+  box-shadow: 0 0 60px rgba(123,63,228,0.12), 0 20px 60px rgba(0,0,0,0.3);
+  backdrop-filter: blur(20px); text-align: left;
+}
+.sr-big-card-top { display: flex; align-items: center; gap: 18px; margin-bottom: 32px; }
+.sr-big-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--violet) 0%, var(--cyan) 100%);
+  display: flex; align-items: center; justify-content: center; font-size: 30px;
+  box-shadow: 0 0 24px var(--glow-violet); flex-shrink: 0;
+}
+.sr-big-name { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.sr-big-sub { font-size: 14px; color: rgba(255,255,255,0.45); }
+.sr-level-pill {
+  margin-left: auto; background: linear-gradient(135deg, var(--violet), var(--cyan));
+  color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+  padding: 8px 20px; border-radius: 100px;
+  box-shadow: 0 0 20px var(--glow-violet);
+  white-space: nowrap;
+}
+.sr-xp-section { margin-bottom: 28px; }
+.sr-xp-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.sr-xp-title { font-size: 14px; color: rgba(255,255,255,0.55); font-weight: 500; }
+.sr-xp-count { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--cyan); }
+.sr-fat-bar { height: 14px; border-radius: 100px; background: rgba(255,255,255,0.08); overflow: hidden; }
+.sr-fat-fill {
+  height: 100%; width: 75%; border-radius: 100px;
+  background: linear-gradient(90deg, var(--violet), var(--cyan));
+  box-shadow: 0 0 16px var(--glow-cyan);
+  animation: fatload 1.8s cubic-bezier(.23,1,.32,1) both 0.3s;
+}
+@keyframes fatload { from{width:0} to{width:75%} }
+.sr-xp-next { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 8px; text-align: right; }
+.sr-badges-section { margin-bottom: 28px; }
+.sr-badges-title { font-size: 13px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; font-weight: 600; }
+.sr-badges-big { display: flex; flex-wrap: wrap; gap: 10px; }
+.sr-badge-big {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px; padding: 10px 16px;
+  font-size: 14px; font-weight: 500;
+}
+.sr-skills-earned { display: flex; flex-wrap: wrap; gap: 8px; }
+.sr-earned-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(0,245,196,0.1); border: 1px solid rgba(0,245,196,0.25);
+  color: var(--mint); font-size: 13px; font-weight: 600;
+  padding: 6px 14px; border-radius: 100px;
+}
+
+/* ─── CTA ─── */
+.sr-cta { padding: 100px 0 120px; }
+.sr-cta-card {
+  border-radius: 32px; padding: 80px 60px; text-align: center;
+  background: linear-gradient(135deg, rgba(123,63,228,0.35) 0%, rgba(0,212,255,0.15) 100%);
+  border: 1px solid rgba(123,63,228,0.4);
+  box-shadow: 0 0 80px rgba(123,63,228,0.2), 0 40px 80px rgba(0,0,0,0.3);
+  position: relative; overflow: hidden;
+}
+.sr-cta-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 80% at 50% 0%, rgba(255,255,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.sr-cta-card::after {
+  content: '🎮'; position: absolute; right: 60px; bottom: 40px; font-size: 120px; opacity: 0.04;
+}
+.sr-cta-tag { margin-bottom: 24px; }
+.sr-cta-title { font-size: clamp(24px, 3vw, 40px); font-weight: 800; letter-spacing: -1px; margin-bottom: 18px; }
+.sr-cta-sub { font-size: 18px; color: rgba(255,255,255,0.65); max-width: 480px; margin: 0 auto 40px; line-height: 1.6; }
+.sr-btn-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--amber) 0%, #ff8c00 100%);
+  color: var(--ink); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px;
+  padding: 18px 44px; border-radius: 16px; border: none; cursor: pointer; text-decoration: none;
+  box-shadow: 0 0 40px rgba(255,184,0,0.35), 0 8px 24px rgba(0,0,0,0.25);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.sr-btn-cta:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 60px rgba(255,184,0,0.5), 0 12px 32px rgba(0,0,0,0.3); color: var(--ink); }
+.sr-cta-note { margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.35); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  .sr-hero-grid { grid-template-columns: 1fr; text-align: center; }
+  .sr-hero-desc { margin: 0 auto 36px; }
+  .sr-btn-row { justify-content: center; }
+  .sr-stats-row { justify-content: center; }
+  .sr-hero-card-wrap { margin-top: 40px; }
+  .sr-steps { grid-template-columns: repeat(2, 1fr); }
+  .sr-compare { grid-template-columns: 1fr; }
+  .sr-vs { display: none; }
+  .sr-skills-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .sr-hero { padding: 80px 0 40px; }
+  .sr-steps { grid-template-columns: 1fr; }
+  .sr-skills-grid { grid-template-columns: 1fr; }
+  .sr-cta-card { padding: 48px 28px; }
+  .sr-proof-inner { gap: 24px; }
+  .sr-proof-divider { display: none; }
+  .sr-hero-card { width: 100%; max-width: 320px; }
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.sr-fadein { animation: fadeUp 0.7s cubic-bezier(.23,1,.32,1) both; }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+</style>
+
+<div id="skillrush-landing">
+
+  <!-- ═══ HERO ═══ -->
+  <section class="sr-hero sr-section">
+    <div class="sr-hero-bg"></div>
+    <div class="sr-container">
+      <div class="sr-hero-grid">
+
+        <!-- LEFT -->
         <div>
-          <span class="sr-chip mb-3 d-inline-flex"><i class="fas fa-bolt"></i> Plateforme communautaire gratuite</span>
-          <h1 class="display-4 fw-bold mb-3">Partage tes compétences. Apprends tout.</h1>
-          <p class="lead text-muted mb-4">SkillRush est une plateforme gamifiée où les étudiants publient leurs compétences pour gagner des XP, puis utilisent ces XP pour débloquer de nouveaux savoirs. Aucun paiement.</p>
-          <div class="d-flex flex-wrap gap-2 mb-4">
-            <span class="skill-pill">Communauté à la Discord</span>
-            <span class="skill-pill">Motivation type Duolingo</span>
-            <span class="skill-pill">Compétences carrière</span>
-            <span class="skill-pill">Clarté type Notion</span>
-            <span class="skill-pill">Micro-learning</span>
+          <div class="sr-tag sr-fadein">⚡ Plateforme gamifiée #1 au Maroc</div>
+          <h1 class="sr-hero-title sr-fadein delay-1">
+            Apprends.<br>
+            <span class="accent-violet">Partage.</span><br>
+            <span class="accent-cyan">Progresse.</span>
+          </h1>
+          <p class="sr-hero-desc sr-fadein delay-2">
+            SkillRush transforme l'apprentissage en <strong>aventure</strong> : gagne des <strong>XP</strong>, relève des <strong>missions</strong>, collectionne des <strong>badges</strong> et grimpe au <strong>classement</strong> !
+          </p>
+          <div class="sr-btn-row sr-fadein delay-3">
+            <a href="{{ url_for('auth.register') }}" class="sr-btn-primary">
+              <i class="fas fa-rocket"></i> Commencer gratuitement
+            </a>
+            <a href="{{ url_for('main.explore_skills') }}" class="sr-btn-ghost">
+              <i class="fas fa-compass"></i> Explorer
+            </a>
+          </div>
+          <div class="sr-stats-row sr-fadein delay-4">
+            <div class="sr-stat">
+              <span class="sr-stat-icon">🎓</span>
+              <div>
+                <div class="sr-stat-num">97+</div>
+                <div class="sr-stat-label">Apprenants</div>
+              </div>
+            </div>
+            <div class="sr-stat">
+              <span class="sr-stat-icon">⚡</span>
+              <div>
+                <div class="sr-stat-num">9+</div>
+                <div class="sr-stat-label">Missions</div>
+              </div>
+            </div>
+            <div class="sr-stat">
+              <span class="sr-stat-icon">🏆</span>
+              <div>
+                <div class="sr-stat-num">3</div>
+                <div class="sr-stat-label">Badges</div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="d-flex gap-2 flex-wrap">
-          <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg pulse-glow">Commencer</a>
-          <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg">Connexion</a>
+
+        <!-- RIGHT — profile card -->
+        <div class="sr-hero-card-wrap sr-fadein delay-3">
+          <div class="sr-hero-card-glow"></div>
+          <div class="sr-hero-card">
+            <div class="sr-avatar-row">
+              <div class="sr-avatar">🧑‍💻</div>
+              <div>
+                <div class="sr-avatar-name">Sara B.</div>
+                <div class="sr-avatar-sub">Rejointe il y a 3 semaines</div>
+              </div>
+              <div class="sr-level-badge">Niv. 5</div>
+            </div>
+            <div class="sr-xp-label-row">
+              <span class="sr-xp-label">Progression XP</span>
+              <span class="sr-xp-val">400 / 500 XP</span>
+            </div>
+            <div class="sr-xp-bar"><div class="sr-xp-fill"></div></div>
+            <div class="sr-badges-row">
+              <span class="sr-badge amber">🏅 Débloqueur</span>
+              <span class="sr-badge mint">✅ Régulier</span>
+              <span class="sr-badge violet">⭐ Top 10</span>
+            </div>
+            <div class="sr-skill-chips">
+              <span class="sr-skill-chip unlocked">✓ Python</span>
+              <span class="sr-skill-chip unlocked">✓ IA</span>
+              <span class="sr-skill-chip">Design</span>
+              <span class="sr-skill-chip">Excel</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-lg-5">
-      <div class="card p-4 h-100">
-        <h5 class="mb-3">Comment ça marche</h5>
-        <div class="mb-3 p-3 rounded" style="background:rgba(255,255,255,.04)">
-          <strong>1. Publie une compétence</strong>
-          <div class="text-muted small">Enseigne ce que tu maîtrises déjà : Photoshop, Excel, Python, prise de parole, etc.</div>
+  </section>
+
+  <!-- ═══ SOCIAL PROOF ═══ -->
+  <div class="sr-proof sr-section">
+    <div class="sr-container">
+      <div class="sr-proof-inner">
+        <div class="sr-proof-stat">
+          <div class="num">97+</div>
+          <div class="lbl">Apprenants actifs</div>
         </div>
-        <div class="mb-3 p-3 rounded" style="background:rgba(255,255,255,.04)">
-          <strong>2. Gagne des XP</strong>
-          <div class="text-muted small">Tu es récompensé quand ton contenu aide d'autres apprenants.</div>
+        <div class="sr-proof-divider"></div>
+        <div class="sr-proof-stat">
+          <div class="num">98%</div>
+          <div class="lbl">Satisfaction</div>
         </div>
-        <div class="mb-3 p-3 rounded" style="background:rgba(255,255,255,.04)">
-          <strong>3. Débloque du savoir</strong>
-          <div class="text-muted small">Utilise tes XP pour accéder à d'autres compétences et faire progresser ton profil.</div>
+        <div class="sr-proof-divider"></div>
+        <div class="sr-proof-stat">
+          <div class="num">9+</div>
+          <div class="lbl">Missions disponibles</div>
         </div>
-        <div class="mt-auto">
-          <span class="rank-badge">Missions quotidiennes • Série • Classement • Badges</span>
+        <div class="sr-proof-divider"></div>
+        <div class="sr-proof-stat">
+          <div class="num">6</div>
+          <div class="lbl">Compétences clés</div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <section class="sr-how sr-section">
+    <div class="sr-container">
+      <div class="sr-how-header">
+        <div class="sr-eyebrow">Mode d'emploi</div>
+        <h2 class="sr-title">Comment ça marche ?</h2>
+        <p class="sr-subtitle">4 étapes simples pour transformer ta façon d'apprendre</p>
+      </div>
+      <div class="sr-steps">
+        <div class="sr-step sr-fadein" style="position:relative;">
+          <div class="sr-step-num">Étape 01</div>
+          <div class="sr-step-icon icon-violet">🔍</div>
+          <h4>Choisis une compétence</h4>
+          <p>Python, IA, Design, Excel, Marketing… explore notre catalogue et démarre ta quête.</p>
+          <div class="sr-connector" style="display:none"><i class="fas fa-arrow-right"></i></div>
+        </div>
+        <div class="sr-step sr-fadein delay-1">
+          <div class="sr-step-num">Étape 02</div>
+          <div class="sr-step-icon icon-cyan">🎬</div>
+          <h4>Regarde des vidéos</h4>
+          <p>Contenus courts, clairs et 100 % pratiques. Apprends à ton rythme, où tu veux.</p>
+        </div>
+        <div class="sr-step sr-fadein delay-2">
+          <div class="sr-step-num">Étape 03</div>
+          <div class="sr-step-icon icon-amber">⚡</div>
+          <h4>Réalise des missions</h4>
+          <p>Quiz, défis et projets réels. Chaque mission complétée te rapproche du sommet.</p>
+        </div>
+        <div class="sr-step sr-fadein delay-3">
+          <div class="sr-step-num">Étape 04</div>
+          <div class="sr-step-icon icon-mint">🏆</div>
+          <h4>Gagne des XP & monte de niveau</h4>
+          <p>Débloque des badges, grimpe au classement et deviens un expert reconnu.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ WHY SKILLRUSH ═══ -->
+  <section class="sr-why sr-section">
+    <div class="sr-container">
+      <div class="sr-why-header">
+        <div class="sr-eyebrow">La différence</div>
+        <h2 class="sr-title">Pourquoi SkillRush ?</h2>
+        <p class="sr-subtitle">Ce n'est pas un cours ordinaire. C'est une aventure.</p>
+      </div>
+      <div class="sr-compare">
+        <div class="sr-compare-card old sr-fadein">
+          <div class="sr-compare-title">
+            <span style="font-size:20px">😴</span> Plateforme classique
+          </div>
+          <div class="sr-compare-item bad">
+            <span class="dot dot-bad">✕</span>
+            Cours longs et monotones
+          </div>
+          <div class="sr-compare-item bad">
+            <span class="dot dot-bad">✕</span>
+            Aucune motivation sur la durée
+          </div>
+          <div class="sr-compare-item bad">
+            <span class="dot dot-bad">✕</span>
+            Pas de progression visible
+          </div>
+          <div class="sr-compare-item bad">
+            <span class="dot dot-bad">✕</span>
+            Apprentissage solitaire
+          </div>
+          <div class="sr-compare-item bad">
+            <span class="dot dot-bad">✕</span>
+            Aucun challenge, aucune récompense
+          </div>
+        </div>
+        <div class="sr-vs">VS</div>
+        <div class="sr-compare-card new sr-fadein delay-2">
+          <div class="sr-compare-title">
+            <span style="font-size:20px">🎮</span> SkillRush
+          </div>
+          <div class="sr-compare-item good">
+            <span class="dot dot-good">✓</span>
+            XP, niveaux & montée en compétences
+          </div>
+          <div class="sr-compare-item good">
+            <span class="dot dot-good">✓</span>
+            Missions & défis motivants
+          </div>
+          <div class="sr-compare-item good">
+            <span class="dot dot-good">✓</span>
+            Barre de progression en temps réel
+          </div>
+          <div class="sr-compare-item good">
+            <span class="dot dot-good">✓</span>
+            Communauté active & classement
+          </div>
+          <div class="sr-compare-item good">
+            <span class="dot dot-good">✓</span>
+            Badges & récompenses débloquables
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PROGRESSION CARD ═══ -->
+  <section class="sr-progress-section sr-section">
+    <div class="sr-container">
+      <div class="sr-progress-inner">
+        <div class="sr-progress-header">
+          <div class="sr-eyebrow">En action</div>
+          <h2 class="sr-title">Exemple de progression</h2>
+          <p class="sr-subtitle">Voici à quoi ressemble ton parcours après 3 semaines sur SkillRush.</p>
+        </div>
+        <div class="sr-big-card sr-fadein">
+          <div class="sr-big-card-top">
+            <div class="sr-big-avatar">🧑‍💻</div>
+            <div>
+              <div class="sr-big-name">Sara B.</div>
+              <div class="sr-big-sub">Membre depuis 3 semaines · Streak 🔥 14 jours</div>
+            </div>
+            <div class="sr-level-pill">🏅 Niveau 5</div>
+          </div>
+          <div class="sr-xp-section">
+            <div class="sr-xp-row">
+              <span class="sr-xp-title">Progression vers le niveau 6</span>
+              <span class="sr-xp-count">400 / 500 XP</span>
+            </div>
+            <div class="sr-fat-bar"><div class="sr-fat-fill"></div></div>
+            <div class="sr-xp-next">Plus que 100 XP pour atteindre le niveau 6 !</div>
+          </div>
+          <div class="sr-badges-section">
+            <div class="sr-badges-title">Badges obtenus</div>
+            <div class="sr-badges-big">
+              <div class="sr-badge-big"><span>🏅</span> Débloqueur</div>
+              <div class="sr-badge-big"><span>🔥</span> Streak 14j</div>
+              <div class="sr-badge-big"><span>⭐</span> Top 10</div>
+              <div class="sr-badge-big"><span>🐍</span> Python pro</div>
+            </div>
+          </div>
+          <div class="sr-badges-title">Compétences débloquées</div>
+          <div class="sr-skills-earned">
+            <span class="sr-earned-chip">✓ Python</span>
+            <span class="sr-earned-chip">✓ IA Générative</span>
+            <span class="sr-earned-chip">✓ Excel avancé</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SKILLS ═══ -->
+  <section class="sr-skills sr-section">
+    <div class="sr-container">
+      <div class="sr-skills-header">
+        <div class="sr-eyebrow">Catalogue</div>
+        <h2 class="sr-title">Compétences populaires</h2>
+        <p class="sr-subtitle">Commence par ce qui t'intéresse le plus. Tout est gratuit pour démarrer.</p>
+      </div>
+      <div class="sr-skills-grid">
+        <a href="{{ url_for('main.explore_skills') }}" class="sr-skill-card sr-fadein" style="text-decoration:none;color:inherit;">
+          <div class="sr-skill-ico" style="background:rgba(59,130,246,0.2);">🐍</div>
+          <div>
+            <div class="sr-skill-name">Python</div>
+            <div class="sr-skill-meta">48 missions · Très demandé</div>
+          </div>
+          <i class="fas fa-chevron-right sr-skill-arrow"></i>
+        </a>
+        <a href="{{ url_for('main.explore_skills') }}" class="sr-skill-card sr-fadein delay-1" style="text-decoration:none;color:inherit;">
+          <div class="sr-skill-ico" style="background:rgba(0,212,255,0.15);">🤖</div>
+          <div>
+            <div class="sr-skill-name">Intelligence Artificielle</div>
+            <div class="sr-skill-meta">32 missions · En vogue</div>
+          </div>
+          <i class="fas fa-chevron-right sr-skill-arrow"></i>
+        </a>
+        <a href="{{ url_for('main.explore_skills') }}" class="sr-skill-card sr-fadein delay-2" style="text-decoration:none;color:inherit;">
+          <div class="sr-skill-ico" style="background:rgba(255,184,0,0.15);">📣</div>
+          <div>
+            <div class="sr-skill-name">Marketing Digital</div>
+            <div class="sr-skill-meta">27 missions · Pratique</div>
+          </div>
+          <i class="fas fa-chevron-right sr-skill-arrow"></i>
+        </a>
+        <a href="{{ url_for('main.explore_skills') }}" class="sr-skill-card sr-fadein delay-3" style="text-decoration:none;color:inherit;">
+          <div class="sr-skill-ico" style="background:rgba(0,245,196,0.15);">🎨</div>
+          <div>
+            <div class="sr-skill-name">Design UI/UX</div>
+            <div class="sr-skill-meta">22 missions · Créatif</div>
+          </div>
+          <i class="fas fa-chevron-right sr-skill-arrow"></i>
+        </a>
+        <a href="{{ url_for('main.explore_skills') }}" class="sr-skill-card sr-fadein delay-4" style="text-decoration:none;color:inherit;">
+          <div class="sr-skill-ico" style="background:rgba(123,63,228,0.2);">📊</div>
+          <div>
+            <div class="sr-skill-name">Excel & Data</div>
+            <div class="sr-skill-meta">35 missions · Essentiel</div>
+          </div>
+          <i class="fas fa-chevron-right sr-skill-arrow"></i>
+        </a>
+        <a href="{{ url_for('main.explore_skills') }}" class="sr-skill-card sr-fadein delay-5" style="text-decoration:none;color:inherit;">
+          <div class="sr-skill-ico" style="background:rgba(255,77,126,0.15);">🚀</div>
+          <div>
+            <div class="sr-skill-name">Entrepreneuriat</div>
+            <div class="sr-skill-meta">19 missions · Inspirant</div>
+          </div>
+          <i class="fas fa-chevron-right sr-skill-arrow"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CTA ═══ -->
+  <section class="sr-cta sr-section">
+    <div class="sr-container">
+      <div class="sr-cta-card">
+        <div class="sr-cta-tag">
+          <span class="sr-tag" style="margin:0 auto;">🎯 100% gratuit pour commencer</span>
+        </div>
+        <h2 class="sr-cta-title">Prêt à rejoindre l'aventure ?</h2>
+        <p class="sr-cta-sub">Crée ton compte en 30 secondes et commence à gagner tes premiers XP dès aujourd'hui.</p>
+        <a href="{{ url_for('auth.register') }}" class="sr-btn-cta">
+          <i class="fas fa-bolt"></i> Créer mon compte gratuitement
+        </a>
+        <p class="sr-cta-note">Aucune carte bancaire requise · Commence immédiatement</p>
+      </div>
+    </div>
+  </section>
+
 </div>
+
 {% endblock %}
