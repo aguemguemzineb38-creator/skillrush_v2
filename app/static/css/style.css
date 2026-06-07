@@ -233,6 +233,26 @@
     transition: all .22s ease;
     margin-top: 4px;
 }
+.theme-icon-btn {
+    background: var(--glass-2);
+    border: 1px solid var(--glass);
+    color: var(--text);
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+}
+.theme-icon-btn:hover {
+    background: var(--purple);
+    color: #fff;
+    border-color: var(--purple);
+}
 .theme-toggle-sidebar:hover {
     background: var(--glass-2);
     color: var(--purple);

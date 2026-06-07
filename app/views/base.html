@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -24,7 +24,14 @@
 {% if not is_learner %}
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid px-3">
-        <a class="navbar-brand fw-bold" href="{{ url_for('main.dashboard') }}"><i class="fas fa-rocket"></i> SkillRush</a>
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('main.dashboard') }}">
+            <i class="fas fa-rocket"></i>
+            <span class="brand-label ms-2">SkillRush</span>
+            <button class="theme-icon-btn ms-2" id="theme-toggle-top" title="Mode clair / sombre" onclick="srToggleTheme()">
+                <i class="fas fa-moon" id="icon-moon-top"></i>
+                <i class="fas fa-sun" id="icon-sun-top" style="display:none"></i>
+            </button>
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center gap-1">
@@ -44,16 +51,10 @@
                     </ul>
                 </li>
             {% else %}
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.admin_login') }}">Connexion Admin</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.moderator_login') }}">Connexion Modération</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Connexion</a></li>
                 <li class="nav-item"><a class="btn btn-primary btn-sm ms-2" href="{{ url_for('auth.register') }}">Commencer</a></li>
             {% endif %}
-            <li class="nav-item ms-1">
-                <button class="theme-toggle-btn" id="theme-toggle" title="Mode clair / sombre" onclick="srToggleTheme()">
-                    <i class="fas fa-moon" id="icon-moon"></i><i class="fas fa-sun" id="icon-sun" style="display:none"></i>
-                </button>
-            </li>
+            
             </ul>
         </div>
     </div>
@@ -62,7 +63,14 @@
 {% else %}
 <div class="sr-layout">
     <aside class="sr-sidebar">
-        <div class="sr-brand"><i class="fas fa-rocket"></i> <span class="label">SkillRush</span></div>
+        <div class="sr-brand d-flex align-items-center">
+            <i class="fas fa-rocket"></i>
+            <span class="label ms-2">SkillRush</span>
+            <button class="theme-icon-btn ms-2" id="theme-toggle-top-sb" title="Mode clair / sombre" onclick="srToggleTheme()">
+                <i class="fas fa-moon" id="icon-moon-top-sb"></i>
+                <i class="fas fa-sun" id="icon-sun-top-sb" style="display:none"></i>
+            </button>
+        </div>
         <div class="sr-nav">
             <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}"><i class="fas fa-home"></i><span class="label">Accueil</span></a>
             <a href="{{ url_for('main.explore_skills') }}" class="{% if request.endpoint == 'main.explore_skills' %}active{% endif %}"><i class="fas fa-compass"></i><span class="label">Apprendre</span></a>
@@ -72,11 +80,9 @@
             <a href="{{ url_for('skill.create_skill') }}" class="{% if request.endpoint == 'skill.create_skill' %}active{% endif %}"><i class="fas fa-plus-circle"></i><span class="label">Publier</span></a>
             <a href="{{ url_for('skill.my_skills') }}" class="{% if request.endpoint in ['skill.my_skills', 'skill.edit_skill', 'skill.add_video'] %}active{% endif %}"><i class="fas fa-folder-open"></i><span class="label">Mes contenus</span></a>
             <a href="{{ url_for('user.profile', user_id=current_user.id) }}" class="{% if request.endpoint == 'user.profile' %}active{% endif %}"><i class="fas fa-user"></i><span class="label">Profil</span></a>
+            <a href="{{ url_for('main.help_page') }}" class="{% if request.endpoint == 'main.help_page' %}active{% endif %}"><i class="fas fa-question-circle"></i><span class="label">Aide</span></a>
             <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i><span class="label">Déconnexion</span></a>
-            <button class="theme-toggle-sidebar" onclick="srToggleTheme()" title="Mode clair / sombre">
-                <i class="fas fa-moon" id="icon-moon-sb"></i><i class="fas fa-sun" id="icon-sun-sb" style="display:none"></i>
-                <span class="label">Thème</span>
-            </button>
+            
         </div>
     </aside>
     <main class="sr-main">
@@ -162,8 +168,8 @@ function srToggleTheme() {
 }
 function srUpdateIcons(t) {
     var isDark = t === 'dark';
-    ['icon-moon','icon-moon-sb'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=isDark?'none':'';});
-    ['icon-sun','icon-sun-sb'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=isDark?'':'none';});
+    ['icon-moon-top','icon-moon-top-sb','icon-moon-sb'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=isDark?'none':'';});
+    ['icon-sun-top','icon-sun-top-sb','icon-sun-sb'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=isDark?'':'none';});
 }
 document.addEventListener('DOMContentLoaded', function(){
     var t = document.documentElement.getAttribute('data-theme') || 'light';

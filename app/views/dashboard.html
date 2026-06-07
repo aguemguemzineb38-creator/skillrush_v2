@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %}Accueil - SkillRush{% endblock %}
 {% block extra_css %}
 <style>
@@ -178,27 +178,105 @@
   transform: scale(1.05);
   box-shadow: 0 15px 40px rgba(245, 158, 11, 0.4);
 }
+
+/* ── Tooltip info icon ──────────────────────────────────────────────────── */
+.sr-info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.9);
+  font-size: .65rem;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-left: 4px;
+  border: 1px solid rgba(255,255,255,0.35);
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.sr-info-icon:hover { background: rgba(255,255,255,0.5); }
+
+/* Dark variant (for non-hero areas) */
+.sr-info-icon-dark {
+  background: var(--glass-2);
+  color: var(--purple);
+  border-color: var(--glass);
+}
+.sr-info-icon-dark:hover { background: var(--purple); color: #fff; }
+
+/* ── Help shortcut banner ───────────────────────────────────────────────── */
+.help-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(123,97,255,.1), rgba(45,168,255,.1));
+  border: 1px solid rgba(123,97,255,.2);
+  border-radius: 14px;
+  padding: .85rem 1.2rem;
+  margin-bottom: 1rem;
+  font-size: .9rem;
+}
+.help-banner .help-banner-icon { font-size: 1.5rem; flex-shrink: 0; }
+.help-banner a { font-weight: 700; color: var(--purple); }
 </style>
 {% endblock %}
 {% block content %}
 <div class="feed-grid">
   {% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business'} %}
   
+  <!-- ── Help banner ──────────────────────────────────────────────────────── -->
+  <div class="help-banner">
+    <span class="help-banner-icon">❓</span>
+    <span>Nouveau sur SkillRush ? Découvre comment gagner des XP, débloquer du contenu et monter en ligue dans notre <a href="{{ url_for('main.help_page') }}">Centre d'Aide</a>.</span>
+  </div>
+
   <!-- ── Hero Header ────────────────────────────────────────────────────── -->
   <div class="hero-header">
     <h2>🎯 Salut {{ current_user.username }} !</h2>
     <div class="hero-stats">
       <div class="hero-stat" style="--stat-delay: 0s">
         <i class="fas fa-star" style="font-size: 1.8rem"></i>
-        <div><strong data-xp-display>{{ total_xp }}</strong><small>XP</small></div>
+        <div>
+          <strong data-xp-display>{{ total_xp }}</strong>
+          <small>XP
+            <span class="sr-info-icon" tabindex="0"
+              data-bs-toggle="popover" data-bs-placement="bottom" data-bs-trigger="hover focus"
+              data-bs-title="Tes points XP"
+              data-bs-content="Dépense tes XP pour débloquer des vidéos ou PDF premium. Tu en gagnes chaque jour, en complétant des missions et en notant des cours.">
+              <i class="fas fa-question"></i>
+            </span>
+          </small>
+        </div>
       </div>
       <div class="hero-stat" style="--stat-delay: 0.1s">
         <i class="fas fa-layer-group" style="font-size: 1.8rem"></i>
-        <div><strong data-level-display>{{ level }}</strong><small>Niveau</small></div>
+        <div>
+          <strong data-level-display>{{ level }}</strong>
+          <small>Niveau
+            <span class="sr-info-icon" tabindex="0"
+              data-bs-toggle="popover" data-bs-placement="bottom" data-bs-trigger="hover focus"
+              data-bs-title="Ton niveau"
+              data-bs-content="Tu montes de niveau tous les 1 000 XP. Le niveau n'est pas dépensé — c'est un indicateur de progression globale.">
+              <i class="fas fa-question"></i>
+            </span>
+          </small>
+        </div>
       </div>
       <div class="hero-stat" style="--stat-delay: 0.2s">
         <i class="fas fa-fire" style="font-size: 1.8rem; color: #ff9f1c"></i>
-        <div><strong data-streak-display>{{ streak_count }}</strong><small>Jours 🔥</small></div>
+        <div>
+          <strong data-streak-display>{{ streak_count }}</strong>
+          <small>Jours 🔥
+            <span class="sr-info-icon" tabindex="0"
+              data-bs-toggle="popover" data-bs-placement="bottom" data-bs-trigger="hover focus"
+              data-bs-title="Série du jour (Streak)"
+              data-bs-content="Connecte-toi chaque jour pour maintenir ta série. Si tu manques un jour, le compteur repart à zéro. Des badges spéciaux récompensent les séries de 3, 7 et 30 jours !">
+              <i class="fas fa-question"></i>
+            </span>
+          </small>
+        </div>
       </div>
     </div>
   </div>
@@ -217,11 +295,19 @@
   <!-- ── Daily Reward ────────────────────────────────────────────────────── -->
   <div class="mb-3">
     {% if not daily_reward_claimed %}
-    <button class="btn btn-daily-reward" onclick="claimDailyReward()">
-      <i class="fas fa-gift me-2"></i> 🎁 Réclamer +100 XP Bonus Quotidien
-    </button>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-daily-reward flex-grow-1" data-daily-claim-btn onclick="claimDailyReward()">
+        <i class="fas fa-gift me-2"></i> 🎁 Réclamer +100 XP Bonus Quotidien
+      </button>
+      <span class="sr-info-icon sr-info-icon-dark" style="flex-shrink:0; width:26px; height:26px; font-size:.7rem" tabindex="0"
+        data-bs-toggle="popover" data-bs-placement="left" data-bs-trigger="hover focus"
+        data-bs-title="Bonus Quotidien"
+        data-bs-content="Réclame +100 XP une fois par jour. Ce bonus se renouvelle à minuit. Il maintient aussi ton Streak actif !">
+        <i class="fas fa-question"></i>
+      </span>
+    </div>
     {% else %}
-    <div class="alert alert-success d-flex align-items-center gap-2 mb-0">
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-0" data-daily-claimed-badge>
       <i class="fas fa-check-circle"></i>
       <span>✓ Bonus déjà réclamé ! Reviens demain.</span>
     </div>
@@ -284,7 +370,7 @@
 
   <div class="row g-3">
     <!-- Daily missions (enhanced) -->
-    <div class="col-xl-6">
+    <div class="col-xl-12">
       <div class="card p-3 h-100">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h5 class="mb-0">⚡ Défis du jour</h5>
@@ -308,98 +394,9 @@
         {% endfor %}
       </div>
     </div>
-
-    <div class="col-xl-6">
-      <div class="card p-3 h-100">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">Compétences recommandées</h5>
-          <a href="{{ url_for('main.explore_skills') }}" class="text-muted">Explorer</a>
-        </div>
-        {% for skill in recommended_skills[:4] %}
-        <div class="skill-card p-3 mb-2">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <div class="skill-category-badge mb-1">{{ category_labels.get(skill.category, skill.category) }}</div>
-              <h6 class="mb-1">{{ skill.name }}</h6>
-              <small class="text-muted">par {{ skill.creator.username }} • {{ difficulty_labels.get(skill.difficulty, skill.difficulty) }}</small>
-            </div>
-            <div class="text-end">
-              <div class="badge bg-warning mb-2">{{ skill.unlock_xp }} XP</div>
-              <a href="{{ url_for('main.skill_detail', skill_id=skill.id) }}" class="btn btn-sm btn-primary">Voir</a>
-            </div>
-          </div>
-        </div>
-        {% else %}
-        <p class="text-muted">Aucune recommandation pour le moment.</p>
-        {% endfor %}
-      </div>
-    </div>
   </div>
 
-  <div class="row g-3 mb-3">
-    <div class="col-xl-6">
-      <div class="card p-3 h-100">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">🤝 Partenaires d'apprentissage</h5>
-          <a href="{{ url_for('main.network') }}" class="text-muted" style="font-size:.82rem">Voir tout</a>
-        </div>
-        {% if partner_matches %}
-        <div class="row g-2">
-          {% for partner in partner_matches %}
-          <div class="col-12">
-            <div class="skill-card p-3">
-              <div class="d-flex justify-content-between align-items-start gap-3">
-                <div>
-                  <strong>{{ partner.username }}</strong>
-                  <div class="text-muted small">{{ partner.competence }}</div>
-                </div>
-                <span class="badge bg-primary">{{ partner.compatibility }}%</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-2">
-                <small class="text-muted">Niv. {{ partner.level }} • {{ partner.xp }} XP</small>
-                <a href="{{ partner.profile_url }}" class="btn btn-sm btn-outline-primary">Voir</a>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        {% else %}
-        <p class="text-muted mb-0">Aucun partenaire pertinent trouvé. Complète ton onboarding ou précise ta compétence dans ton profil.</p>
-        {% endif %}
-      </div>
-    </div>
-    <div class="col-xl-6">
-      <div class="card p-3 h-100">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">💼 Collaborateurs de projet</h5>
-          <a href="{{ url_for('main.network') }}" class="text-muted" style="font-size:.82rem">Explorer</a>
-        </div>
-        {% if collaborator_matches %}
-        <div class="row g-2">
-          {% for collab in collaborator_matches %}
-          <div class="col-12">
-            <div class="skill-card p-3">
-              <div class="d-flex justify-content-between align-items-start gap-3">
-                <div>
-                  <strong>{{ collab.username }}</strong>
-                  <div class="text-muted small">{{ collab.competence }}</div>
-                </div>
-                <span class="badge bg-secondary">{{ collab.compatibility }}%</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-2">
-                <small class="text-muted">Niv. {{ collab.level }} • {{ collab.xp }} XP</small>
-                <a href="{{ collab.profile_url }}" class="btn btn-sm btn-outline-primary">Voir</a>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        {% else %}
-        <p class="text-muted mb-0">Aucun collaborateur disponible pour l'instant. Reviens plus tard ou publie un nouveau contenu.</p>
-        {% endif %}
-      </div>
-    </div>
-  </div>
+  <!-- Partners & collaborators removed from dashboard as requested -->
 
   <!-- Duolingo-style learning path -->
   {% if user_progress %}
@@ -433,29 +430,7 @@
   </div>
   {% endif %}
 
-  <div class="card p-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="mb-0">Compétences tendance</h5>
-      <a href="{{ url_for('main.explore_skills') }}" class="text-muted">Voir le flux</a>
-    </div>
-    <div class="row g-3">
-      {% for skill in uploaded_skills[:3] %}
-      <div class="col-md-4">
-        <div class="skill-card h-100 p-3">
-          <div class="mb-2" style="height:120px;border-radius:12px;background: linear-gradient(130deg, rgba(123,97,255,.35), rgba(77,168,255,.35));"></div>
-          <strong>{{ skill.name }}</strong>
-          <p class="small text-muted mb-2">{{ skill.description[:70] }}...</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <small class="text-muted">{{ category_labels.get(skill.category, skill.category) }}</small>
-            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.skill_detail', skill_id=skill.id) }}">Ouvrir</a>
-          </div>
-        </div>
-      </div>
-      {% else %}
-      <div class="col-12"><p class="text-muted mb-0">Publie ta première compétence pour commencer à gagner des XP.</p></div>
-      {% endfor %}
-    </div>
-  </div>
+  <!-- Trending skills removed from dashboard as requested -->
 </div>
 {% endblock %}
 
@@ -524,6 +499,14 @@ document.addEventListener('DOMContentLoaded', function() {
       progressBar.style.animation = 'progress-fill 1.5s ease-out forwards';
     }, 300);
   }
+
+  // ── Initialiser les popovers Bootstrap sur toutes les info-bulles ──────
+  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function(el) {
+    new bootstrap.Popover(el, {
+      html: false,
+      sanitize: true,
+    });
+  });
 });
 </script>
 {% endblock %}

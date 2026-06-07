@@ -115,7 +115,13 @@ class AuthController:
             if getattr(user, 'onboarding_rejected', False) and not user.onboarding_done:
                 flash('Votre cours a été refusé. Consultez votre email puis revenez à l\'accueil pour préparer une nouvelle soumission.', 'warning')
                 return redirect(url_for('main.rejected_course'))
+
             flash(f'Bienvenue {user.username} !', 'success')
+            # Rediriger selon le rôle pour que le même formulaire permette aux admins/modérateurs
+            if getattr(user, 'role', None) == 'admin':
+                return redirect(url_for('admin.admin_users'))
+            if getattr(user, 'role', None) == 'moderator':
+                return redirect(url_for('moderation.moderation_dashboard'))
             return redirect(url_for('main.dashboard'))
         
         return render_template('auth/login.html')
