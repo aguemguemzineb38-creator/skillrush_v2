@@ -54,6 +54,20 @@
   margin: 0;
   animation: slideInRight 0.6s ease-out 0.1s both;
 }
+.hero-note {
+  margin-top: 1.6rem;
+  padding: 1rem 1.2rem;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 16px;
+  color: rgba(255,255,255,0.95);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.hero-note a {
+  color: #ffeb7f;
+  text-decoration: underline;
+}
 
 .hero-stats {
   display: flex;
@@ -206,20 +220,6 @@
 }
 .sr-info-icon-dark:hover { background: var(--purple); color: #fff; }
 
-/* ── Help shortcut banner ───────────────────────────────────────────────── */
-.help-banner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: linear-gradient(135deg, rgba(123,97,255,.1), rgba(45,168,255,.1));
-  border: 1px solid rgba(123,97,255,.2);
-  border-radius: 14px;
-  padding: .85rem 1.2rem;
-  margin-bottom: 1rem;
-  font-size: .9rem;
-}
-.help-banner .help-banner-icon { font-size: 1.5rem; flex-shrink: 0; }
-.help-banner a { font-weight: 700; color: var(--purple); }
 </style>
 {% endblock %}
 {% block content %}
@@ -227,11 +227,6 @@
   {% set category_labels = {'Excel': 'Excel', 'Canva': 'Canva', 'CV': 'CV', 'Design': 'Design', 'Programming': 'Programmation', 'Business': 'Business'} %}
   
   <!-- ── Help banner ──────────────────────────────────────────────────────── -->
-  <div class="help-banner">
-    <span class="help-banner-icon">❓</span>
-    <span>Nouveau sur SkillRush ? Découvre comment gagner des XP, débloquer du contenu et monter en ligue dans notre <a href="{{ url_for('main.help_page') }}">Centre d'Aide</a>.</span>
-  </div>
-
   <!-- ── Hero Header ────────────────────────────────────────────────────── -->
   <div class="hero-header">
     <h2>🎯 Salut {{ current_user.username }} !</h2>
@@ -279,6 +274,7 @@
         </div>
       </div>
     </div>
+    <p class="hero-note">Nouveau sur SkillRush ? Découvre comment gagner des XP, débloquer du contenu et monter en ligue dans notre <a href="{{ url_for('main.help_page') }}">FAQ</a>. Reviens de nouveau pour consulter tes progrès et conseils personnalisés.</p>
   </div>
 
   <!-- ── XP Progress ─────────────────────────────────────────────────────── -->
