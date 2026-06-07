@@ -33,6 +33,10 @@ def register_blueprints(app):
     def rejected_course():
         return MainController.rejected_course()
 
+    @main_bp.route('/help')
+    def help_page():
+        return MainController.help_page()
+
     @main_bp.route('/profile/<int:user_id>')
     def user_profile(user_id):
         return MainController.user_profile(user_id)

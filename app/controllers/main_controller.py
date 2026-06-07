@@ -298,6 +298,11 @@ class MainController:
         if not (getattr(current_user, 'onboarding_rejected', False) and not current_user.onboarding_done):
             return redirect(url_for('main.dashboard'))
         return render_template('onboarding/rejected.html')
+
+    @staticmethod
+    def help_page():
+        """Page d'aide et FAQ."""
+        return render_template('help.html')
     
     @staticmethod
     def explore_skills():

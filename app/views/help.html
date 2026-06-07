@@ -1,0 +1,614 @@
+{% extends "base.html" %}
+{% block title %}Aide & FAQ — SkillRush{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Hero ───────────────────────────────────────────────────────────── */
+.help-hero {
+  background: linear-gradient(135deg, #7b61ff 0%, #2da8ff 100%);
+  border-radius: 20px;
+  padding: 2.5rem;
+  color: white;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.help-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1), transparent 50%);
+  pointer-events: none;
+}
+.help-hero h1 { font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem; }
+.help-hero p  { opacity: 0.9; margin: 0; font-size: 1.05rem; }
+
+/* ── Category tabs ──────────────────────────────────────────────────── */
+.help-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.help-tab-btn {
+  background: var(--surface);
+  border: 1.5px solid var(--glass);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-weight: 700;
+  font-size: .88rem;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all .2s;
+}
+.help-tab-btn:hover,
+.help-tab-btn.active {
+  background: var(--gradient-primary);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* ── FAQ accordion ──────────────────────────────────────────────────── */
+.faq-section { display: none; }
+.faq-section.visible { display: block; }
+
+.faq-item {
+  background: var(--surface);
+  border: 1px solid var(--glass);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: box-shadow .25s;
+}
+.faq-item:hover { box-shadow: var(--shadow-card); }
+
+.faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text);
+  gap: 12px;
+  user-select: none;
+}
+.faq-question span.faq-q-text { flex: 1; }
+.faq-question .faq-icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--glass-2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .82rem;
+  color: var(--purple);
+  transition: transform .3s, background .2s;
+  flex-shrink: 0;
+}
+.faq-item.open .faq-icon { transform: rotate(45deg); background: var(--purple); color: #fff; }
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s ease, padding .25s;
+  padding: 0 1.2rem;
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+.faq-item.open .faq-answer { padding: 0 1.2rem 1rem; }
+
+/* ── Reward table ───────────────────────────────────────────────────── */
+.reward-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+.reward-table th { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 0 12px 6px; }
+.reward-table td {
+  background: var(--surface);
+  border: 1px solid var(--glass);
+  padding: 10px 12px;
+  font-size: .9rem;
+  color: var(--text);
+}
+.reward-table td:first-child { border-radius: 10px 0 0 10px; }
+.reward-table td:last-child  { border-radius: 0 10px 10px 0; }
+
+/* ── XP badge colours ───────────────────────────────────────────────── */
+.xp-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: 800; font-size: .8rem; }
+.xp-badge.green  { background: #d1fae5; color: #065f46; }
+.xp-badge.blue   { background: #dbeafe; color: #1e40af; }
+.xp-badge.orange { background: #fef3c7; color: #92400e; }
+.xp-badge.red    { background: #fee2e2; color: #991b1b; }
+
+[data-theme="dark"] .xp-badge.green  { background: rgba(16,185,129,.15); color: #34d399; }
+[data-theme="dark"] .xp-badge.blue   { background: rgba(59,130,246,.15); color: #93c5fd; }
+[data-theme="dark"] .xp-badge.orange { background: rgba(245,158,11,.15); color: #fcd34d; }
+[data-theme="dark"] .xp-badge.red    { background: rgba(239,68,68,.15);  color: #fca5a5; }
+
+/* ── League cards ───────────────────────────────────────────────────── */
+.league-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.league-card {
+  border: 1.5px solid var(--glass);
+  border-radius: 14px;
+  padding: 1rem;
+  text-align: center;
+  background: var(--surface);
+}
+.league-card .league-icon { font-size: 2rem; margin-bottom: .4rem; display: block; }
+.league-card .league-name { font-weight: 800; font-size: .92rem; }
+.league-card .league-xp   { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+
+/* ── Contact card ───────────────────────────────────────────────────── */
+.contact-card {
+  background: linear-gradient(135deg, rgba(123,97,255,.08), rgba(45,168,255,.08));
+  border: 1px solid rgba(123,97,255,.2);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="feed-grid">
+
+  <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+  <div class="help-hero">
+    <h1>❓ Centre d'Aide SkillRush</h1>
+    <p>Tout ce que tu dois savoir pour progresser, débloquer du contenu et gagner des récompenses.</p>
+  </div>
+
+  <!-- ── Category tabs ────────────────────────────────────────────────────── -->
+  <div class="help-tabs" id="helpTabs">
+    <button class="help-tab-btn active" data-tab="gamification">🎮 Gamification</button>
+    <button class="help-tab-btn" data-tab="xp-coins">⭐ XP & Niveaux</button>
+    <button class="help-tab-btn" data-tab="content">📚 Cours & Vidéos</button>
+    <button class="help-tab-btn" data-tab="missions">⚔️ Missions</button>
+    <button class="help-tab-btn" data-tab="badges">🏆 Badges & Ligues</button>
+    <button class="help-tab-btn" data-tab="account">👤 Mon Compte</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION : Gamification                                                  -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="faq-section visible" id="tab-gamification">
+    <h5 class="mb-3 fw-bold">🎮 Comment fonctionne SkillRush ?</h5>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">C'est quoi l'économie SkillRush ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        <strong>SkillRush</strong> repose sur une économie de compétences circulaire :<br><br>
+        🏫 <strong>Formateurs</strong> → publient des cours (vidéos + PDF) et gagnent de la visibilité.<br>
+        📖 <strong>Apprenants</strong> → regardent des vidéos gratuites, puis dépensent leurs <strong>XP</strong>
+        pour débloquer du contenu premium.<br>
+        🔄 Tout le monde gagne de l'XP en participant : regarder, noter, compléter des missions, se connecter chaque jour.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Qu'est-ce que le Streak (Série du jour) ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Le <strong>Streak 🔥</strong> est votre série de jours consécutifs de connexion.<br><br>
+        • Connecte-toi <strong>chaque jour</strong> pour augmenter ton compteur.<br>
+        • Si tu manques un jour, le compteur est <strong>remis à zéro</strong>.<br>
+        • Certains badges (Série x3, x7, x30) récompensent les streaks réguliers.<br><br>
+        <em>Astuce : clique sur le bouton « Bonus Quotidien » chaque jour pour ne pas briser ta série ET gagner +100 XP !</em>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Qu'est-ce que le score de Compatibilité ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Le score de compatibilité (affiché sur la page Réseau et le Dashboard) mesure à quel point
+        un autre utilisateur est un bon partenaire d'apprentissage pour toi.<br><br>
+        Il est calculé à partir de :<br>
+        &bull; Vos <strong>compétences communes</strong> (+30 pts)<br>
+        &bull; Votre <strong>niveau similaire</strong> (+10 pts)<br>
+        &bull; Une <strong>différence d'XP inférieure à 500</strong> (+10 pts)<br>
+        &bull; Son <strong>streak actif ≥ 3 jours</strong> (+5 pts)<br>
+        &bull; Qu'il ait <strong>publié du contenu</strong> (+5 pts)<br><br>
+        Un score à 100% signifie que c'est un partenaire d'apprentissage idéal !
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Comment fonctionne l'Onboarding ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        L'onboarding est le processus d'accueil pour les <strong>nouveaux inscrits</strong>.<br><br>
+        <strong>Pour les apprenants :</strong><br>
+        → Choisis une catégorie (Business, Design, Marketing…) et accède immédiatement à l'exploration des cours.<br><br>
+        <strong>Pour les formateurs :</strong><br>
+        → Crée ton premier cours (titre + description + vidéo ou PDF).<br>
+        → Il sera soumis à la <strong>modération</strong> pour validation.<br>
+        → Une fois approuvé, tu accèdes au dashboard complet.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION : XP & Niveaux                                                  -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="faq-section" id="tab-xp-coins">
+    <h5 class="mb-3 fw-bold">⭐ Comment gagner et dépenser des XP ?</h5>
+
+    <!-- Reward table -->
+    <div class="card p-3 mb-3">
+      <h6 class="mb-3">💰 Tableau des gains d'XP</h6>
+      <table class="reward-table">
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>XP gagnés</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🎁 Bonus quotidien (Daily Claim)</td>
+            <td><span class="xp-badge green">+100 XP</span></td>
+          </tr>
+          <tr>
+            <td>⭐ Noter une compétence</td>
+            <td><span class="xp-badge blue">+25 XP</span></td>
+          </tr>
+          <tr>
+            <td>⚔️ Compléter une mission Easy</td>
+            <td><span class="xp-badge green">+50 XP</span></td>
+          </tr>
+          <tr>
+            <td>⚔️ Compléter une mission Medium</td>
+            <td><span class="xp-badge blue">+100 XP</span></td>
+          </tr>
+          <tr>
+            <td>⚔️ Compléter une mission Hard</td>
+            <td><span class="xp-badge orange">+200 XP</span></td>
+          </tr>
+          <tr>
+            <td>⚔️ Compléter une mission Expert</td>
+            <td><span class="xp-badge red">+300 XP</span></td>
+          </tr>
+          <tr>
+            <td>🎓 Cours d'onboarding approuvé</td>
+            <td><span class="xp-badge green">+100 XP</span></td>
+          </tr>
+          <tr>
+            <td>🛍️ Achat de pack XP</td>
+            <td><span class="xp-badge blue">500 à 10 000 XP</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Comment monter de niveau ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Chaque <strong>tranche de 1 000 XP</strong> te fait monter d'un niveau.<br><br>
+        Niveau 1 → 2 : 1 000 XP<br>
+        Niveau 2 → 3 : 2 000 XP cumulés<br>
+        Niveau N → N+1 : N × 1 000 XP cumulés<br><br>
+        Ta progression vers le prochain niveau est affichée dans la barre XP du dashboard.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Comment dépenser mes XP ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Tu dépenses tes XP pour <strong>débloquer du contenu premium</strong> dans les cours :<br><br>
+        🔒 <strong>Vidéos verrouillées</strong> : chaque vidéo premium coûte généralement <strong>100 XP</strong>.<br>
+        📄 <strong>PDF complet</strong> : si le PDF a plus de 5 pages, le reste est débloqué pour <strong>100 XP</strong>.<br>
+        <em>Les 5 premières pages de chaque PDF sont toujours accessibles gratuitement.</em>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Puis-je acheter de l'XP avec de l'argent réel ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Oui ! Tu peux acheter des packs XP depuis la page <strong>« Acheter XP »</strong>
+        dans ton profil. Les packs disponibles :<br><br>
+        ⚡ Starter : 500 XP — 4,99 €<br>
+        🔥 Pro : 1 500 XP — 9,99 €<br>
+        💎 Elite : 4 000 XP — 19,99 €<br>
+        👑 Legendary : 10 000 XP — 39,99 €
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION : Cours & Vidéos                                                -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="faq-section" id="tab-content">
+    <h5 class="mb-3 fw-bold">📚 Apprendre et Publier du contenu</h5>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Comment regarder un cours ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        1. Va dans <strong>« Apprendre »</strong> (menu de gauche ou bas de l'écran sur mobile).<br>
+        2. Cherche un cours par nom ou filtre par catégorie.<br>
+        3. Clique sur un cours pour voir sa page détaillée.<br>
+        4. La <strong>première vidéo est toujours gratuite</strong>. Les suivantes sont débloquées avec tes XP.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Comment publier un cours ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        1. Clique sur <strong>« Publier »</strong> dans le menu de gauche.<br>
+        2. Remplis le titre, la description, la catégorie et le niveau de difficulté.<br>
+        3. Ajoute une <strong>vidéo</strong> (MP4, MOV, AVI, MKV, WEBM — max 500 Mo) et/ou un <strong>PDF</strong>.<br>
+        4. Valide. Ton cours sera soumis à la modération.<br>
+        5. Une fois <strong>approuvé</strong>, il sera visible par toute la communauté et tu reçois un email de confirmation.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Pourquoi ma vidéo a été découpée en plusieurs parties ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Pour une meilleure expérience d'apprentissage, toute vidéo de <strong>plus de 3 minutes</strong>
+        est automatiquement découpée en segments de 3 minutes par notre système.<br><br>
+        Seule la <strong>première partie</strong> est gratuite. Les suivantes sont débloquables en XP.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Qu'est-ce que la modération de contenu ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Avant d'être publié, chaque cours est examiné par notre équipe de <strong>modération</strong>.<br><br>
+        Un score de qualité automatique est calculé pour aider les modérateurs. Il évalue :<br>
+        &bull; La longueur et la précision du titre (≥ 8 caractères).<br>
+        &bull; La richesse de la description (≥ 120 caractères = optimal).<br>
+        &bull; La présence de vidéos (1 vidéo minimum) et d'un PDF.<br><br>
+        Score ≥ 70/100 → recommandation VALIDER.<br>
+        Score < 70/100 → recommandation RÉVISION.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION : Missions                                                       -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="faq-section" id="tab-missions">
+    <h5 class="mb-3 fw-bold">⚔️ Missions & Quiz</h5>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Comment fonctionnent les missions ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Les missions sont des <strong>défis pratiques</strong> liés à un cours.<br><br>
+        1. Trouve une mission dans <strong>« Missions »</strong> ou sur la page d'un cours.<br>
+        2. Clique sur <strong>« Commencer »</strong> pour l'accepter.<br>
+        3. Accomplis l'objectif décrit.<br>
+        4. Clique sur <strong>« Compléter »</strong> puis valide le quiz si demandé.<br>
+        5. Reçois tes récompenses en XP !
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Comment fonctionne le quiz de mission ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Certaines missions incluent un <strong>quiz de validation</strong> (questions à choix multiple).<br><br>
+        • Il faut obtenir un score minimum pour valider la mission.<br>
+        • Le score est affiché à la fin du quiz (sur 10).<br>
+        • Si tu échoues, tu peux retenter autant de fois que nécessaire.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Barème des récompenses par difficulté</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        <table class="reward-table" style="margin-top:8px">
+          <thead><tr><th>Difficulté</th><th>XP gagnés</th></tr></thead>
+          <tbody>
+            <tr><td>🟢 Easy (Facile)</td>    <td><span class="xp-badge green">+50 XP</span></td></tr>
+            <tr><td>🔵 Medium (Moyen)</td>   <td><span class="xp-badge blue">+100 XP</span></td></tr>
+            <tr><td>🟠 Hard (Difficile)</td> <td><span class="xp-badge orange">+200 XP</span></td></tr>
+            <tr><td>🔴 Expert</td>           <td><span class="xp-badge red">+300 XP</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION : Badges & Ligues                                                -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="faq-section" id="tab-badges">
+    <h5 class="mb-3 fw-bold">🏆 Badges & Ligues</h5>
+
+    <div class="card p-3 mb-3">
+      <h6 class="mb-3">🏅 Badges disponibles</h6>
+      <table class="reward-table">
+        <thead><tr><th>Badge</th><th>Condition</th><th>Rareté</th></tr></thead>
+        <tbody>
+          <tr><td>⚡ Club 100 XP</td>   <td>Atteindre 100 XP</td>   <td><span class="xp-badge orange">Bronze</span></td></tr>
+          <tr><td>🔥 Club 500 XP</td>   <td>Atteindre 500 XP</td>   <td><span class="xp-badge blue">Argent</span></td></tr>
+          <tr><td>💎 Club 1000 XP</td>  <td>Atteindre 1 000 XP</td> <td><span class="xp-badge green">Or</span></td></tr>
+          <tr><td>👑 Club 5000 XP</td>  <td>Atteindre 5 000 XP</td> <td><span class="xp-badge red">Légendaire</span></td></tr>
+          <tr><td>🎓 Premier cours</td> <td>Créer 1 cours</td>       <td><span class="xp-badge orange">Bronze</span></td></tr>
+          <tr><td>📚 Formateur</td>     <td>Créer 3 cours</td>       <td><span class="xp-badge blue">Argent</span></td></tr>
+          <tr><td>🏆 Expert</td>        <td>Créer 5 cours</td>       <td><span class="xp-badge green">Or</span></td></tr>
+          <tr><td>🔥 Série x3</td>      <td>Streak de 3 jours</td>   <td><span class="xp-badge orange">Bronze</span></td></tr>
+          <tr><td>🔥 Série x7</td>      <td>Streak de 7 jours</td>   <td><span class="xp-badge blue">Argent</span></td></tr>
+          <tr><td>🔥 Série x30</td>     <td>Streak de 30 jours</td>  <td><span class="xp-badge green">Or</span></td></tr>
+          <tr><td>⚔️ Première mission</td><td>Compléter 1 mission</td><td><span class="xp-badge orange">Bronze</span></td></tr>
+          <tr><td>🎯 Chasseur</td>      <td>Compléter 5 missions</td><td><span class="xp-badge blue">Argent</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Quelles sont les Ligues SkillRush ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Ta ligue est déterminée automatiquement selon tes <strong>XP totaux</strong> :<br><br>
+        <div class="league-grid" style="margin-top:10px">
+          <div class="league-card">
+            <span class="league-icon">🥉</span>
+            <div class="league-name">Bronze</div>
+            <div class="league-xp">0 – 499 XP</div>
+          </div>
+          <div class="league-card">
+            <span class="league-icon">🥈</span>
+            <div class="league-name">Argent</div>
+            <div class="league-xp">500 – 1 499 XP</div>
+          </div>
+          <div class="league-card">
+            <span class="league-icon">🥇</span>
+            <div class="league-name">Or</div>
+            <div class="league-xp">1 500 – 3 999 XP</div>
+          </div>
+          <div class="league-card">
+            <span class="league-icon">🏆</span>
+            <div class="league-name">Platine</div>
+            <div class="league-xp">4 000 – 9 999 XP</div>
+          </div>
+          <div class="league-card">
+            <span class="league-icon">💎</span>
+            <div class="league-name">Diamant</div>
+            <div class="league-xp">10 000 – 24 999 XP</div>
+          </div>
+          <div class="league-card">
+            <span class="league-icon">🔴</span>
+            <div class="league-name">Rubis</div>
+            <div class="league-xp">≥ 25 000 XP</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION : Mon Compte                                                     -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="faq-section" id="tab-account">
+    <h5 class="mb-3 fw-bold">👤 Gestion de ton compte</h5>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Comment modifier mon profil ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Va dans <strong>Profil → Modifier mon profil</strong>. Tu peux y changer ton pseudo,
+        ton email, ta bio et ta compétence principale (utilisée pour les suggestions de partenaires).
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Puis-je suivre d'autres utilisateurs ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Oui ! Sur le profil d'un utilisateur, clique sur le bouton <strong>« Suivre »</strong>.
+        Tu pourras voir les profils que tu suis depuis la page Réseau.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Mon compte a été bloqué, que faire ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Si ton compte est bloqué par un administrateur, contacte le support SkillRush
+        en expliquant ta situation. Les comptes sont bloqués uniquement en cas de violation
+        des règles de la plateforme.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Puis-je signaler un contenu inapproprié ?</span>
+        <span class="faq-icon"><i class="fas fa-plus"></i></span>
+      </div>
+      <div class="faq-answer">
+        Oui. Sur la page de détail d'un cours, clique sur le bouton <strong>« Signaler »</strong>
+        (🚩). Le contenu sera transmis à l'équipe de modération pour examen.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Contact card ──────────────────────────────────────────────────────── -->
+  <div class="contact-card">
+    <div style="font-size:2.5rem; margin-bottom:.5rem">💬</div>
+    <h5 class="mb-2">Tu n'as pas trouvé ta réponse ?</h5>
+    <p class="text-muted mb-3">Signale-le directement depuis n'importe quelle page ou contacte l'équipe SkillRush.</p>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-sm">
+      <i class="fas fa-home me-1"></i> Retour au Dashboard
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── Tab switching ──────────────────────────────────────────────────────── */
+document.querySelectorAll('.help-tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    // deactivate all tabs & sections
+    document.querySelectorAll('.help-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.faq-section').forEach(function(s) { s.classList.remove('visible'); });
+
+    // activate clicked tab
+    btn.classList.add('active');
+    var tabId = 'tab-' + btn.dataset.tab;
+    var section = document.getElementById(tabId);
+    if (section) section.classList.add('visible');
+  });
+});
+
+/* ── FAQ accordion ──────────────────────────────────────────────────────── */
+function toggleFaq(questionEl) {
+  var item = questionEl.closest('.faq-item');
+  var answer = item.querySelector('.faq-answer');
+  var isOpen = item.classList.contains('open');
+
+  if (isOpen) {
+    item.classList.remove('open');
+    answer.style.maxHeight = '0';
+  } else {
+    item.classList.add('open');
+    answer.style.maxHeight = answer.scrollHeight + 'px';
+  }
+}
+</script>
+{% endblock %}

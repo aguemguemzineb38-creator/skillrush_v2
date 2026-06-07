@@ -88,7 +88,7 @@ def create_app(config_name='development'):
     # Préfixes/endpoints autorisés sans onboarding complété
     _ONBOARDING_ALLOWED_PREFIXES = ('/auth/', '/static/', '/onboarding/')
     _ONBOARDING_ALLOWED_ENDPOINTS = {'onboarding.step1', 'onboarding.step2', 'onboarding.step3',
-                                     'main.dashboard',
+                                     'main.dashboard', 'main.help_page',
                                      'auth.login', 'auth.logout', 'auth.register',
                                      'auth.admin_login', 'auth.moderator_login', 'static',
                                      'user.buy_xp', 'user.process_xp_purchase'}
