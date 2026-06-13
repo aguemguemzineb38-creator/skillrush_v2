@@ -275,6 +275,23 @@ def register_blueprints(app):
     # ── Debug API ───────────────────────────────────────────────────────────
     api_bp = Blueprint('api', __name__, url_prefix='/api')
 
+    @api_bp.route('/db-status')
+    def db_status():
+        """Show current database connection details for debugging."""
+        try:
+            db_name = db.session.execute(db.text('SELECT current_database()')).scalar()
+            db_user = db.session.execute(db.text('SELECT current_user()')).scalar()
+            user_count = db.session.execute(db.text('SELECT COUNT(*) FROM users')).scalar()
+            return jsonify({
+                'connected': True,
+                'database': db_name,
+                'user': db_user,
+                'total_users': user_count,
+                'message': 'Connected to Railway PostgreSQL' if 'railway' in db_name.lower() else 'Connected to local/other database'
+            })
+        except Exception as e:
+            return jsonify({'connected': False, 'error': str(e)}), 500
+
     @api_bp.route('/users')
     def get_users():
         users = db.session.execute(db.text('SELECT * FROM users ORDER BY rank_position')).fetchall()
