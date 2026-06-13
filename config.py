@@ -41,7 +41,20 @@ def _app_base_url():
 
 def _database_url():
     """Return a SQLAlchemy-compatible database URL."""
-    url = os.getenv('DATABASE_URL', 'sqlite:///skillrush.db')
+    url = os.getenv('DATABASE_URL')
+    if not url:
+        pg_host = os.getenv('PGHOST')
+        pg_port = os.getenv('PGPORT') or '5432'
+        pg_user = os.getenv('PGUSER')
+        pg_password = os.getenv('PGPASSWORD')
+        pg_db = os.getenv('PGDATABASE')
+
+        if pg_host and pg_user and pg_password and pg_db:
+            url = f'postgresql://{pg_user}:{pg_password}@{pg_host}:{pg_port}/{pg_db}'
+
+    if not url:
+        url = 'sqlite:///skillrush.db'
+
     # Some platforms provide postgres:// which SQLAlchemy expects as postgresql://
     if url.startswith('postgres://'):
         url = url.replace('postgres://', 'postgresql://', 1)

@@ -254,6 +254,20 @@ SECRET_KEY=<strong-secret-key>
 DATABASE_URL=<postgresql-url>
 ```
 
+> Railway prend aussi en charge `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD` et `PGDATABASE`.
+>
+> Pour seed la base Railway depuis le dépôt :
+>
+> ```bash
+> railway run psql -f railway_db_seed.sql
+> ```
+>
+> Si vous utilisez le binaire local Railway :
+>
+> ```powershell
+> .\railway-cli\railway.exe run psql -f railway_db_seed.sql
+> ```
+
 ### Créer la base de données
 
 ```bash

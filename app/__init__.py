@@ -3,6 +3,7 @@ from flask_login import LoginManager
 from config import config
 from app.models import db
 from werkzeug.middleware.proxy_fix import ProxyFix
+from sqlalchemy import create_engine
 import os
 
 login_manager = LoginManager()
@@ -39,6 +40,14 @@ def create_app(config_name='development'):
                 static_folder=os.path.join(basedir, 'static'))
     app.config.from_object(config[config_name])
     
+    # Override DB URL from environment, if set
+    database_url = os.getenv('DATABASE_URL')
+    if database_url:
+        if database_url.startswith('postgres://'):
+            database_url = database_url.replace('postgres://', 'postgresql://', 1)
+        engine = create_engine(database_url)
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+
     # Initialiser les extensions
     db.init_app(app)
     login_manager.init_app(app)
