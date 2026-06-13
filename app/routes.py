@@ -1,4 +1,5 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify
+from app import db
 from app.controllers import (MainController, AuthController,
                               SkillController, UserController, MissionController,
                               OnboardingController)
@@ -270,3 +271,25 @@ def register_blueprints(app):
         return OnboardingController.step3()
 
     app.register_blueprint(onboarding_bp)
+
+    # ── Debug API ───────────────────────────────────────────────────────────
+    api_bp = Blueprint('api', __name__, url_prefix='/api')
+
+    @api_bp.route('/users')
+    def get_users():
+        users = db.session.execute(db.text('SELECT * FROM users ORDER BY rank_position')).fetchall()
+        return jsonify([dict(row._mapping) for row in users])
+
+    @api_bp.route('/users/top')
+    def get_top_users():
+        users = db.session.execute(db.text('SELECT * FROM users ORDER BY rank_position LIMIT 10')).fetchall()
+        return jsonify([dict(row._mapping) for row in users])
+
+    @api_bp.route('/users/<int:user_id>')
+    def get_user(user_id):
+        user = db.session.execute(db.text('SELECT u.* FROM users u WHERE u.id = :id'), {'id': user_id}).fetchone()
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        return jsonify(dict(user._mapping))
+
+    app.register_blueprint(api_bp)
