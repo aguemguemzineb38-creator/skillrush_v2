@@ -7,7 +7,12 @@ app = create_app(os.getenv('FLASK_ENV', 'production'))
 with app.app_context():
     db.create_all()
 
-    if User.query.first() is None:
+    # Only seed hardcoded sample data when the database is completely empty.
+    # If the database has already been seeded (e.g. Postgres-DQaH with 100 users,
+    # 12 skills, 8 badges, and missions), this block is skipped entirely and the
+    # app uses the existing seeded data as-is.
+    user_count = User.query.count()
+    if user_count == 0:
         from werkzeug.security import generate_password_hash
 
         # ── Comptes système ──────────────────────────────────────────────────
