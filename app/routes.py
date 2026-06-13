@@ -1,4 +1,5 @@
-from flask import Blueprint, jsonify
+import os
+from flask import Blueprint, jsonify, request
 from app import db
 from app.controllers import (MainController, AuthController,
                               SkillController, UserController, MissionController,
@@ -291,6 +292,47 @@ def register_blueprints(app):
             })
         except Exception as e:
             return jsonify({'connected': False, 'error': str(e)}), 500
+
+    @api_bp.route('/seed', methods=['POST'])
+    def seed_database():
+        if os.getenv('ENABLE_DB_SEED') != '1':
+            return jsonify({'error': 'Seed endpoint disabled'}), 403
+        secret = request.args.get('secret', '')
+        if secret != os.getenv('DB_SEED_SECRET', ''):
+            return jsonify({'error': 'Unauthorized'}), 401
+
+        seed_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'railway_db_seed.sql')
+        seed_file = os.path.abspath(seed_file)
+
+        try:
+            with open(seed_file, 'r', encoding='utf-8') as f:
+                sql_content = f.read()
+        except FileNotFoundError:
+            return jsonify({'error': 'Seed file not found'}), 500
+
+        statements = [s.strip() for s in sql_content.split(';') if s.strip()]
+        executed = 0
+        skipped = 0
+        errors = []
+
+        for statement in statements:
+            if statement.startswith('--') or not statement.strip():
+                continue
+            try:
+                db.session.execute(db.text(statement))
+                db.session.commit()
+                executed += 1
+            except Exception as e:
+                db.session.rollback()
+                skipped += 1
+                errors.append(str(e))
+
+        return jsonify({
+            'status': 'seed completed',
+            'executed_statements': executed,
+            'skipped_statements': skipped,
+            'errors': errors[:5]
+        })
 
     @api_bp.route('/users')
     def get_users():
