@@ -7,7 +7,9 @@ app = create_app(os.getenv('FLASK_ENV', 'production'))
 with app.app_context():
     db.create_all()
 
-    if User.query.first() is None:
+    # Only creates hardcoded users if database is truly empty
+    # Otherwise, uses the 100+ seeded users already in the database
+    if User.query.count() == 0:
         from werkzeug.security import generate_password_hash
 
         # ── Comptes système ──────────────────────────────────────────────────
