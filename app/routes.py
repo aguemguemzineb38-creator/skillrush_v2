@@ -280,7 +280,7 @@ def register_blueprints(app):
         """Show current database connection details for debugging."""
         try:
             db_name = db.session.execute(db.text('SELECT current_database()')).scalar()
-            db_user = db.session.execute(db.text('SELECT current_user()')).scalar()
+            db_user = db.session.execute(db.text('SELECT current_user')).scalar()
             user_count = db.session.execute(db.text('SELECT COUNT(*) FROM users')).scalar()
             return jsonify({
                 'connected': True,
