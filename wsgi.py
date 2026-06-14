@@ -9,6 +9,8 @@ with app.app_context():
 
     # Only seed hardcoded sample data when the database is completely empty.
     # If the database has already been seeded (e.g. Postgres-DQaH with 100 users,
+    # 12 skills, 8 badges, and missions), this block is skipped entirely and the
+    # app uses the existing seeded data as-is.
     # skills, badges, and missions), this block is skipped and the app uses
     # the existing seeded data as-is.
     user_count = User.query.count()
