@@ -66,11 +66,13 @@ def create_app(config_name='development'):
 
     # Créer les tables + seeder les badges
     with app.app_context():
-        db.create_all()
-        try:
-            _seed_badges()
-        except Exception:
-            pass
+        # Skip db.create_all() when running seed script (avoids connection issues)
+        if not os.getenv('SKIP_DB_CREATE'):
+            db.create_all()
+            try:
+                _seed_badges()
+            except Exception:
+                pass
     
     # Enregistrer les blueprints
     from app.routes import register_blueprints
