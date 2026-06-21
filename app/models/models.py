@@ -258,7 +258,7 @@ class Badge(db.Model):
     key = db.Column(db.String(50), unique=True, nullable=False)   # identifiant unique
     icon = db.Column(db.String(10), nullable=False)               # emoji
     name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255), nullable=False, default='')
     rarity = db.Column(db.String(20), default='common')           # common | rare | epic | legendary
     # Condition: type + valeur numérique (ex. xp >= 500)
     condition_type = db.Column(db.String(30), nullable=False)
