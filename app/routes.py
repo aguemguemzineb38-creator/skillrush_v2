@@ -301,37 +301,42 @@ def register_blueprints(app):
         if secret != os.getenv('DB_SEED_SECRET', ''):
             return jsonify({'error': 'Unauthorized'}), 401
 
-        seed_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'railway_db_seed.sql')
-        seed_file = os.path.abspath(seed_file)
+        base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+        seed_files = [
+            os.path.abspath(os.path.join(base_dir, 'railway_db_seed.sql')),
+            os.path.abspath(os.path.join(base_dir, 'moroccan_students_db.sql'))
+        ]
 
-        try:
-            with open(seed_file, 'r', encoding='utf-8') as f:
-                sql_content = f.read()
-        except FileNotFoundError:
-            return jsonify({'error': 'Seed file not found'}), 500
-
-        statements = [s.strip() for s in sql_content.split(';') if s.strip()]
         executed = 0
         skipped = 0
         errors = []
 
-        for statement in statements:
-            if statement.startswith('--') or not statement.strip():
-                continue
+        for seed_file in seed_files:
             try:
-                db.session.execute(db.text(statement))
-                db.session.commit()
-                executed += 1
-            except Exception as e:
-                db.session.rollback()
-                skipped += 1
-                errors.append(str(e))
+                with open(seed_file, 'r', encoding='utf-8') as f:
+                    sql_content = f.read()
+            except FileNotFoundError:
+                errors.append(f"Seed file not found: {os.path.basename(seed_file)}")
+                continue
+
+            statements = [s.strip() for s in sql_content.split(';') if s.strip()]
+            for statement in statements:
+                if statement.startswith('--') or not statement.strip():
+                    continue
+                try:
+                    db.session.execute(db.text(statement))
+                    db.session.commit()
+                    executed += 1
+                except Exception as e:
+                    db.session.rollback()
+                    skipped += 1
+                    errors.append(f"{os.path.basename(seed_file)}: {str(e)}")
 
         return jsonify({
             'status': 'seed completed',
             'executed_statements': executed,
             'skipped_statements': skipped,
-            'errors': errors[:5]
+            'errors': errors[:10]
         })
 
     @api_bp.route('/users')

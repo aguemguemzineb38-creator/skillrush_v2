@@ -35,6 +35,20 @@ class User(UserMixin, db.Model):
     # Statut compte
     is_blocked = db.Column(db.Boolean, default=False)
 
+    # Moroccan student database fields
+    first_name = db.Column(db.String(100), nullable=True)
+    last_name = db.Column(db.String(100), nullable=True)
+    phone = db.Column(db.String(20), nullable=True)
+    student_id = db.Column(db.String(50), unique=True, nullable=True)
+    university = db.Column(db.String(150), nullable=True)
+    field_of_study = db.Column(db.String(150), nullable=True)
+    enrollment_year = db.Column(db.Integer, nullable=True)
+    city = db.Column(db.String(100), nullable=True)
+    region = db.Column(db.String(100), nullable=True)
+    date_of_birth = db.Column(db.Date, nullable=True)
+    gender = db.Column(db.String(10), nullable=True)
+    account_status = db.Column(db.String(20), default='active')
+
     # Relations
     skills_created = db.relationship('Skill', backref='creator', lazy=True,
                                      foreign_keys='Skill.creator_id')
